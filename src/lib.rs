@@ -1,5 +1,7 @@
 extern crate rand;
 
+use rand::distributions::{IndependentSample, Range};
+
 use std::cmp::PartialEq;
 
 use std::fs::File;
@@ -87,7 +89,7 @@ pub struct Coordinates {
 
 pub struct TravelLeg {
     node: Node,
-    time: u32,
+    // time: u32, // TODO implentation, along with method of transport.
     distance: u32,
 }
 
@@ -116,6 +118,54 @@ impl Coordinates {
             y: rand::random::<i16>(),
         }
     }
+
+
+    // TODO fix circle math.
+    fn gen_within_radius(coord: Coordinates, radius: i16) -> Coordinates {
+        let mut rng = rand::thread_rng();
+
+        // Randomly gets the radius of the circle.
+        let between: Range<i16> = Range::new(10, radius);
+        let r = between.ind_sample(&mut rng);
+        // x = cx + r * cos(a)
+        // y = cy + r * sin(a)
+
+        let between: Range<i16> = Range::new(coord.x, coord.x + r);
+        let x = between.ind_sample(&mut rng);
+
+        let between: Range<i16> = Range::new(coord.y, coord.y + r);
+        let y = between.ind_sample(&mut rng);
+
+        Coordinates {
+            x,
+            y
+        }
+
+    }
+}
+
+impl Clone for Node {
+    fn clone(&self) -> Node {
+        let co = Coordinates {
+            x: self.geo.x,
+            y: self.geo.y
+        };
+
+        Node {
+            name: self.name.clone(),
+            connections: self.connections.clone(),
+            geo: co
+        }
+    }
+}
+
+impl Clone for TravelLeg {
+    fn clone(&self) -> TravelLeg {
+        TravelLeg {
+            node: self.node.clone(), // TODO I feel like this is a recursive definition...
+            distance: self.distance.clone()
+        }
+    }
 }
 
 impl Node {
@@ -129,7 +179,7 @@ impl Node {
             .truncate(false)
             .open(path) {
             Result::Ok(t) => t,
-                        _ => panic!("Couldn't open path"),
+            _ => panic!("Couldn't open path"),
         };
 
         let mut connections: String = String::new();
@@ -187,5 +237,32 @@ impl Node {
             format_x,
             format_y
         ].concat()
+    }
+
+    // Connects two nodes by storing a TravelLeg in both of them.
+    pub fn link(&mut self, mut other: Node) {
+        let y_diff: u32 = ((self.geo.y - other.geo.y)^2) as u32;
+        let x_diff: u32 = ((self.geo.x - other.geo.x)^2) as u32;
+        let distance = ((y_diff + x_diff)/*^0.5*/) as u32; // TODO this is commented out just so it compiles.
+
+        self.push_leg(
+            TravelLeg {
+                node: other.clone(),
+                distance
+            }
+        );
+
+        other.push_leg(
+            TravelLeg {
+                node: self.clone(),
+                distance
+            }
+
+        );
+
+    }
+
+    pub fn push_leg(&mut self, leg: TravelLeg) {
+        self.connections.push(leg);
     }
 }
