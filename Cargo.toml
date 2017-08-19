@@ -1,0 +1,7 @@
+[package]
+name = "pathfinder"
+version = "0.1.0"
+authors = ["pontus"]
+
+[dependencies]
+rand = "0.3"
