@@ -164,12 +164,21 @@ impl Node {
         let mut id_x = self.geo.x.to_string();
         let mut id_y = self.geo.y.to_string();
 
-        let len_x = id_x.len();
-        let len_y = id_y.len();
+        let mut len_x = id_x.len() -2;
+        let mut len_y = id_y.len() -2;
+
+        // TODO this looks horrible. Fix this.
+        if len_x < 2 {
+            len_x = id_x.len();
+        }
+
+        if len_y < 2 {
+            len_y = id_y.len();
+        }
 
 
-        let format_x: String = match id_x.split_off(len_x-2);
-        let format_y: String = id_y.split_off(len_y-2);
+        let format_x: String = id_x.split_off(len_x);
+        let format_y: String = id_y.split_off(len_y);
 
         let name = self.name.clone();
 
