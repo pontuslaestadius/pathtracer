@@ -13,6 +13,9 @@ pub fn create_network(number: u32) {
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
 
+    // A list of all the names the nodes will be generated from.
+    let node_names: Vec<String> = get_node_names();
+
     for _ in 0..number {
 
         let mut c: Coordinates = Coordinates::gen();
@@ -36,8 +39,7 @@ pub fn create_network(number: u32) {
 
         }
 
-        // see if the coordinates exists in a list.
-        let name: String = get_random_line_from_file();
+        let name: String = get_random_line_from_vec(&node_names).clone();
 
         nodes.push(Node::new(name,c));
     }
@@ -46,33 +48,30 @@ pub fn create_network(number: u32) {
         node.save();
     }
 
-
-
 }
 
-
-pub fn get_random_line_from_file<'a>() -> String {
+pub fn get_node_names() -> Vec<String> {
     let mut file = match File::open("nodenames") {
         Ok(t) => t,
-        Err(_) => return "pandora".to_string(),
+        Err(_) => panic!("Couldn't load nodenames"),
     };
 
     let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
+    file.read_to_string(&mut contents);
     let mut split = contents.split('\n');
 
+    let mut names: Vec<String> = Vec::new();
 
-    // TODO improve complexity by not using a loop.
-    let random = rand::random::<u8>();
     for value in split {
-        let roll = rand::random::<u8>();
-
-        if random == roll || random+1 == roll || random-1 == roll {
-            return value.to_string();
-        }
+        names.push(value.to_string());
     }
+    names
+}
 
-    "heartkingdom".to_string()
+
+pub fn get_random_line_from_vec(list: &Vec<String>) -> &String {
+    let roll = 4; // Decided by a fair roll of die.
+    &list[roll]
 }
 
 pub struct Node {
@@ -126,11 +125,11 @@ impl Node {
         // Opens the node file.
         let mut file: File = match OpenOptions::new()
             .create(true)
-            .write(true)
+            .append(true)
             .truncate(false)
             .open(path) {
             Result::Ok(t) => t,
-                        _ => panic!("Couldn't handle files"),
+                        _ => panic!("Couldn't open path"),
         };
 
         let mut connections: String = String::new();
@@ -142,7 +141,6 @@ impl Node {
 
 
         let str = [
-            "|",
             self.gen_id().as_str(),
             ",",
             self.name.as_str(),
@@ -155,7 +153,7 @@ impl Node {
             "\n"
         ].concat();
 
-        println!("Saving: {}", str.as_str());
+        print!("Saving: {}", str.as_str());
 
         file.write_all(str.as_bytes()).expect("Couldn't save node");
     }
@@ -180,10 +178,12 @@ impl Node {
         let format_x: String = id_x.split_off(len_x);
         let format_y: String = id_y.split_off(len_y);
 
-        let name = self.name.clone();
+        let mut clone = self.name.clone();
+
+        clone.split_off(4);
 
         [
-            name,
+            clone,
             format_x,
             format_y
         ].concat()
