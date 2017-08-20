@@ -12,6 +12,8 @@ pub mod node {
     use std::io::prelude::*;
     use std::io;
 
+    use std::f64;
+
 
     pub struct Node {
         name: String,
@@ -191,20 +193,22 @@ pub mod node {
 
             // Randomly gets the radius of the circle.
             let between: Range<i16> = Range::new(10, radius);
-            let r = between.ind_sample(&mut rng);
-            // x = cx + r * cos(a)
-            // y = cy + r * sin(a)
+            let r = between.ind_sample(&mut rng) as f64;
 
+
+            // gets a point on the circle's circumfrence.
+
+
+            let cir = |a: f64, b: f64| a + r * b;
+
+            // Gets the Angle
             let between: Range<i16> = Range::new(0, 10);
             let angle = between.ind_sample(&mut rng);
+            let a: f64 = f64::consts::PI * (0.1 * angle as f64);
 
+            let x = cir(coord.x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
+            let y = cir(coord.y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
 
-            let between: Range<i16> = Range::new(coord.x -r, coord.x + r);
-            let x = between.ind_sample(&mut rng);
-
-
-            let between: Range<i16> = Range::new(coord.y -r, coord.y + r);
-            let y = between.ind_sample(&mut rng);
 
             Coordinates {
                 x,
