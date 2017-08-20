@@ -43,6 +43,10 @@ pub fn create_network(number: u32) {
 
 }
 
+pub fn load() {
+    Node::load();
+}
+
 pub fn get_node_names() -> Vec<String> {
     let mut file = match File::open("nodenames") {
         Ok(t) => t,
