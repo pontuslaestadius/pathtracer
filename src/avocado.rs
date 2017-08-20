@@ -15,9 +15,10 @@ pub mod node {
     use std::f64;
 
 
-    pub struct Node {
+    pub struct Node<'a> {
         name: String,
-        connections: Vec<TravelLeg>,
+        connections: Vec<TravelLeg<'a>>, // TODO move this elsewhere. So a node only has name + geo.
+                                            // maybe make a NodeLink struct instead.
         geo: Coordinates,
     }
 
@@ -95,10 +96,10 @@ pub mod node {
         }
 
         // Connects two nodes by storing a TravelLeg in both of them.
-        pub fn link(&mut self, mut other: Node) {
+        pub fn link(&mut self, other: &mut Node) {
             let y_diff: u32 = ((self.geo.y - other.geo.y)^2) as u32;
             let x_diff: u32 = ((self.geo.x - other.geo.x)^2) as u32;
-            let distance = ((y_diff + x_diff)/*^0.5*/) as u32; // TODO this is commented out just so it compiles.
+            let distance = ((y_diff + x_diff) as f64 /*^0.5*/) as u32; // TODO this is commented out just so it compiles.
 
             self.push_leg(
                 TravelLeg {
@@ -134,6 +135,7 @@ pub mod node {
 
 
             for row in split {
+                // Ignores things like empty lines, are anything that may be invalid.
                 if row.len() > 15 {
                     nodes.push(Node::parse(row));
                 }
@@ -199,8 +201,8 @@ pub mod node {
         Travel Leg
     */
 
-    pub struct TravelLeg {
-        node: Node,
+    pub struct TravelLeg<'a> {
+        node: &'a Node,
         // time: u32, // TODO implentation, along with method of transport.
         distance: u32,
     }
@@ -239,7 +241,6 @@ pub mod node {
             }
         }
 
-        // TODO fix circle math.
         pub fn gen_within_radius(coord: Coordinates, radius: i16) -> Coordinates {
             let mut rng = rand::thread_rng();
 
