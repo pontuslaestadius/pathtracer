@@ -30,9 +30,8 @@ pub fn create_network(number: u32) {
         // Gets a name for the node.
         let name: String = get_random_item(&node_names).clone();
 
-        let d = c.clone();
 
-        nodes.push(Node::new(name,d));
+        nodes.push(Node::new(name,c.clone()));
 
         // Generates a location within a range of the previous one.
         c = Coordinates::gen_within_radius(c.clone(), 1000);
