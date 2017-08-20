@@ -18,32 +18,20 @@ pub fn create_network(number: u32) {
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = get_node_names();
 
+    // Generates a random Coordinates location.
+    let mut c: Coordinates = Coordinates::gen();
+
+
+    // For the number of nodes in the network.
     for _ in 0..number {
 
-        let mut c: Coordinates = Coordinates::gen();
-        let mut not_success: bool = true;
-
-        while not_success {
-            not_success = false;
-
-            for pos in nodes.iter() {
-
-                // Matches to see if there exist any nodes with the same coordinates.
-                if c.eq(&pos.geo) {
-                    break;
-                    not_success = true;
-                    c = Coordinates::gen();
-                }
-
-            }
-
-
-
-        }
-
+        // Gets a name for the node.
         let name: String = get_random_line_from_vec(&node_names).clone();
 
-        nodes.push(Node::new(name,c));
+        nodes.push(Node::new(name,c.clone()));
+
+        // Generates a location within a range of the previous one.
+        let mut c: Coordinates = Coordinates::gen_within_radius(c, 1000);
     }
 
     for node in nodes.iter() {
@@ -72,7 +60,11 @@ pub fn get_node_names() -> Vec<String> {
 
 
 pub fn get_random_line_from_vec(list: &Vec<String>) -> &String {
-    let roll = 4; // Decided by a fair roll of die.
+    let mut rng = rand::thread_rng();
+
+    // Randomly gets the radius of the circle.
+    let between: Range<usize> = Range::new(0, list.len());
+    let roll = between.ind_sample(&mut rng);
     &list[roll]
 }
 
@@ -146,15 +138,10 @@ impl Coordinates {
 
 impl Clone for Node {
     fn clone(&self) -> Node {
-        let co = Coordinates {
-            x: self.geo.x,
-            y: self.geo.y
-        };
-
         Node {
             name: self.name.clone(),
             connections: self.connections.clone(),
-            geo: co
+            geo: self.geo.clone()
         }
     }
 }
@@ -168,7 +155,18 @@ impl Clone for TravelLeg {
     }
 }
 
+impl Clone for Coordinates {
+    fn clone(&self) -> Coordinates {
+        Coordinates {
+            x: self.x,
+            y: self.y
+        }
+    }
+}
+
 impl Node {
+
+    // Saves the node to a text file.
     pub fn save(&self) {
         let path = "nodes/nodes.txt";
 
@@ -208,6 +206,7 @@ impl Node {
         file.write_all(str.as_bytes()).expect("Couldn't save node");
     }
 
+    // Creates an identifiable id for the Node.
     pub fn gen_id(&self) -> String {
         let mut id_x = self.geo.x.to_string();
         let mut id_y = self.geo.y.to_string();
