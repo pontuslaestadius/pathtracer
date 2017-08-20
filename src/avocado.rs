@@ -117,6 +117,58 @@ pub mod node {
 
         }
 
+        // Loads and returns all saved nodes.
+        pub fn load() -> Vec<Node> {
+            let path = "nodes/nodes.txt";
+
+            let mut nodes: Vec<Node> = Vec::new();
+
+            let mut file = OpenOptions::new()
+                .read(true)
+                .open(path)
+                .unwrap();
+
+            let mut contents = String::new();
+            file.read_to_string(&mut contents);
+            let mut split = contents.split('\n');
+
+
+            for row in split {
+                if row.len() > 15 {
+                    nodes.push(Node::parse(row));
+                }
+            }
+
+            println!("loaded nodes: {}", nodes.len());
+
+
+            nodes
+        }
+
+        pub fn parse(str: &str) -> Node {
+            println!("Parsing: {}", str);
+
+            let string: String = str.to_string();
+
+            let mut split = string.split(",");
+
+            let gen_id = split.next(); // Useless
+            let name = split.next().unwrap().to_string();
+            let connections = split.next(); // TODO handle multiple connections.
+            let x = split.next().unwrap().parse::<i16>().unwrap();
+            let y = split.next().unwrap().parse::<i16>().unwrap();
+
+            Node {
+                name,
+                connections: Vec::new(),
+                geo: Coordinates {
+                    x,
+                    y
+                }
+            }
+
+        }
+
         pub fn push_leg(&mut self, leg: TravelLeg) {
             self.connections.push(leg);
         }
