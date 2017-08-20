@@ -33,6 +33,14 @@ pub fn create_network(number: u32) {
 
         nodes.push(Node::new(name,c.clone()));
 
+
+        // Links the nodes together as a network.
+        if nodes.len() > 1 {                // Needs more than 1 item to link.
+            let len = nodes.len();
+
+            nodes[len-2].link(&nodes[len-1]);
+        }
+
         // Generates a location within a range of the previous one.
         c = Coordinates::gen_within_radius(c.clone(), 1000);
     }
