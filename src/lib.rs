@@ -37,7 +37,11 @@ pub fn create_network(number: u32) {
         c = Coordinates::gen_within_radius(c.clone(), 1000);
     }
 
-    let connections = NodeLink::link(&nodes);
+    let connections: Vec<NodeLink> = NodeLink::link(&nodes);
+
+    for con in connections.iter() {
+        con.save();
+    }
 
     for node in nodes.iter() {
         node.save();
