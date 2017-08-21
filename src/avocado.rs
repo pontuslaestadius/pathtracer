@@ -37,13 +37,6 @@ pub mod node {
                 _ => panic!("Couldn't open path"),
             };
 
-            let mut connections: String = String::new();
-            connections.push_str("/");
-
-            for leg in &self.connections {
-                connections.push_str(leg.node.gen_id().as_str());
-            }
-
 
             let str = [
                 self.gen_id().as_str(),
@@ -100,9 +93,6 @@ pub mod node {
             let x_diff: u32 = ((self.geo.x - other.geo.x)^2) as u32;
             let distance = ((y_diff + x_diff) as f64 /*^0.5*/) as u32; // TODO this is commented out just so it compiles.
 
-
-
-
         }
 
         // Loads and returns all saved nodes.
@@ -143,13 +133,11 @@ pub mod node {
 
             let gen_id = split.next(); // Useless
             let name = split.next().unwrap().to_string();
-            let connections = split.next(); // TODO handle multiple connections.
             let x = split.next().unwrap().parse::<i16>().unwrap();
             let y = split.next().unwrap().parse::<i16>().unwrap();
 
             Node {
                 name,
-                connections: Vec::new(),
                 geo: Coordinates {
                     x,
                     y
@@ -158,9 +146,6 @@ pub mod node {
 
         }
 
-        pub fn push_leg(&mut self, leg: TravelLeg) {
-            self.connections.push(leg);
-        }
     }
 
 
