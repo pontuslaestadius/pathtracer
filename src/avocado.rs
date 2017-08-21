@@ -39,11 +39,7 @@ pub mod node {
 
 
             let str = [
-                self.gen_id().as_str(),
-                ",",
                 self.name.as_str(),
-                ",",
-                connections.as_str(),
                 ",",
                 self.geo.x.to_string().as_str(),
                 ",",
@@ -131,7 +127,6 @@ pub mod node {
 
             let mut split = string.split(",");
 
-            let gen_id = split.next(); // Useless
             let name = split.next().unwrap().to_string();
             let x = split.next().unwrap().parse::<i16>().unwrap();
             let y = split.next().unwrap().parse::<i16>().unwrap();
@@ -153,7 +148,6 @@ pub mod node {
         fn clone(&self) -> Node {
             Node {
                 name: self.name.clone(),
-                connections: self.connections.clone(),
                 geo: self.geo.clone()
             }
         }
@@ -163,7 +157,6 @@ pub mod node {
         pub fn new(name: String, geo: Coordinates) -> Node {
             Node {
                 name,
-                connections: Vec::new(),
                 geo,
             }
         }
@@ -180,13 +173,26 @@ pub mod node {
         omnidirectional: bool // Does the path go both ways?
     }
 
-    impl NodeLink {
-        fn new<'a>(from: &'a Node, to: &'a Node, omnidirectional: bool) -> NodeLink<'a> {
+    impl<'a> NodeLink<'a> {
+        fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
             NodeLink {
                 from,
                 to,
                 omnidirectional
             }
+        }
+
+        pub fn link(list: &[Node]) -> Vec<NodeLink> {
+            let connections: Vec<NodeLink> = Vec::new();
+
+            connections
+        }
+
+        pub fn save(list: Vec<NodeLink>) {
+
+
+
+
         }
     }
 
