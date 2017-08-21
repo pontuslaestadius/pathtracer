@@ -15,12 +15,11 @@ pub mod node {
     use std::f64;
 
 
-    pub struct Node<'a> {
+    pub struct Node {
         name: String,
-        connections: Vec<TravelLeg<'a>>, // TODO move this elsewhere. So a node only has name + geo.
-                                            // maybe make a NodeLink struct instead.
         geo: Coordinates,
     }
+
 
     impl Node {
 
@@ -101,20 +100,8 @@ pub mod node {
             let x_diff: u32 = ((self.geo.x - other.geo.x)^2) as u32;
             let distance = ((y_diff + x_diff) as f64 /*^0.5*/) as u32; // TODO this is commented out just so it compiles.
 
-            self.push_leg(
-                TravelLeg {
-                    node: other.clone(),
-                    distance
-                }
-            );
 
-            other.push_leg(
-                TravelLeg {
-                    node: self.clone(),
-                    distance
-                }
 
-            );
 
         }
 
@@ -198,8 +185,31 @@ pub mod node {
     }
 
     /*
+        NodeLink
+    */
+
+
+    pub struct NodeLink<'a> {
+        from: &'a Node,
+        to: &'a Node,
+        omnidirectional: bool // Does the path go both ways?
+    }
+
+    impl NodeLink {
+        fn new<'a>(from: &'a Node, to: &'a Node, omnidirectional: bool) -> NodeLink<'a> {
+            NodeLink {
+                from,
+                to,
+                omnidirectional
+            }
+        }
+    }
+
+    /*
         Travel Leg
     */
+
+    /*
 
     pub struct TravelLeg<'a> {
         node: &'a Node,
@@ -215,6 +225,8 @@ pub mod node {
             }
         }
     }
+
+    */
 
     /*
         Coordinates
