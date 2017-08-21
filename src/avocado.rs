@@ -54,7 +54,7 @@ pub mod node {
 
         // Creates an identifiable id for the Node.
         pub fn gen_id(&self) -> String {
-            let dis = (self.geo.x + self.geo.y);
+            let dis = (self.geo.x + self.geo.y); // TODO this causes overflow at times.
 
             let mut clone = self.name.clone();
 
@@ -188,6 +188,8 @@ pub mod node {
                 let from: &Node = &list[between.ind_sample(&mut rng) as usize];
                 let to: &Node   = &list[between.ind_sample(&mut rng) as usize];
 
+                let temp = NodeLink::new(from, to, true); // TODO don't use true.
+
                 // a connection can not be made between the same node.
                 if from == to {
 
@@ -197,10 +199,19 @@ pub mod node {
                     continue;
                 }
 
-                connections.push(
-                    NodeLink::new(from, to, true) // TODO don't use true.
-                );
+                // Ignores duplicate connections.
+                let mut skip = false;
+                for link in &connections {
+                    if (link == &temp) {
+                        range += 1;
+                        skip = true;
+                        break;
+                    }
+                }
 
+                if !skip {
+                    connections.push(temp);
+                }
 
             }
 
@@ -245,6 +256,15 @@ pub mod node {
 
         }
     }
+
+    impl<'a> PartialEq for NodeLink<'a> {
+        fn eq(&self, other: &NodeLink) -> bool {
+            (self.from == other.from) &&
+                (self.to == other.to) &&
+                (self.omnidirectional == other.omnidirectional)
+        }
+    }
+
 
     /*
         Travel Leg
