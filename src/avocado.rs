@@ -54,41 +54,16 @@ pub mod node {
 
         // Creates an identifiable id for the Node.
         pub fn gen_id(&self) -> String {
-            let mut id_x = self.geo.x.to_string();
-            let mut id_y = self.geo.y.to_string();
-
-            let mut len_x = id_x.len() -2;
-            let mut len_y = id_y.len() -2;
-
-            // TODO this looks horrible. Fix this.
-            if len_x < 2 {
-                len_x = id_x.len();
-            }
-
-            if len_y < 2 {
-                len_y = id_y.len();
-            }
-
-            let format_x: String = id_x.split_off(len_x);
-            let format_y: String = id_y.split_off(len_y);
+            let dis = (self.geo.x + self.geo.y);
 
             let mut clone = self.name.clone();
 
-            clone.split_off(4);
+            clone.split_off(5);
 
             [
                 clone,
-                format_x,
-                format_y
+                dis.to_string()
             ].concat()
-        }
-
-        // Connects two nodes by storing a TravelLeg in both of them.
-        pub fn link(&mut self, other: &mut Node) {
-            let y_diff: u32 = ((self.geo.y - other.geo.y)^2) as u32;
-            let x_diff: u32 = ((self.geo.x - other.geo.x)^2) as u32;
-            let distance = ((y_diff + x_diff) as f64 /*^0.5*/) as u32; // TODO this is commented out just so it compiles.
-
         }
 
         // Loads and returns all saved nodes.
@@ -162,6 +137,12 @@ pub mod node {
         }
     }
 
+    impl PartialEq for Node {
+        fn eq(&self, other: &Node) -> bool {
+            (self.geo == other.geo) && (self.name == other.name)
+        }
+    }
+
     /*
         NodeLink
     */
@@ -183,14 +164,83 @@ pub mod node {
         }
 
         pub fn link(list: &[Node]) -> Vec<NodeLink> {
-            let connections: Vec<NodeLink> = Vec::new();
+
+            // If the list is too short to create links.
+            if list.len() < 2 {
+                return Vec::new();
+            }
+
+            let mut connections: Vec<NodeLink> = Vec::new();
+            let mut rng = rand::thread_rng();
+
+            let ll: i16 = list.len() as i16;
+
+            // ll-1 = For minimum case when 2 nodes are provided.
+            // We don't want 2 connections between those.
+            // ll * ll is the maximum case when all nodes are connected.
+            let between: Range<i16> = Range::new(ll -1, ll * ll);
+            let mut range = between.ind_sample(&mut rng) as u32;
+
+            let between: Range<i16> = Range::new(0, ll);
+
+            for _ in 0..range {
+
+                let from: &Node = &list[between.ind_sample(&mut rng) as usize];
+                let to: &Node   = &list[between.ind_sample(&mut rng) as usize];
+
+                // a connection can not be made between the same node.
+                if from == to {
+
+                    // Adds one to the range so the odd case of repeated same number
+                    // Produces a lower number of links.
+                    range += 1;
+                    continue;
+                }
+
+                connections.push(
+                    NodeLink::new(from, to, true) // TODO don't use true.
+                );
+
+
+            }
 
             connections
         }
 
-        pub fn save(list: Vec<NodeLink>) {
+        pub fn save(&self) {
 
+            let path = "nodes/links.txt";
 
+            // Opens the node file.
+            let mut file: File = match OpenOptions::new()
+                .create(true)
+                .append(true)
+                .truncate(false)
+                .open(path) {
+                Result::Ok(t) => t,
+                _ => panic!("Couldn't open path"),
+            };
+
+            let mut omni;
+
+            if self.omnidirectional {
+                omni = "true";
+            } else {
+                omni = "false";
+            }
+
+            let str = [
+                self.from.gen_id().as_str(),
+                ",",
+                self.to.gen_id().as_str(),
+                ",",
+                omni,
+                "\n"
+            ].concat();
+
+            print!("Saving: {}", str.as_str());
+
+            file.write_all(str.as_bytes()).expect("Couldn't save node");
 
 
         }
