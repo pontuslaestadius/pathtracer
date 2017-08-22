@@ -15,11 +15,16 @@ pub mod node {
     use std::f64;
 
 
+    /*
+        Node
+        ----
+        Nodes represents anchors on a map that are the main focus.
+    */
+
     pub struct Node {
         name: String,
         geo: Coordinates,
     }
-
 
     impl Node {
 
@@ -34,7 +39,7 @@ pub mod node {
                 .truncate(false)
                 .open(path) {
                 Result::Ok(t) => t,
-                _ => panic!("Couldn't open path"),
+                            _ => panic!("Couldn't open path"),
             };
 
 
@@ -47,14 +52,12 @@ pub mod node {
                 "\n"
             ].concat();
 
-            print!("Saving: {}", str.as_str());
-
             file.write_all(str.as_bytes()).expect("Couldn't save node");
         }
 
         // Creates an identifiable id for the Node.
         pub fn gen_id(&self) -> String {
-            let dis = (self.geo.x + self.geo.y); // TODO this causes overflow at times.
+            let dis = (self.geo.x / (self.geo.y/14)) as i32; // TODO this causes overflow at times.
 
             let mut clone = self.name.clone();
 
@@ -79,7 +82,7 @@ pub mod node {
 
             let mut contents = String::new();
             file.read_to_string(&mut contents);
-            let mut split = contents.split('\n');
+            let split = contents.split('\n');
 
 
             for row in split {
@@ -145,6 +148,8 @@ pub mod node {
 
     /*
         NodeLink
+        --------
+        Holds connections between nodes.
     */
 
 
@@ -163,6 +168,7 @@ pub mod node {
             }
         }
 
+        // TODO it just randomly links nodes. It should only link nodes close to it.
         pub fn link(list: &[Node]) -> Vec<NodeLink> {
 
             // If the list is too short to create links.
@@ -173,20 +179,51 @@ pub mod node {
             let mut connections: Vec<NodeLink> = Vec::new();
             let mut rng = rand::thread_rng();
 
-            let ll: i16 = list.len() as i16;
+            let ll: u32 = list.len() as u32;
+
+            let mut max_links = (ll * ll/2) as u32;
 
             // ll-1 = For minimum case when 2 nodes are provided.
             // We don't want 2 connections between those.
             // ll * ll is the maximum case when all nodes are connected.
-            let between: Range<i16> = Range::new(ll -1, ll * ll);
+            let between: Range<u32> = Range::new(ll*2, max_links); // TODO ll*5 doesn't mean anything. fix it.
             let mut range = between.ind_sample(&mut rng) as u32;
 
-            let between: Range<i16> = Range::new(0, ll);
+            let between: Range<u32> = Range::new(0, ll -1);
 
-            for _ in 0..range {
+            for i in 0..range {
 
-                let from: &Node = &list[between.ind_sample(&mut rng) as usize];
-                let to: &Node   = &list[between.ind_sample(&mut rng) as usize];
+                // Because the nodes in the list are ordered based on proximity. Use a relative number
+                // To link them.
+
+                let distance = 4;
+
+                let f = between.ind_sample(&mut rng) as usize;
+
+                let from: &Node = &list[f];
+                let mut s_range;
+
+                {
+                    let mut max: usize;
+                    if (f + distance) > ll as usize {
+                        max = (ll-1) as usize;
+                    } else {
+                        max = f + distance;
+                    }
+
+                    let mut min: usize;
+                    if f < distance {
+                        min = 0;
+                    } else {
+                        min = f - distance;
+                    }
+
+                    s_range = Range::new(min, max);
+                }
+
+
+                let t: usize = s_range.ind_sample(&mut rng) as usize;
+                let to: &Node = &list[t];
 
                 let temp = NodeLink::new(from, to, true); // TODO don't use true.
 
@@ -199,11 +236,13 @@ pub mod node {
                     continue;
                 }
 
+                // TODO creates horrible complexity for big lists.
+                // Such as: O^2
                 // Ignores duplicate connections.
                 let mut skip = false;
                 for link in &connections {
                     if (link == &temp) {
-                        range += 1;
+                        // range += 1; // TODO commented out because it might cause issues.
                         skip = true;
                         break;
                     }
@@ -249,12 +288,16 @@ pub mod node {
                 "\n"
             ].concat();
 
-            print!("Saving: {}", str.as_str());
-
             file.write_all(str.as_bytes()).expect("Couldn't save node");
 
 
         }
+
+
+        pub fn load(&self, list: &[Node]) -> Vec<NodeLink> {
+            // TODO implement.
+        }
+
     }
 
     impl<'a> PartialEq for NodeLink<'a> {
@@ -268,6 +311,8 @@ pub mod node {
 
     /*
         Travel Leg
+        ----------
+        Represents one leg of a journey.
     */
 
     /*
@@ -291,6 +336,8 @@ pub mod node {
 
     /*
         Coordinates
+        -----------
+        Stores an x and y coordinate representing a position on a map.
     */
 
     pub struct Coordinates {
@@ -322,9 +369,7 @@ pub mod node {
             let r = between.ind_sample(&mut rng) as f64;
 
 
-            // gets a point on the circle's circumfrence.
-
-
+            // gets a point on the circle's circumference.
             let cir = |a: f64, b: f64| a + r * b;
 
             // Gets the Angle
@@ -351,6 +396,51 @@ pub mod node {
             }
         }
     }
+
+    /*
+        Network
+        -------
+        Binds the nodes and the connections via an extra layer of abstraction
+    */
+
+    pub struct Network<'a>  {
+        wrappers: Vec<Wrapper<'a>>
+    }
+
+    impl<'a> Network<'a> {
+
+        fn new(nodes: [Node], links: [NodeLink]) -> Network {
+            let wrappers = Vec::new();
+
+            // TODO implement
+
+            Network (
+                wrappers
+            )
+        }
+
+    }
+
+
+    /*
+        Wrapper
+        -------
+        Wraps around the node and links and creates a correlation.
+    */
+
+    pub struct Wrapper<'a> {
+        node: Node,
+        links: Vec<NodeLink<'a>>
+    }
+
+    impl<'a> Wrapper<'a> {
+
+        pub fn next(&self) -> Option<NodeLink> {
+            self.links.next()
+        }
+
+    }
+
 
 }
 
