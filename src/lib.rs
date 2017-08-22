@@ -4,14 +4,8 @@ mod avocado;
 use avocado::node::*;
 
 use rand::distributions::{IndependentSample, Range};
-
-use std::cmp::PartialEq;
-
 use std::fs::File;
-use std::fs::OpenOptions;
-
 use std::io::prelude::*;
-use std::io;
 
 pub fn create_network(number: u32) {
 
@@ -61,7 +55,7 @@ pub fn get_node_names() -> Vec<String> {
 
     let mut contents = String::new();
     file.read_to_string(&mut contents);
-    let mut split = contents.split('\n');
+    let split = contents.split('\n');
 
     let mut names: Vec<String> = Vec::new();
 
