@@ -29,9 +29,9 @@ extern crate pathfinder;
 
 
 fn main() {
-    pathfinder::create_network(10);
+    pathfinder::create_network(500);
 
-    pathfinder::load();
+    // pathfinder::load();
 
 
 }
