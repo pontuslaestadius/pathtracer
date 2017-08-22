@@ -13,6 +13,14 @@ pub mod node {
     use std::io;
 
     use std::f64;
+    use std::str::FromStr;
+
+
+    /*
+        Constants
+    */
+    static NODEPATH: &str = "nodes/nodes.txt";
+    static LINKPATH: &str = "nodes/links.txt";
 
 
     /*
@@ -71,13 +79,12 @@ pub mod node {
 
         // Loads and returns all saved nodes.
         pub fn load() -> Vec<Node> {
-            let path = "nodes/nodes.txt";
 
             let mut nodes: Vec<Node> = Vec::new();
 
             let mut file = OpenOptions::new()
                 .read(true)
-                .open(path)
+                .open(NODEPATH)
                 .unwrap();
 
             let mut contents = String::new();
@@ -92,14 +99,10 @@ pub mod node {
                 }
             }
 
-            println!("loaded nodes: {}", nodes.len());
-
-
             nodes
         }
 
         pub fn parse(str: &str) -> Node {
-            println!("Parsing: {}", str);
 
             let string: String = str.to_string();
 
@@ -152,7 +155,6 @@ pub mod node {
         Holds connections between nodes.
     */
 
-
     pub struct NodeLink<'a> {
         from: &'a Node,
         to: &'a Node,
@@ -181,7 +183,7 @@ pub mod node {
 
             let ll: u32 = list.len() as u32;
 
-            let mut max_links = (ll * ll/2) as u32;
+            let max_links = (ll * ll/2) as u32;
 
             // ll-1 = For minimum case when 2 nodes are provided.
             // We don't want 2 connections between those.
@@ -191,7 +193,7 @@ pub mod node {
 
             let between: Range<u32> = Range::new(0, ll -1);
 
-            for i in 0..range {
+            for _ in 0..range {
 
                 // Because the nodes in the list are ordered based on proximity. Use a relative number
                 // To link them.
@@ -201,17 +203,17 @@ pub mod node {
                 let f = between.ind_sample(&mut rng) as usize;
 
                 let from: &Node = &list[f];
-                let mut s_range;
+                let s_range;
 
                 {
-                    let mut max: usize;
+                    let max: usize;
                     if (f + distance) > ll as usize {
                         max = (ll-1) as usize;
                     } else {
                         max = f + distance;
                     }
 
-                    let mut min: usize;
+                    let min: usize;
                     if f < distance {
                         min = 0;
                     } else {
@@ -241,7 +243,7 @@ pub mod node {
                 // Ignores duplicate connections.
                 let mut skip = false;
                 for link in &connections {
-                    if (link == &temp) {
+                    if link == &temp {
                         // range += 1; // TODO commented out because it might cause issues.
                         skip = true;
                         break;
@@ -259,19 +261,15 @@ pub mod node {
 
         pub fn save(&self) {
 
-            let path = "nodes/links.txt";
-
             // Opens the node file.
-            let mut file: File = match OpenOptions::new()
+            let mut file: File = OpenOptions::new()
                 .create(true)
                 .append(true)
                 .truncate(false)
-                .open(path) {
-                Result::Ok(t) => t,
-                _ => panic!("Couldn't open path"),
-            };
+                .open(LINKPATH)
+                .unwrap();
 
-            let mut omni;
+            let omni;
 
             if self.omnidirectional {
                 omni = "true";
@@ -289,15 +287,66 @@ pub mod node {
             ].concat();
 
             file.write_all(str.as_bytes()).expect("Couldn't save node");
-
-
         }
 
+        pub fn load<'b>(&self, list: &'b [Node]) -> Vec<NodeLink<'b>> {
+            let mut links: Vec<NodeLink> = Vec::new();
 
-        pub fn load(&self, list: &[Node]) -> Vec<NodeLink> {
-            // TODO implement.
+            let mut file = OpenOptions::new()
+                .read(true)
+                .open(LINKPATH)
+                .unwrap();
+
+            let mut contents = String::new();
+            file.read_to_string(&mut contents);
+            let split = contents.split('\n');
+
+            for row in split {
+                // Ignores things like empty lines, are anything that may be invalid.
+                if row.len() > 15 {
+                    let res = NodeLink::parse(row, &list).unwrap();
+                    links.push(res);
+                }
+            }
+            links
         }
 
+        pub fn parse<'b>(str: &str, list: &'b [Node]) -> Result<NodeLink<'b>, io::Error> {
+            let string: String = str.to_string();
+
+            let mut split = string.split(",");
+
+            let from = split.next().unwrap().to_string();
+            let to = split.next().unwrap().to_string();
+            let omni_parsed: bool = FromStr::from_str(
+                split.next().unwrap()).unwrap();
+
+
+            // Connect the Gen_id with nodes.
+
+            // TODO bad complexity. O^2. Fix it.
+            for node in list.iter() {
+                if from == node.gen_id() {
+                    for node2 in list.iter() {
+                        if to == node.gen_id() {
+                            return Ok(
+                                NodeLink {
+                                    from: &node,
+                                    to: &node2,
+                                    omnidirectional: omni_parsed
+                                }
+                            )
+                        }
+                    }
+
+                    break;
+                }
+            }
+
+            Err(
+                io::Error::new(io::ErrorKind::Other, "Link does not in node list.")
+            )
+        }
     }
 
     impl<'a> PartialEq for NodeLink<'a> {
@@ -307,32 +356,6 @@ pub mod node {
                 (self.omnidirectional == other.omnidirectional)
         }
     }
-
-
-    /*
-        Travel Leg
-        ----------
-        Represents one leg of a journey.
-    */
-
-    /*
-
-    pub struct TravelLeg<'a> {
-        node: &'a Node,
-        // time: u32, // TODO implentation, along with method of transport.
-        distance: u32,
-    }
-
-    impl Clone for TravelLeg {
-        fn clone(&self) -> TravelLeg {
-            TravelLeg {
-                node: self.node.clone(), // TODO I feel like this is a recursive call...
-                distance: self.distance.clone()
-            }
-        }
-    }
-
-    */
 
     /*
         Coordinates
@@ -353,8 +376,6 @@ pub mod node {
 
     impl Coordinates {
         pub fn gen() -> Coordinates {
-            let tuple = rand::random::<(i32, i32)>();
-
             Coordinates {
                 x: rand::random::<i16>(),
                 y: rand::random::<i16>(),
@@ -398,6 +419,7 @@ pub mod node {
     }
 
     /*
+    /*
         Network
         -------
         Binds the nodes and the connections via an extra layer of abstraction
@@ -421,16 +443,15 @@ pub mod node {
 
     }
 
-
     /*
         Wrapper
         -------
         Wraps around the node and links and creates a correlation.
     */
 
-    pub struct Wrapper<'a> {
+    pub struct Wrapper {
         node: Node,
-        links: Vec<NodeLink<'a>>
+        links: Vec<NodeLink>
     }
 
     impl<'a> Wrapper<'a> {
@@ -439,8 +460,12 @@ pub mod node {
             self.links.next()
         }
 
-    }
+        pub fn add(&self, link: NodeLink) {
+            self.links.push(link);
+        }
 
+    }
+*/
 
 }
 
