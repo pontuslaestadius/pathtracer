@@ -21,8 +21,10 @@ pub mod node {
     /*
         Constants
     */
-    static NODEPATH: &str = "nodes/nodes.txt";
-    static LINKPATH: &str = "nodes/links.txt";
+
+    pub static NODEPATH: &str = "resources/nodes.txt";
+    pub static LINKPATH: &str = "resources/links.txt";
+    pub static NAMEPATH: &str = "resources/nodenames.txt";
 
     /*
         Node
@@ -37,10 +39,38 @@ pub mod node {
 
     impl Node {
 
-        pub fn sort(list: &[Node]) {
+        /*
 
+        pub fn sort(list: [Node]) {
+            Node::rec_sort(list,0,list.len());
+        }
+
+        // A recursive sort implementation using divide and conquer.
+        pub fn rec_sort(list: &mut [Node], start: u32, end: u32) -> [Node] {
+
+            match end - start {
+                // If there is only one item, It is already sorted.
+                1 => return list,
+                2 => {
+                    if list[0].geo > list[1].geo
+                        return [list[1], list[0]];
+                    return [list[0], list[1]];
+                }
+                _ => {
+                    let half = (list.len/2) as u32;
+                    Node::rec_sort(list, 0, half);
+                    Node::rec_sort(list, half, list.len());
+                }
+
+            }
+            list
+        }
+
+        pub fn quick_sort(list: &mut [Node]) {
+            // TODO implement.
 
         }
+        */
 
         // Saves the node to a text file.
         pub fn save(&self) {
@@ -250,7 +280,6 @@ pub mod node {
                     s_range = Range::new(min, max);
                 }
 
-
                 let t: usize = s_range.ind_sample(&mut rng) as usize;
                 let to: &Node = &list[t];
 
@@ -348,7 +377,6 @@ pub mod node {
             let omni_parsed: bool = FromStr::from_str(
                 split.next().unwrap()).unwrap();
 
-
             // Connect the Gen_id with nodes.
 
             // TODO bad complexity. O^2. Fix it.
@@ -403,6 +431,14 @@ pub mod node {
     }
 
     impl Coordinates {
+
+        pub fn new(x: i16, y: i16) -> Coordinates {
+            Coordinates {
+                x,
+                y
+            }
+        }
+
         pub fn gen() -> Coordinates {
             Coordinates {
                 x: rand::random::<i16>(),
@@ -416,7 +452,6 @@ pub mod node {
             // Randomly gets the radius of the circle.
             let between: Range<i16> = Range::new(10, radius);
             let r = between.ind_sample(&mut rng) as f64;
-
 
             // gets a point on the circle's circumference.
             let cir = |a: f64, b: f64| a + r * b;
