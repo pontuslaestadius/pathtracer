@@ -5,6 +5,7 @@ pub mod node {
     use rand::distributions::{IndependentSample, Range};
 
     use std::cmp::PartialEq;
+    use std::cmp::Ordering;
 
     use std::fs::File;
     use std::fs::OpenOptions;
@@ -16,12 +17,12 @@ pub mod node {
     use std::str::FromStr;
 
 
+
     /*
         Constants
     */
     static NODEPATH: &str = "nodes/nodes.txt";
     static LINKPATH: &str = "nodes/links.txt";
-
 
     /*
         Node
@@ -36,20 +37,23 @@ pub mod node {
 
     impl Node {
 
+        pub fn sort(list: &[Node]) {
+
+
+        }
+
         // Saves the node to a text file.
         pub fn save(&self) {
-            let path = "nodes/nodes.txt";
 
             // Opens the node file.
             let mut file: File = match OpenOptions::new()
                 .create(true)
                 .append(true)
                 .truncate(false)
-                .open(path) {
+                .open(NODEPATH) {
                 Result::Ok(t) => t,
-                            _ => panic!("Couldn't open path"),
+                _ => panic!("Couldn't open path"),
             };
-
 
             let str = [
                 self.name.as_str(),
@@ -121,7 +125,30 @@ pub mod node {
             }
 
         }
+    }
 
+    pub fn save(list: &[Node]) -> Result<(), io::Error> {
+
+        // Opens the node file.
+        let mut file: File = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .truncate(false)
+            .open(NODEPATH)?;
+
+        for item in list {
+            let str = [
+                item.name.as_str(),
+                ",",
+                item.geo.x.to_string().as_str(),
+                ",",
+                item.geo.y.to_string().as_str(),
+                "\n"
+            ].concat();
+
+            file.write_all(str.as_bytes())?;
+        }
+        Ok(())
     }
 
 
@@ -363,6 +390,7 @@ pub mod node {
         Stores an x and y coordinate representing a position on a map.
     */
 
+    #[derive(Eq)]
     pub struct Coordinates {
         x: i16,
         y: i16,
@@ -415,6 +443,18 @@ pub mod node {
                 x: self.x,
                 y: self.y
             }
+        }
+    }
+
+    impl Ord for Coordinates {
+        fn cmp(&self, other: &Coordinates) -> Ordering {
+            self.x.cmp(&other.x) // TODO only implements for x and not y.
+        }
+    }
+
+    impl PartialOrd for Coordinates {
+        fn partial_cmp(&self, other: &Coordinates) -> Option<Ordering> {
+            Some(self.cmp(other))
         }
     }
 
