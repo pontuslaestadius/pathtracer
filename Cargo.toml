@@ -5,3 +5,4 @@ authors = ["pontus"]
 
 [dependencies]
 rand = "0.3"
+image = "*"

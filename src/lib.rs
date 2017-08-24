@@ -16,11 +16,14 @@ pub fn create_network(number: u32) {
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = match get_node_names() {
         Ok(t) => t,
-        Err(_) => panic!("Couldn't load nodenames"),
+        Err(e) => {
+            println!("Error: {}", e);
+            panic!("Error is unrecoverable");
+        },
     };
 
     // Generates a random Coordinates location.
-    let mut c: Coordinates = Coordinates::gen();
+    let mut c: Coordinates = Coordinates::new(0,0);
 
     // For the number of nodes in the network.
     for _ in 0..number {
@@ -31,7 +34,7 @@ pub fn create_network(number: u32) {
         nodes.push(Node::new(name,c.clone()));
 
         // Generates a location within a range of the previous one.
-        c = Coordinates::gen_within_radius(c.clone(), 1000);
+        c = Coordinates::gen_within_radius(c.clone(), 20);
     }
 
     let connections: Vec<NodeLink> = NodeLink::link(&nodes);
@@ -39,6 +42,8 @@ pub fn create_network(number: u32) {
     for con in connections.iter() {
         con.save();
     }
+
+    Node::node_map(&nodes);
 
     for node in nodes.iter() {
         node.save();
@@ -96,6 +101,16 @@ mod tests {
         assert_eq!(res1, true);
         assert_ne!(res2, true);
         assert_eq!(res3, true);
+
+        let co4: Coordinates = Coordinates::new(102, 102);
+
+        // Since randomness is applied. It's effect is lowered by using many iterations.
+        for _ in 0..100 {
+            let co5: Coordinates = Coordinates::gen_within_radius(co1.clone(), 100);
+            let res4: bool = co4 > co5;
+            assert_eq!(res4, true)
+        }
+
     }
 
 }
