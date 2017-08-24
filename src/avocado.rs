@@ -7,7 +7,6 @@ pub mod node {
     use std::cmp::PartialEq;
     use std::cmp::Ordering;
 
-    use std::fs::File;
     use std::fs::OpenOptions;
 
     use std::io::prelude::*;
@@ -15,6 +14,11 @@ pub mod node {
 
     use std::f64;
     use std::str::FromStr;
+
+    extern crate image;
+
+    use std::fs::File;
+    use std::path::Path;
 
 
 
@@ -38,6 +42,99 @@ pub mod node {
     }
 
     impl Node {
+
+        pub fn node_map(list: &[Node]) {
+            let max_iterations = 256u16;
+
+            let i = 200;
+
+            // Finds the min and max nodes, for scaling and bounderies.
+            let mut min_x = list[0].geo.x;
+            let mut min_y = list[0].geo.y;
+            let mut max_x = list[0].geo.x;
+            let mut max_y = list[0].geo.y;
+
+            for node in list.iter() {
+                if node.geo.x > max_x {
+                    max_x = node.geo.x;
+                }
+                if min_x > node.geo.x {
+                    min_x = node.geo.x;
+                }
+
+                if node.geo.y > max_y {
+                    max_y = node.geo.y;
+                }
+                if min_y > node.geo.y {
+                    min_y = node.geo.y;
+                }
+            }
+
+            println!("Max_x: {} Min_x: {} Max_y: {} Min_y: {}", max_x, min_x, max_y, min_y);
+            println!("(max_x - min_x): {}", (max_x - min_x)); // TODO can underflow
+            println!("(max_y - min_y): {}", (max_y - min_y)); // TODO can overflow
+
+            let mut imgx = (max_x - min_x) as u32;
+            let mut imgy = (max_y - min_y) as u32;
+
+            let mut add_x;
+            let mut add_y;
+
+            if min_x < 0 {
+                add_x = (min_x + imgx as i16);
+            } else {
+                add_x = -min_x + imgx as i16;
+            }
+
+            if min_y < 0 {
+                add_y = (min_y + imgy as i16);
+            } else {
+                add_y = -min_y + imgy as i16;
+            }
+
+            println!("Add_x: {} Add_y: {}", add_x, add_y);
+
+            // Create a new ImgBuf with width: imgx and height: imgy
+            let mut imgbuf = image::ImageBuffer::new(imgx +1, imgy +1);
+            let luma = image::Luma([150 as u8]);
+
+            let mut placedNodes = 0;
+
+            // Iterate over the coordiantes and pixels of the image
+            for node in list {
+                // println!("x: node.geo.x: {} add_x: {} y: node.geo.y: {} add_y: {}", node.geo.x, add_x, node.geo.y, add_y);
+                let x = ((node.geo.x + add_x) as i32); // TODO can overflow
+                let y = ((node.geo.y + add_y) as i32) -imgy as i32; // TODO can overflow
+
+
+                if x > imgx as i32 {
+                    println!("X out of bounds: {}", x);
+                    continue;
+                } else if y > imgy as i32 {
+                    println!("Y out of bounds: {}", y);
+                    continue;
+                }
+
+                if x < 0 {
+                    println!("X out of bounds: {}", x);
+                    continue;
+                } else if y < 0 {
+                    println!("Y out of bounds: {}", y);
+                    continue;
+                }
+
+                imgbuf.put_pixel(x as u32, y as u32, luma);
+                placedNodes += 1;
+            }
+
+            // Save the image
+            let fout = &mut File::create(&Path::new("resources/nodemap.png")).unwrap();
+
+            println!("Placed: {} Nodes", placedNodes);
+
+            // We must indicate the image’s color type and what format to save as
+            let _    = image::ImageLuma8(imgbuf).save(fout, image::PNG);
+        }
 
         /*
 
@@ -99,7 +196,8 @@ pub mod node {
 
         // Creates an identifiable id for the Node.
         pub fn gen_id(&self) -> String {
-            let dis = (self.geo.x / (self.geo.y/14)) as i32; // TODO this causes overflow at times.
+            let dis = (self.geo.x / ((self.geo.y/2) +2)) as i32; // TODO this causes overflow at times.
+
 
             let mut clone = self.name.clone();
 
@@ -457,12 +555,15 @@ pub mod node {
             let cir = |a: f64, b: f64| a + r * b;
 
             // Gets the Angle
-            let between: Range<i16> = Range::new(0, 10);
+            let between: Range<i16> = Range::new(0, 11);
             let angle = between.ind_sample(&mut rng);
             let a: f64 = f64::consts::PI * (0.1 * angle as f64);
 
-            let x = cir(coord.x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
-            let y = cir(coord.y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
+            let bt: Range<i16> = Range::new(0, (radius/4) as i16);
+            let roll2 = bt.ind_sample(&mut rng);
+
+            let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
+            let y = cir(coord.y as f64, a.sin()) as i16 -roll2;            // y = cy + r * sin(a)
 
 
             Coordinates {
@@ -483,7 +584,7 @@ pub mod node {
 
     impl Ord for Coordinates {
         fn cmp(&self, other: &Coordinates) -> Ordering {
-            self.x.cmp(&other.x) // TODO only implements for x and not y.
+            self.x.cmp(&other.x) // TODO improve.
         }
     }
 
