@@ -1,14 +1,20 @@
+mod coordinates;
+
+mod pathfinder;
+
 extern crate rand;
 
-mod avocado;
-use avocado::node::*;
-
+use pathfinder::node::*;
 use rand::distributions::{IndependentSample, Range};
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 
-pub fn create_network(number: u32) {
+use coordinates::Coordinates;
+
+use pathfinder::map;
+
+pub fn create_network(number: u32, radius: i16) {
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
@@ -34,7 +40,7 @@ pub fn create_network(number: u32) {
         nodes.push(Node::new(name,c.clone()));
 
         // Generates a location within a range of the previous one.
-        c = Coordinates::gen_within_radius(c.clone(), 20);
+        c = Coordinates::gen_within_radius(c.clone(), radius);
     }
 
     let connections: Vec<NodeLink> = NodeLink::link(&nodes);
@@ -43,22 +49,21 @@ pub fn create_network(number: u32) {
         con.save();
     }
 
-    Node::node_map(&nodes);
+    map::node_map(&nodes);
 
     for node in nodes.iter() {
         node.save();
     }
-
 }
 
 
 pub fn load() {
-    Node::load();
+    pathfinder::node::Node::load();
 }
 
 // Opens
 pub fn get_node_names() -> Result<Vec<String>, io::Error> {
-    let mut file = File::open(avocado::node::NAMEPATH)?;
+    let mut file = File::open(constants::NAMEPATH)?;
 
     let mut contents = String::new();
     file.read_to_string(&mut contents);
@@ -82,10 +87,23 @@ pub fn get_random_item(list: &[String]) -> &String {
 }
 
 
+
+/*
+   Constants
+*/
+
+pub mod constants {
+    pub static NODEPATH: &str = "resources/nodes.txt";
+    pub static LINKPATH: &str = "resources/links.txt";
+    pub static NAMEPATH: &str = "resources/nodenames.txt";
+    pub static DEBUGMODE: bool = true;
+}
+
+
 #[cfg(test)]
 mod tests {
 
-    use avocado::node::*;
+    use pathfinder::*;
 
     #[test]
     fn coordinates() {

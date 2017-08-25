@@ -1,7 +1,7 @@
 pub mod djikstra {
 
-    shortest_path(nodes: &[Node], )
-
-
+    fn shortest_path(list: &[Node], from: &Node, to: &Node) {
+        // TODO Implement when everything else is done.
+    }
 }
 
