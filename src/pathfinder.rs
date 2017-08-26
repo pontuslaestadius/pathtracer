@@ -508,6 +508,7 @@ pub mod map {
     use constants;
     use util::debug_print;
     use pathfinder::node::Node;
+    use pathfinder::node::NodeLink;
 
     use pathfinder::node::*;
     use rand::distributions::{IndependentSample, Range};
@@ -559,7 +560,7 @@ pub mod map {
         (-x.0, -y.0)
     }
 
-    pub fn node_map(list: &[Node]) {
+    pub fn map_node(list: &[Node]) {
 
         // Indicates the size of the node in pixels.
         let node_size = 4;
@@ -606,22 +607,6 @@ pub mod map {
             let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
             let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
 
-            if x > imgx as i16 {
-                println!("X out of bounds: {}", x);
-                continue;
-            } else if y > imgy as i16 {
-                println!("Y out of bounds: {}", y);
-                continue;
-            }
-
-            if x < 0 {
-                println!("X out of bounds: {}", x);
-                continue;
-            } else if y < 0 {
-                println!("Y out of bounds: {}", y);
-                continue;
-            }
-
             //Node::draw_node(&imgbuf, x as u32, y as u32);
 
             for i in 0..node_size {
@@ -630,9 +615,7 @@ pub mod map {
                 }
             }
 
-
             placed_nodes += 1;
-
         }
 
         // Save the image
@@ -642,6 +625,14 @@ pub mod map {
 
         // We must indicate the image’s color type and what format to save as
         let _    = image::ImageLuma8(imgbuf).save(fout, image::PNG);
+    }
+
+    pub fn map_links(list: &[NodeLink]) {
+        // TODO implement.
+    }
+
+    fn map_network(nodes: &[Node], links: &[NodeLink]) {
+        // TODO implement.
     }
 
 
