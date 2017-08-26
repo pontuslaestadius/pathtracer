@@ -80,10 +80,6 @@ pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
     }
     debug_print("   done");
 
-
-
-
-
     debug_print("   saving NodeLink(s)..");
     for con in connections.iter() {
         con.save();
@@ -93,7 +89,6 @@ pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
     debug_print("   generating map..");
     map::node_map(&nodes);
     debug_print("   done");
-
 
     debug_print("   saving Node(s)..");
     let _ = Node::save_list(&nodes);
@@ -187,6 +182,3 @@ mod tests {
     }
 
 }
-
-
-
