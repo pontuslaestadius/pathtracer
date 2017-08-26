@@ -4,8 +4,6 @@
     Stores an x and y coordinate representing a position on a map.
 */
 
-
-
 extern crate rand;
 use rand::distributions::{IndependentSample, Range};
 use std::f64;

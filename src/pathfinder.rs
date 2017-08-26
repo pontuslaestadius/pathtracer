@@ -543,23 +543,6 @@ pub mod map {
             }
         }
 
-        /*
-        // lambda for turing all negative values positive.
-        let neg = |x: i16| {
-            if x < 0 {
-
-                return -x
-            }
-            x
-        };
-
-        // Apply the previous declared lambda.
-        max_x = neg(max_x);
-        min_x = neg(min_x);
-        max_y = neg(max_y);
-        min_y = neg(min_y);
-        */
-
         if constants::DEBUGMODE {
             println!("Max_x: {} Min_x: {} Max_y: {} Min_y: {}", max_x, min_x, max_y, min_y);
         }
@@ -574,32 +557,6 @@ pub mod map {
         let y = min_max.1;
 
         (-x.0, -y.0)
-
-        /*
-        let mut add_x;
-        let mut add_y;
-
-        if min_x < 0 {
-            add_x = (min_x + imgx as i16);
-        } else {
-            add_x = -min_x + imgx as i16;
-        }
-
-        if min_y < 0 {
-            add_y = (min_y + imgy as i16);
-        } else {
-            add_y = -min_y + imgy as i16;
-        }
-
-        if constants::DEBUGMODE {
-            println!("add ({},{})", add_x, add_y);
-        }
-
-
-        (add_x, add_y)
-        */
-
-
     }
 
     pub fn node_map(list: &[Node]) {
