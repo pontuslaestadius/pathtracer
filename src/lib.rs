@@ -64,9 +64,24 @@ pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
     }
     debug_print("   done");
 
-    //debug_print("   linking nodes..");
-    //let connections: Vec<NodeLink> = NodeLink::link(&nodes);
-    //debug_print("   done");
+    debug_print("   linking nodes..");
+    let range = nodes.len();
+    for i in 0..range {
+        // If you are on the last item in the list, There is nothing to link.
+        if i == range -1 {
+            break;
+        }
+        let from = nodes.get(i).unwrap();
+        let to = nodes.get(i +1).unwrap();
+
+        let link = NodeLink::new(from, to, true);
+        connections.push(link);
+
+    }
+    debug_print("   done");
+
+
+
 
 
     debug_print("   saving NodeLink(s)..");

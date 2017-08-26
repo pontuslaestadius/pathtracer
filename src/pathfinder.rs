@@ -255,7 +255,6 @@ pub mod node {
             }
 
             let mut connections: Vec<NodeLink> = Vec::new();
-            let mut rng = rand::thread_rng();
 
             let ll: u32 = list.len() as u32;
 
@@ -264,6 +263,7 @@ pub mod node {
             // ll-1 = For minimum case when 2 nodes are provided.
             // We don't want 2 connections between those.
             // ll * ll is the maximum case when all nodes are connected.
+            let mut rng = rand::thread_rng();
             let between: Range<u32> = Range::new(ll*2, max_links); // TODO ll*5 doesn't mean anything. fix it.
             let mut range = between.ind_sample(&mut rng) as u32;
 
