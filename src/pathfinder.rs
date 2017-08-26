@@ -91,8 +91,15 @@ pub mod node {
         }
         */
 
+        pub fn new(name: String, geo: Coordinates) -> Node {
+            Node {
+                name,
+                geo,
+            }
+        }
+
         // Saves the node to a text file.
-        pub fn save(&self) {
+        pub fn save(&self) -> Result<(), io::Error> {
 
             // Opens the node file.
             let mut file: File = match OpenOptions::new()
@@ -113,7 +120,8 @@ pub mod node {
                 "\n"
             ].concat();
 
-            file.write_all(str.as_bytes()).expect("Couldn't save node");
+            file.write_all(str.as_bytes())?;
+            Ok(())
         }
 
         // Creates an identifiable id for the Node.
@@ -176,7 +184,7 @@ pub mod node {
         }
     }
 
-    pub fn save(list: &[Node]) -> Result<(), io::Error> {
+    pub fn save_all(list: &[Node]) -> Result<(), io::Error> {
 
         // Opens the node file.
         let mut file: File = OpenOptions::new()
@@ -206,15 +214,6 @@ pub mod node {
             Node {
                 name: self.name.clone(),
                 geo: self.geo.clone()
-            }
-        }
-    }
-
-    impl Node {
-        pub fn new(name: String, geo: Coordinates) -> Node {
-            Node {
-                name,
-                geo,
             }
         }
     }
@@ -259,7 +258,7 @@ pub mod node {
 
             let ll: u32 = list.len() as u32;
 
-            let max_links = (ll * ll/2) as u32;
+            let max_links = (ll * ll/2) as u32; // TODO can overflow.
 
             // ll-1 = For minimum case when 2 nodes are provided.
             // We don't want 2 connections between those.
