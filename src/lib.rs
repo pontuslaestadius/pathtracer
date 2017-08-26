@@ -17,6 +17,11 @@ use pathfinder::map;
 use util::debug_print;
 
 pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
+
+    if number > 10 {
+        println!("A large network is being created. Please be patient as it can take some time.");
+    }
+
     debug_print("creating node network..");
 
     // Stores all created nodes. So then they can be made in to a network.
@@ -73,7 +78,7 @@ pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
     debug_print("   done");
 
 
-    //let _ = Node::save_all(&nodes); // TODO fix
+    let _ = Node::save_list(&nodes);
 
     debug_print("done");
     Ok(())
@@ -89,7 +94,7 @@ pub fn get_node_names() -> Result<Vec<String>, io::Error> {
     let mut file = File::open(constants::NAMEPATH)?;
 
     let mut contents = String::new();
-    file.read_to_string(&mut contents);
+    file.read_to_string(&mut contents)?;
     let split = contents.split('\n');
 
     let mut names: Vec<String> = Vec::new();
