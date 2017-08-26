@@ -182,30 +182,30 @@ pub mod node {
             }
 
         }
-    }
 
-    pub fn save_all(list: &[Node]) -> Result<(), io::Error> {
+        pub fn save_list(list: &[Node]) -> Result<(), io::Error> {
 
-        // Opens the node file.
-        let mut file: File = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .truncate(false)
-            .open(NODEPATH)?;
+            // Opens the node file.
+            let mut file: File = OpenOptions::new()
+                .create(true)
+                .append(true)
+                .truncate(false)
+                .open(NODEPATH)?;
 
-        for item in list {
-            let str = [
-                item.name.as_str(),
-                ",",
-                item.geo.x.to_string().as_str(),
-                ",",
-                item.geo.y.to_string().as_str(),
-                "\n"
-            ].concat();
+            for item in list {
+                let str = [
+                    item.name.as_str(),
+                    ",",
+                    item.geo.x.to_string().as_str(),
+                    ",",
+                    item.geo.y.to_string().as_str(),
+                    "\n"
+                ].concat();
 
-            file.write_all(str.as_bytes())?;
+                file.write_all(str.as_bytes())?;
+            }
+            Ok(())
         }
-        Ok(())
     }
 
 
@@ -505,17 +505,20 @@ pub mod map {
     use std::path::Path;
 
     use constants;
-    use pathfinder::node;
+    use util::debug_print;
+    use pathfinder::node::Node;
 
     use pathfinder::node::*;
     use rand::distributions::{IndependentSample, Range};
 
+    // Returns the difference between the lowest and highest x and y values, in that order.
+    pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
+        let x = min_max.0;
+        let y = min_max.1;
+        ((x.1 - x.0) as u32, (y.1 - x.0) as u32)
+    }
 
-    pub fn node_map(list: &[node::Node]) {
-
-        // Indicates the size of the node in pixels.
-        let node_size = 4;
-
+    pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
         // Finds the min and max nodes, for scaling and bounderies.
         let mut min_x = list[0].geo.x;
         let mut min_y = list[0].geo.y;
@@ -539,30 +542,39 @@ pub mod map {
             }
         }
 
+        /*
         // lambda for turing all negative values positive.
         let neg = |x: i16| {
             if x < 0 {
+
                 return -x
             }
             x
         };
 
-        // Apply the previous delcared lambda.
+        // Apply the previous declared lambda.
         max_x = neg(max_x);
         min_x = neg(min_x);
         max_y = neg(max_y);
         min_y = neg(min_y);
-
-        // Sets the imag
-        let mut imgx = (max_x - min_x +5) as u32;
-        let mut imgy = (max_y - min_y +5) as u32;
+        */
 
         if constants::DEBUGMODE {
             println!("Max_x: {} Min_x: {} Max_y: {} Min_y: {}", max_x, min_x, max_y, min_y);
-            println!("Creating Nodemap with resolution: {}x{}", imgx, imgy);
         }
 
+        ((min_x, max_x), (min_y, max_y))
+    }
+
+    pub fn gen_stabalize(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
         // Sets the additions requried to center the pixels on the map.
+
+        let x = min_max.0;
+        let y = min_max.1;
+
+        (-x.0, -y.0)
+
+        /*
         let mut add_x;
         let mut add_y;
 
@@ -576,6 +588,35 @@ pub mod map {
             add_y = (min_y + imgy as i16);
         } else {
             add_y = -min_y + imgy as i16;
+        }
+
+        if constants::DEBUGMODE {
+            println!("add ({},{})", add_x, add_y);
+        }
+
+
+        (add_x, add_y)
+        */
+
+
+    }
+
+    pub fn node_map(list: &[Node]) {
+
+        // Indicates the size of the node in pixels.
+        let node_size = 4;
+
+        let min_max = gen_min_max(list);
+
+        let res = gen_map_dimensions(min_max);
+        let add = gen_stabalize(min_max);
+
+        // Sets the imag
+        let mut imgx = (res.1 +2) as u32;
+        let mut imgy = (res.0 +2) as u32;
+
+        if constants::DEBUGMODE {
+            println!("Creating Nodemap with resolution: {}x{}", imgx, imgy);
         }
 
         // Create a new ImgBuf with width: imgx and height: imgy
@@ -604,8 +645,8 @@ pub mod map {
         // Iterate over the coordiantes and pixels of the image
         for node in list {
             // println!("x: node.geo.x: {} add_x: {} y: node.geo.y: {} add_y: {}", node.geo.x, add_x, node.geo.y, add_y);
-            let mut x = ((node.geo.x+1 + add_x) as i16); // TODO can overflow
-            let mut y = (node.geo.y+1 + add_y) -imgy as i16; // TODO can overflow
+            let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
+            let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
 
             if x > imgx as i16 {
                 println!("X out of bounds: {}", x);
