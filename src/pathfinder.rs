@@ -237,7 +237,7 @@ pub mod node {
     }
 
     impl<'a> NodeLink<'a> {
-        fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
+        pub fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
             NodeLink {
                 from,
                 to,
@@ -246,6 +246,7 @@ pub mod node {
         }
 
         // TODO it just randomly links nodes. It should only link nodes close to it.
+        // TODO this is supid unoptimized, Should not be used.
         pub fn link(list: &[Node]) -> Vec<NodeLink> {
 
             // If the list is too short to create links.
