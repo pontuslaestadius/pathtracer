@@ -709,6 +709,9 @@ pub mod map {
             println!("to ({},{})", to_x, to_y);
             while x != to_x || y != to_y {
 
+                let now_y = y;
+                let now_x = x;
+
                 if y < to_y {
                     y += scale_y;
                     if y >= to_y {
@@ -733,11 +736,22 @@ pub mod map {
                     }
                 }
 
-                //println!("at ({}, {})", x, y);
+                let mut i = 0;
+                if (scale_y > 1) {
+                    for _ in now_y..y {
+                        imgbuf.put_pixel(x as u32, (y +i) as u32, luma_link);
+                        i += 1;
+                    }
 
-                // let p = imgbuf.get_pixel(x as u32, y as u32);
+                } else {
+                    for _ in now_x..x {
+                        imgbuf.put_pixel((x + i) as u32, y as u32, luma_link);
+                        i += 1;
+                    }
 
-                imgbuf.put_pixel(x as u32, y as u32, luma_link);
+                }
+
+                //imgbuf.put_pixel(x as u32, y as u32, luma_link);
             }
 
             placed_links += 1;
