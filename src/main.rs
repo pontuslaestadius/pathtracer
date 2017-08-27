@@ -16,7 +16,7 @@
 
     It will use multiple algorithms to find the shortest and fastest path using whatever
     transportation the user has requested. (any transportation by default)
-
+-
     Djikstras, A-pointer
         (->) including alternative paths.
 
@@ -34,7 +34,7 @@ fn main() {
     // TODO fix so that the number is better indicated.
     */
 
-    match pathfinder::create_network(11, 350) {
+    match pathfinder::create_network(5, 100) {
         Ok(_) => println!("Created a node network successfully."),
             _ => panic!("TODO: proper error message here."),
     };
