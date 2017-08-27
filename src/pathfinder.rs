@@ -231,9 +231,9 @@ pub mod node {
     */
 
     pub struct NodeLink<'a> {
-        from: &'a Node,
-        to: &'a Node,
-        omnidirectional: bool // Does the path go both ways?
+        pub from: &'a Node,
+        pub to: &'a Node,
+        pub omnidirectional: bool // Does the path go both ways?
     }
 
     impl<'a> NodeLink<'a> {
@@ -574,9 +574,7 @@ pub mod map {
         let mut imgx = (res.1 +2) as u32;
         let mut imgy = (res.0 +2) as u32;
 
-        if constants::DEBUGMODE {
-            println!("Creating Nodemap with resolution: {}x{}", imgx, imgy);
-        }
+        println!("Creating Nodemap with resolution: {}x{}", imgx, imgy);
 
         // Create a new ImgBuf with width: imgx and height: imgy
         let mut imgbuf = image::ImageBuffer::new(imgx, imgy);
@@ -627,14 +625,148 @@ pub mod map {
         let _    = image::ImageLuma8(imgbuf).save(fout, image::PNG);
     }
 
-    pub fn map_links(list: &[NodeLink]) {
-        // TODO implement.
+    pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
+        // Indicates the size of the node in pixels.
+        let node_size = 5;
+
+        let min_max = gen_min_max(nodes);
+
+        let res = gen_map_dimensions(min_max);
+        let add = gen_stabalize(min_max);
+
+        // Sets the imag
+        let mut imgx = (res.1 +2) as u32;
+        let mut imgy = (res.0 +2) as u32;
+
+        println!("Creating map_node_and_links with resolution: {}x{}", imgx, imgy);
+
+        // Create a new ImgBuf with width: imgx and height: imgy
+        let mut imgbuf = image::ImageBuffer::new(imgx, imgy);
+
+        let luma_node = image::Luma([230 as u8]);
+        let luma_link = image::Luma([90 as u8]);
+        let luma_background_node = image::Luma([50 as u8]);
+
+        // Counts the number of nodes placed.
+        let mut placed_links = 0; // TODO this wont be required once the map is 100% functioning.
+        let mut placed_nodes = 0; // TODO this wont be required once the map is 100% functioning.
+
+        /*
+        // Adds background nodes first.
+        let mut rng = rand::thread_rng();
+        let between: Range<u32> = Range::new((nodes.len()/2) as u32, nodes.len() as u32);
+        let mut range = between.ind_sample(&mut rng) as u32;
+
+        for _ in 0..range {
+            let between: Range<u32> = Range::new(0, imgx);
+            let roll_x = between.ind_sample(&mut rng) as u32;
+
+            let between: Range<u32> = Range::new(0, imgy);
+            let roll_y = between.ind_sample(&mut rng) as u32;
+
+            imgbuf.put_pixel(roll_x, roll_y, luma_background_node);
+        }
+        */
+
+        // Iterate over the coordinates and pixels of the image
+        for link in links {
+            //let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
+            //let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
+
+            let from = link.from;
+            let to = link.to;
+
+            let from_x = (from.geo.x + add.0) as i16;
+            let from_y = (from.geo.y + add.1) as i16;
+
+            let to_x = (to.geo.x + add.0) as i16;
+            let to_y = (to.geo.y + add.1) as i16;
+
+            let dif_x = from_x - to_x;
+            let dif_y = from_y - to_y;
+
+            let scale = |a: i16, b: i16| {
+                let mut res = 0;
+                if b != 0 {
+                    res = (a.abs() / b.abs())
+                }
+                if res == 0 {
+                    res = 1;
+                }
+                res
+            };
+
+            let mut scale_y = scale(dif_x, dif_y);
+
+            let mut scale_x = 1;
+            if scale_y == 1 {
+                scale_x = scale(dif_y, dif_x);
+            }
+
+            let mut x = from_x;
+            let mut y = from_y;
+
+            println!("to ({},{})", to_x, to_y);
+            while x != to_x || y != to_y {
+
+                if y < to_y {
+                    y += scale_y;
+                    if y >= to_y {
+                        y = to_y;
+                    }
+                } else {
+                    y -= scale_y;
+                    if y <= to_y {
+                        y = to_y;
+                    }
+                }
+
+                if x < to_x {
+                    x += scale_x;
+                    if x >= to_x {
+                        x = to_x;
+                    }
+                } else {
+                    x -= scale_x;
+                    if x <= to_x {
+                        x = to_x;
+                    }
+                }
+
+                //println!("at ({}, {})", x, y);
+
+                // let p = imgbuf.get_pixel(x as u32, y as u32);
+
+                imgbuf.put_pixel(x as u32, y as u32, luma_link);
+            }
+
+            placed_links += 1;
+        }
+
+
+        // Iterate over the coordiantes and pixels of the image
+        for node in nodes {
+            // println!("x: node.geo.x: {} add_x: {} y: node.geo.y: {} add_y: {}", node.geo.x, add_x, node.geo.y, add_y);
+            let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
+            let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
+
+            for i in 0..node_size {
+                for j in 0..node_size {
+                    imgbuf.put_pixel((x+i) as u32, (y+j) as u32, luma_node);
+                }
+            }
+
+            placed_nodes += 1;
+        }
+
+
+        // Save the image
+        let fout = &mut File::create(&Path::new("resources/node_and_link_map.png")).unwrap();
+
+        println!("Placed: {} Nodes", placed_nodes);
+        println!("Placed: {} Links", placed_links);
+
+        // We must indicate the image’s color type and what format to save as
+        let _    = image::ImageLuma8(imgbuf).save(fout, image::PNG);
     }
-
-    fn map_network(nodes: &[Node], links: &[NodeLink]) {
-        // TODO implement.
-    }
-
-
-
 }
