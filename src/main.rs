@@ -34,7 +34,7 @@ fn main() {
     // TODO fix so that the number is better indicated.
     */
 
-    match pathfinder::create_network(5, 100) {
+    match pathfinder::create_network(3, 50) {
         Ok(_) => println!("Created a node network successfully."),
             _ => panic!("TODO: proper error message here."),
     };
