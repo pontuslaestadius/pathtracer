@@ -627,7 +627,7 @@ pub mod map {
 
     pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         // Indicates the size of the node in pixels.
-        let node_size: i16 = 5;
+        let node_size: u32 = 4;
 
         let min_max = gen_min_max(nodes);
 
@@ -635,8 +635,8 @@ pub mod map {
         let add = gen_stabalize(min_max);
 
         // Sets the imag
-        let mut imgx = (res.0 +node_size/2) as u32;
-        let mut imgy = (res.1 +node_size/2) as u32;
+        let mut imgx = (res.0 + node_size) as u32;
+        let mut imgy = (res.1 + node_size) as u32;
 
         println!("Creating map_node_and_links with resolution: {}x{}", imgx, imgy);
 
@@ -645,13 +645,13 @@ pub mod map {
 
         let luma_node = image::Luma([230 as u8]);
         let luma_link = image::Luma([90 as u8]);
-        let luma_background_node = image::Luma([50 as u8]);
+        let luma_background_node = image::Luma([20 as u8]);
 
         // Counts the number of nodes placed.
         let mut placed_links = 0; // TODO this wont be required once the map is 100% functioning.
         let mut placed_nodes = 0; // TODO this wont be required once the map is 100% functioning.
 
-        /*
+
         // Adds background nodes first.
         let mut rng = rand::thread_rng();
         let between: Range<u32> = Range::new((nodes.len()/2) as u32, nodes.len() as u32);
@@ -666,7 +666,6 @@ pub mod map {
 
             imgbuf.put_pixel(roll_x, roll_y, luma_background_node);
         }
-        */
 
         // Iterate over the coordinates and pixels of the image
         for link in links {
@@ -707,6 +706,7 @@ pub mod map {
             let mut y = from_y;
 
             println!("to ({},{})", to_x, to_y);
+            println!("fr ({},{})", from_x, from_y);
             while x != to_x || y != to_y {
 
                 let now_y = y;
@@ -764,9 +764,14 @@ pub mod map {
             let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
             let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
 
-            for i in 0..node_size {
-                for j in 0..node_size {
-                    imgbuf.put_pixel((x+i as i16) as u32, (y+j as i16) as u32, luma_node);
+            //x += (node_size/2) as i16;
+            //y += (node_size/2) as i16;
+
+            for i in 0..node_size +1 {
+                for j in 0..node_size +1 {
+                    if i == 0 || i == node_size || j == node_size || j == 0 {
+                        imgbuf.put_pixel((x+i as i16) as u32, (y+j as i16) as u32, luma_node);
+                    }
                 }
             }
 
