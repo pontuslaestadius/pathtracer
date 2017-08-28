@@ -627,7 +627,7 @@ pub mod map {
 
     pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         // Indicates the size of the node in pixels.
-        let node_size = 5;
+        let node_size: i16 = 5;
 
         let min_max = gen_min_max(nodes);
 
@@ -635,8 +635,8 @@ pub mod map {
         let add = gen_stabalize(min_max);
 
         // Sets the imag
-        let mut imgx = (res.1 +2) as u32;
-        let mut imgy = (res.0 +2) as u32;
+        let mut imgx = (res.0 +node_size/2) as u32;
+        let mut imgy = (res.1 +node_size/2) as u32;
 
         println!("Creating map_node_and_links with resolution: {}x{}", imgx, imgy);
 
@@ -766,7 +766,7 @@ pub mod map {
 
             for i in 0..node_size {
                 for j in 0..node_size {
-                    imgbuf.put_pixel((x+i) as u32, (y+j) as u32, luma_node);
+                    imgbuf.put_pixel((x+i as i16) as u32, (y+j as i16) as u32, luma_node);
                 }
             }
 
