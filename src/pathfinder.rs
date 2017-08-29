@@ -504,6 +504,7 @@ pub mod map {
 
     use std::fs::File;
     use std::path::Path;
+    use std::f64;
 
     use constants;
     use util::debug_print;
@@ -644,7 +645,6 @@ pub mod map {
         let mut imgbuf = image::ImageBuffer::new(imgx, imgy);
 
         let luma_node = image::Luma([230 as u8]);
-        let luma_link = image::Luma([90 as u8]);
         let luma_background_node = image::Luma([20 as u8]);
 
         // Counts the number of nodes placed.
@@ -675,6 +675,8 @@ pub mod map {
             //let mut x = ((node.geo.x + add.0) as i16); // TODO can overflow
             //let mut y = (node.geo.y + add.1) as i16; // TODO can overflow
 
+            let luma_link = image::Luma([roll(60,100) as u8]);
+
             let from = link.from;
             let to = link.to;
 
@@ -688,72 +690,67 @@ pub mod map {
             let dif_y = from_y - to_y;
 
             let scale = |a: i16, b: i16| {
-                let mut res = 0;
+                let mut res: f64 = 0.0;
                 if b != 0 {
-                    res = (a.abs() / b.abs())
-                }
-                if res == 0 {
-                    res = 1;
+                    res = (a.abs() as f64 / b.abs() as f64);
                 }
                 res
             };
 
-            let mut scale_y = scale(dif_x, dif_y);
+            let mut scale_y: f64 = scale(dif_x, dif_y);
 
-            let mut scale_x = 1;
-            if scale_y == 1 {
-                scale_x = scale(dif_y, dif_x);
-            }
+            let mut scale_x: f64 = scale(dif_y, dif_x);
+
 
             let mut x = from_x;
             let mut y = from_y;
 
             println!("to ({},{})", to_x, to_y);
             println!("fr ({},{})", from_x, from_y);
+
+            let mut x_ite: f64 = 0.0;
+            let mut y_ite: f64 = 0.0;
+
+
+            let mut inc_x = 1;
+            if x > to_x {
+                inc_x = -1;
+            }
+            let mut inc_y = 1;
+            if y > to_y {
+                inc_y = -1;
+            }
+
             while x != to_x || y != to_y {
                 print!("-");
+                x_ite += scale_x;
+                y_ite += scale_y;
 
-                let now_y = y;
-                let now_x = x;
-
-                if y < to_y {
-                    y += scale_y;
-                    if y >= to_y {
-                        y = to_y;
-                    }
-                } else {
-                    y -= scale_y;
-                    if y <= to_y {
-                        y = to_y;
-                    }
+                if x == to_x {
+                    inc_x = 0;
+                }
+                if y == to_y {
+                    inc_y = 0;
                 }
 
-                if x < to_x {
-                    x += scale_x;
-                    if x >= to_x {
-                        x = to_x;
-                    }
+                if          x_ite >= 1.0 || y_ite > 1.0 {
+                    x += inc_x;
+                    y += inc_y;
+                    x_ite -= 1.0;
+                    y_ite -= 1.0;
+                } else if   y_ite >= 1.0 {
+                    y += inc_y;
+                    y_ite -= 1.0;
+                } else if   x_ite >= 1.0 {
+                    x += inc_x;
+                    x_ite -= 1.0;
                 } else {
-                    x -= scale_x;
-                    if x <= to_x {
-                        x = to_x;
-                    }
+                    println!("edge case like this should not occur"); // TODO this occurs from time to time.
+                    continue;
                 }
 
-                let mut i = 0;
-                if (scale_y > 1) {
-                    for _ in now_y..y {
-                        imgbuf.put_pixel(x as u32, (y +i) as u32, luma_link);
-                        i += 1;
-                    }
+                imgbuf.put_pixel(x as u32, y as u32, luma_link);
 
-                } else {
-                    for _ in now_x..x {
-                        imgbuf.put_pixel((x + i) as u32, y as u32, luma_link);
-                        i += 1;
-                    }
-
-                }
 
                 //imgbuf.put_pixel(x as u32, y as u32, luma_link);
             }
@@ -791,5 +788,11 @@ pub mod map {
 
         // We must indicate the image’s color type and what format to save as
         let _    = image::ImageLuma8(imgbuf).save(fout, image::PNG);
+    }
+
+    fn roll(min: u32, max: u32) -> u32 {
+        let mut rng = rand::thread_rng();
+        let between: Range<u32> = Range::new(min, max);
+        between.ind_sample(&mut rng) as u32
     }
 }
