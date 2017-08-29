@@ -137,16 +137,27 @@ pub mod constants {
     pub static NODEPATH: &str = "resources/nodes.txt";
     pub static LINKPATH: &str = "resources/links.txt";
     pub static NAMEPATH: &str = "resources/nodenames.txt";
+    pub static PIXEPATH: &str = "resources/pixel_representations.txt";
     pub static DEBUGMODE: bool = true;
 }
 
 pub mod util {
+
+    extern crate rand;
+
     use constants;
+    use rand::distributions::{IndependentSample, Range};
 
     pub fn debug_print(str: &str) {
         if constants::DEBUGMODE {
             println!("{}", str);
         }
+    }
+
+    pub fn roll(min: u32, max: u32) -> u32 {
+        let mut rng = rand::thread_rng();
+        let between: Range<u32> = Range::new(min, max);
+        between.ind_sample(&mut rng) as u32
     }
 }
 
