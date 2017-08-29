@@ -1,9 +1,5 @@
 pub mod node {
 
-    extern crate rand;
-
-    use rand::distributions::{IndependentSample, Range};
-
     use std::cmp::PartialEq;
     use std::cmp::Ordering;
 
@@ -21,6 +17,8 @@ pub mod node {
     use std::path::Path;
 
     use coordinates::Coordinates;
+
+    use util::roll;
 
     /*
         Node
@@ -248,13 +246,13 @@ pub mod node {
         // TODO it just randomly links nodes. It should only link nodes close to it.
         // TODO this is supid unoptimized, Should not be used.
         pub fn link(list: &[Node]) -> Vec<NodeLink> {
+            let mut connections: Vec<NodeLink> = Vec::new();
+            /*
 
             // If the list is too short to create links.
             if list.len() < 2 {
                 return Vec::new();
             }
-
-            let mut connections: Vec<NodeLink> = Vec::new();
 
             let ll: u32 = list.len() as u32;
 
@@ -329,6 +327,53 @@ pub mod node {
                     connections.push(temp);
                 }
 
+            }
+
+            */
+
+            let range = list.len();
+            for i in 0..range {
+                // If you are on the last item in the list, There is nothing to link.
+
+                let from = list.get(i).unwrap();
+
+                let mut roll: usize = roll(0, (range/2) as u32) as usize;
+
+                if i + roll >= range {
+                    roll = range -1 -i;
+                }
+
+                if i == range -1 {
+                    break;
+                }
+                let to = list.get(i +roll).unwrap();
+
+                let link = NodeLink::new(from, to, true);
+                connections.push(link);
+            }
+
+            for i in 0..range {
+                // If you are on the last item in the list, There is nothing to link.
+
+                if roll(0,100) > 70 {
+                    continue;
+                }
+
+                let from = list.get(i).unwrap();
+
+                let mut roll: usize = roll(0, (range/2) as u32) as usize;
+
+                if i + roll >= range {
+                    roll = range -1 -i;
+                }
+
+                if i == range -1 {
+                    break;
+                }
+                let to = list.get(i +roll).unwrap();
+
+                let link = NodeLink::new(from, to, true);
+                connections.push(link);
             }
 
             connections
@@ -510,7 +555,6 @@ pub mod map {
     use pathfinder::node::Node;
     use pathfinder::node::NodeLink;
 
-    use pathfinder::node::*;
     use util;
 
     use pathfinder::map::image::GenericImage;

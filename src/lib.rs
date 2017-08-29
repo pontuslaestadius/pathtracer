@@ -5,7 +5,6 @@ mod pathfinder;
 extern crate rand;
 
 use pathfinder::node::*;
-use rand::distributions::{IndependentSample, Range};
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -15,6 +14,7 @@ use coordinates::Coordinates;
 use pathfinder::map;
 
 use util::debug_print;
+use util::roll;
 
 pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
 
@@ -65,19 +65,8 @@ pub fn create_network(number: u32, radius: i16) -> Result<(), io::Error> {
     debug_print("   done");
 
     debug_print("   linking nodes..");
-    let range = nodes.len();
-    for i in 0..range {
-        // If you are on the last item in the list, There is nothing to link.
-        if i == range -1 {
-            break;
-        }
-        let from = nodes.get(i).unwrap();
-        let to = nodes.get(i +1).unwrap();
+    connections = NodeLink::link(&nodes);
 
-        let link = NodeLink::new(from, to, true);
-        connections.push(link);
-
-    }
     debug_print("   done");
 
     debug_print("   saving NodeLink(s)..");
@@ -120,13 +109,10 @@ pub fn get_node_names() -> Result<Vec<String>, io::Error> {
     Ok(names)
 }
 
-
 // Returns a random item from a given list.
 pub fn get_random_item(list: &[String]) -> &String {
-    let mut rng = rand::thread_rng();
-    let between: Range<usize> = Range::new(0, list.len());
-    let roll = between.ind_sample(&mut rng);
-    &list[roll]
+    let roll = roll(0, list.len() as u32);
+    &list[roll as usize]
 }
 
 /*
@@ -144,7 +130,6 @@ pub mod constants {
 pub mod util {
 
     extern crate rand;
-
     use constants;
     use rand::distributions::{IndependentSample, Range};
 
@@ -165,7 +150,7 @@ pub mod util {
 #[cfg(test)]
 mod tests {
 
-    use pathfinder::*;
+    use coordinates::*;
 
     #[test]
     fn coordinates() {

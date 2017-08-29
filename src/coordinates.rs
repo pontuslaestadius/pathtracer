@@ -5,7 +5,7 @@
 */
 
 extern crate rand;
-use rand::distributions::{IndependentSample, Range};
+use util::roll;
 use std::f64;
 use std::cmp::Ordering;
 
@@ -47,19 +47,16 @@ impl Coordinates {
 
         // Randomly gets the radius of the circle.
 
-        let between: Range<i16> = Range::new((radius/2) as i16, radius);
-        let r = between.ind_sample(&mut rng) as f64;
+        let r = roll((radius/2) as u32, radius as u32) as f64;
 
         // gets a point on the circle's circumference.
         let cir = |a: f64, b: f64| a + r * b;
 
         // Gets the Angle
-        let between: Range<i16> = Range::new(0, 10);
-        let angle = between.ind_sample(&mut rng);
+        let angle = roll(0, 10);
         let a: f64 = f64::consts::PI * (0.1 * angle as f64);
 
-        let bt: Range<i16> = Range::new(0, 2 +(radius/4) as i16);
-        let roll2 = bt.ind_sample(&mut rng);
+        let roll2: i16 = roll(0, 2 +(radius/4) as u32) as i16;
 
         let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
         let y = cir(coord.y as f64, a.sin()) as i16 -roll2;            // y = cy + r * sin(a)
