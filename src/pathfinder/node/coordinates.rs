@@ -5,10 +5,9 @@
 */
 
 extern crate rand;
-use util::roll;
+use super::util::roll;
 use std::f64;
 use std::cmp::Ordering;
-
 
 #[derive(Eq)]
 pub struct Coordinates {
