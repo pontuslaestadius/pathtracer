@@ -27,16 +27,11 @@
 
 extern crate pathfinder;
 
-
 fn main() {
-    /*
-    Number of nodes = 2^number -1
-    // TODO fix so that the number is better indicated.
-    */
 
-    match pathfinder::create_network(8, 400) {
-        Ok(_) => println!("Created a node network successfully."),
-            _ => panic!("TODO: proper error message here."),
+    match pathfinder::pathfinder::network::create_random_network(8, 400) {
+        Ok(_) => println!("node network created."),
+            _ => println!("TODO: proper error message here."), //TODO
     };
 }
 
