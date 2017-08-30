@@ -248,7 +248,7 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
     }
 
     // Save the image
-    let fout = &mut File::create(&Path::new("resources/node_and_link_map.png")).unwrap();
+    let fout = &mut File::create(&Path::new("resources/example.png")).unwrap();
 
     if constants::DEBUGMODE {
         println!("Placed: {} Nodes", placed_nodes);
