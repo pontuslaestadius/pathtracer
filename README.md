@@ -1,6 +1,5 @@
 # Oh look! Pretty pictures!
-![Alt Text](resources/History/example.png)
-This picture features 127 nodes and 213 links.
+![This picture features 127 nodes and 213 links](resources/History/example.png)
 
 # Summary
 Pathfinder builds on a simple concept of finding the most ideal path from one node on a map to another. 
