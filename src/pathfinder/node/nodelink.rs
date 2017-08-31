@@ -6,7 +6,6 @@ use std::fs::{OpenOptions, File};
 use super::Node;
 use super::super::tools::{constants, util};
 
-
 /*
      NodeLink
      --------
@@ -81,7 +80,7 @@ impl<'a> NodeLink<'a> {
 
     pub fn save(&self) {
 
-        // Opens the node file.
+        // Opens the node file with specific OpenOptions.
         let mut file: File = OpenOptions::new()
             .create(true)
             .append(true)
@@ -89,13 +88,10 @@ impl<'a> NodeLink<'a> {
             .open(constants::LINKPATH)
             .unwrap();
 
-        let omni;
-
-        if self.omnidirectional {
-            omni = "true";
-        } else {
-            omni = "false";
-        }
+        let omni = match self.omnidirectional {
+            true => "true",
+            _ => "false",
+        };
 
         let str = [
             self.from.gen_id().as_str(),

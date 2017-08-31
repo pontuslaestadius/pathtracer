@@ -121,7 +121,7 @@ pub fn map_node(list: &[Node]) {
 
 pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
     // Indicates the size of the node in pixels.
-    let node_size: u32 = 12;
+    let mut node_size: u32 = 5;
     let node_name_length: u32 = 100;
 
     let min_max = gen_min_max(nodes);
@@ -131,14 +131,12 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
 
     // Sets the imag
     let imgx = (res.0 + node_size*2 +node_name_length) as u32;
-    let imgy = (res.1 + node_size*2 ) as u32;
+    let imgy = (res.1 + node_size) as u32;
 
     println!("Creating map_node_and_links with resolution: {}x{}", imgx, imgy);
 
     // Create a new ImgBuf with width: imgx and height: imgy
     let mut imgbuf = image::ImageBuffer::new(imgx, imgy);
-
-    let luma_node = image::Luma([230 as u8]);
 
     // Counts the number of nodes placed.
     let mut placed_links = 0; // TODO this wont be required once the map is 100% functioning.
@@ -169,7 +167,6 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         let scale_y: f64 = scale(dif_x, dif_y);
         let scale_x: f64 = scale(dif_y, dif_x);
 
-
         let mut x = from_x;
         let mut y = from_y;
 
@@ -186,6 +183,8 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         }
 
         let luma_link = image::Luma([util::roll(60,80) as u8]);
+        let luma_link2 = image::Luma([util::roll(20,30) as u8]);
+        let luma_link3 = image::Luma([util::roll(10,15) as u8]);
 
         let end = |a, b, c| {
             if a == b {
@@ -213,42 +212,85 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
                 x += inc_x;
                 x_ite -= 1.0;
             } else {
-                println!("edge case like this should not occur ({}, {})", inc_x, inc_y); // TODO this occurs from time to time.
-                continue;
+                println!("edge case error: ({}, {})", inc_x, inc_y); // TODO this occurs from time to time.
+                break;
             }
 
             let xa: u32 = x as u32;
             let ya: u32 = y as u32;
 
             imgbuf.blend_pixel(xa, ya, luma_link);
-
+            imgbuf.blend_pixel(xa, ya+1, luma_link2);
+            imgbuf.blend_pixel(xa, ya-1, luma_link2);
         }
-
         placed_links += 1;
     }
 
-
-    // Iterate over the coordiantes and pixels of the image
+    // Iterate over the coordinates and pixels of the image
     for node in nodes {
+        let luma_node = image::Luma([util::roll(150,160) as u8]);
+        let luma_node2 = image::Luma([util::roll(170,180) as u8]);
+
         // println!("x: node.geo.x: {} add_x: {} y: node.geo.y: {} add_y: {}", node.geo.x, add_x, node.geo.y, add_y);
         let x = ((node.geo.x + add.0) as i16); // TODO can overflow
         let y = (node.geo.y + add.1) as i16; // TODO can overflow
 
+        for i in 0..201 {
+            let a: f64 = f64::consts::PI * (0.01 * (i -100) as f64);
+            let r = node_size as f64;
+
+            // gets a point on the circle's circumference.
+            let cir = |a: f64, b: f64| a + r * b;
+
+            let inc_x = cir(x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
+            let inc_y = cir(y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
+
+            // println!("inc_x: {} inc_y: {} a: {}", inc_x, inc_y, a);
+
+            if (inc_x < 0) {
+                break;
+            }
+            imgbuf.blend_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16) as u32, luma_node);
+        }
+
+        let node_size = node_size-1;
+        let x = x +1;
+        let y = y +1;
+        for i in 0..201 {
+            let a: f64 = f64::consts::PI * (0.01 * (i -100) as f64);
+            let r = node_size as f64;
+
+            // gets a point on the circle's circumference.
+            let cir = |a: f64, b: f64| a + r * b;
+
+            let inc_x = cir(x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
+            let inc_y = cir(y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
+
+            // println!("inc_x: {} inc_y: {} a: {}", inc_x, inc_y, a);
+
+            if (inc_x < 0) {
+                break;
+            }
+            imgbuf.blend_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16) as u32, luma_node2);
+        }
+
+        /*
         for i in 0..node_size +1 {
             for j in 0..node_size +1 {
-                if i == 0 || i == node_size || j == node_size || j == 0 {
+                if (i == 0 || i == node_size || j == node_size || j == 0) {
                     imgbuf.blend_pixel((x+(i + node_size/2) as i16) as u32, (y+(j + node_size/2) as i16) as u32, luma_node);
+                } else {
+                    imgbuf.blend_pixel((x+(i + node_size/2) as i16) as u32, (y+(j + node_size/2) as i16) as u32, luma_node_center);
                 }
             }
         }
-
-        //let name = gen_pixel_name(node.gen_id());
+        */
 
         placed_nodes += 1;
     }
 
     // Save the image
-    let fout = &mut File::create(&Path::new("resources/example.png")).unwrap();
+    let fout = &mut File::create(&Path::new("resources/network_map.png")).unwrap();
 
     if constants::DEBUGMODE {
         println!("Placed: {} Nodes", placed_nodes);
