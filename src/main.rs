@@ -29,7 +29,7 @@ extern crate pathfinder;
 
 fn main() {
 
-    match pathfinder::pathfinder::network::create_random_network(15, 500) {
+    match pathfinder::pathfinder::network::create_random_network(4, 150) {
         Ok(_) => println!("node network created."),
             _ => println!("TODO: proper error message here."), //TODO
     };

@@ -63,7 +63,7 @@ pub fn gen_stabalize(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 pub fn map_node(list: &[Node]) {
 
     // Indicates the size of the node in pixels.
-    let node_size = 4;
+    let node_size = 20;
 
     let min_max = gen_min_max(list);
 
@@ -121,7 +121,7 @@ pub fn map_node(list: &[Node]) {
 
 pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
     // Indicates the size of the node in pixels.
-    let mut node_size: u32 = 5;
+    let mut node_size: u32 = 6;
     let node_name_length: u32 = 100;
 
     let min_max = gen_min_max(nodes);
@@ -182,9 +182,8 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
             inc_y = -1;
         }
 
-        let luma_link = image::Luma([util::roll(60,80) as u8]);
-        let luma_link2 = image::Luma([util::roll(20,30) as u8]);
-        let luma_link3 = image::Luma([util::roll(10,15) as u8]);
+        let luma_link = image::Luma([util::roll(50,60) as u8]);
+        let luma_link2 = image::Luma([util::roll(15,20) as u8]);
 
         let end = |a, b, c| {
             if a == b {
@@ -219,9 +218,8 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
             let xa: u32 = x as u32;
             let ya: u32 = y as u32;
 
-            imgbuf.blend_pixel(xa, ya, luma_link);
             imgbuf.blend_pixel(xa, ya+1, luma_link2);
-            imgbuf.blend_pixel(xa, ya-1, luma_link2);
+            imgbuf.blend_pixel(xa, ya, luma_link);
         }
         placed_links += 1;
     }
@@ -235,8 +233,9 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         let x = ((node.geo.x + add.0) as i16); // TODO can overflow
         let y = (node.geo.y + add.1) as i16; // TODO can overflow
 
-        for i in 0..201 {
-            let a: f64 = f64::consts::PI * (0.01 * (i -100) as f64);
+        for i in 0..101 {
+            let a: f64 = f64::consts::PI * (0.02 * (i -100) as f64);
+
             let r = node_size as f64;
 
             // gets a point on the circle's circumference.
@@ -250,28 +249,26 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
             if (inc_x < 0) {
                 break;
             }
-            imgbuf.blend_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16) as u32, luma_node);
-        }
 
-        let node_size = node_size-1;
-        let x = x +1;
-        let y = y +1;
-        for i in 0..201 {
-            let a: f64 = f64::consts::PI * (0.01 * (i -100) as f64);
-            let r = node_size as f64;
-
-            // gets a point on the circle's circumference.
-            let cir = |a: f64, b: f64| a + r * b;
-
-            let inc_x = cir(x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
-            let inc_y = cir(y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
-
-            // println!("inc_x: {} inc_y: {} a: {}", inc_x, inc_y, a);
-
-            if (inc_x < 0) {
-                break;
+            let mut inc_luma = 0;
+            {
+                let mut p = imgbuf.get_pixel(x as u32, y as u32);
+                inc_luma = (p.data[0]/2) as u8;
             }
-            imgbuf.blend_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16) as u32, luma_node2);
+            let base: u8 = 70 +(i as f64 *0.4) as u8;
+            if inc_luma + base > 250 {
+                inc_luma = 240 - base;
+            }
+            println!("luma: {}", base+inc_luma);
+            let luma_this = image::Luma([base+inc_luma as u8]);
+            let luma_that = image::Luma([((base+inc_luma)/2) as u8]);
+            let luma_that2 = image::Luma([((base+inc_luma)/2 +3) as u8]);
+            let luma_that_less = image::Luma([((base+inc_luma)/2 -12) as u8]);
+
+            imgbuf.put_pixel((inc_x +node_size as i16 +1) as u32, (inc_y +node_size as i16 +1) as u32, luma_that_less);
+            imgbuf.put_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16 +1) as u32, luma_that);
+            imgbuf.put_pixel((inc_x +node_size as i16 +1) as u32, (inc_y +node_size as i16) as u32, luma_that2);
+            imgbuf.put_pixel((inc_x +node_size as i16) as u32, (inc_y +node_size as i16) as u32, luma_this);
         }
 
         /*
