@@ -42,8 +42,6 @@ impl Coordinates {
             panic!("too low radius provided");
         }
 
-        let mut rng = rand::thread_rng();
-
         // Randomly gets the radius of the circle.
 
         let r = roll((radius/2) as u32, radius as u32) as f64;
