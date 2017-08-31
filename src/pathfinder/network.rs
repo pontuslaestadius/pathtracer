@@ -84,11 +84,11 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     }
     debug_print("   done");
     */
-
     debug_print("   generating map..");
     // map::map_node(&nodes); // This feature works so it is commented out to try new things.
     map::map_node_and_links(&nodes, &connections);
     debug_print("   done");
+
 
     /*
     debug_print("   saving Node(s)..");
