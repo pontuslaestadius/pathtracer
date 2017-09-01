@@ -199,11 +199,14 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
             inc_x = end(x, to_x, inc_x);
             inc_y = end(y, to_y, inc_y);
 
-            if          x_ite >= 1.0 || y_ite > 1.0 {
-                x += inc_x;
-                y += inc_y;
-                x_ite -= 1.0;
-                y_ite -= 1.0;
+            if          x_ite >= 1.0 && y_ite >= 1.0 {
+                if x_ite > y_ite {
+                    x += inc_x;
+                    x_ite -= 1.0;
+                } else {
+                    y += inc_y;
+                    y_ite -= 1.0;
+                }
             } else if   y_ite >= 1.0 {
                 y += inc_y;
                 y_ite -= 1.0;
@@ -233,8 +236,10 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
         let x = ((node.geo.x + add.0) as i16); // TODO can overflow
         let y = (node.geo.y + add.1) as i16; // TODO can overflow
 
-        for i in 0..101 {
-            let a: f64 = f64::consts::PI * (0.02 * (i -100) as f64);
+        let range = 100;
+        let inc = f64::consts::PI/(range/2) as f64;
+        for i in 0..range +1 {
+            let a: f64 = f64::consts::PI * (inc * (i -range/2) as f64);
 
             let r = node_size as f64;
 
@@ -243,8 +248,6 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
 
             let inc_x = cir(x as f64, a.cos()) as i16;            // x = cx + r * cos(a)
             let inc_y = cir(y as f64, a.sin()) as i16;            // y = cy + r * sin(a)
-
-            // println!("inc_x: {} inc_y: {} a: {}", inc_x, inc_y, a);
 
             if (inc_x < 0) {
                 break;
@@ -259,7 +262,7 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
             if inc_luma + base > 250 {
                 inc_luma = 240 - base;
             }
-            println!("luma: {}", base+inc_luma);
+            // println!("luma: {}", base+inc_luma);
             let luma_this = image::Luma([base+inc_luma as u8]);
             let luma_that = image::Luma([((base+inc_luma)/2) as u8]);
             let luma_that2 = image::Luma([((base+inc_luma)/2 +3) as u8]);
