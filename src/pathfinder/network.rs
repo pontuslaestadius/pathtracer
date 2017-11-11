@@ -31,6 +31,8 @@ use pathfinder::node::*;
 use super::tools::util::*;
 use super::map;
 
+use std::time::Instant;
+
 
 pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> {
 
@@ -73,7 +75,7 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     debug_print("   done");
 
     debug_print("   linking nodes..");
-    connections = NodeLink::link(&nodes);
+    //connections = NodeLink::link(&nodes);
 
     debug_print("   done");
 
@@ -85,9 +87,10 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     debug_print("   done");
     */
     debug_print("   generating map..");
-    map::map_node_and_links(&nodes, &connections);
-    debug_print("   done");
-
+    let start = Instant::now();
+    map::map_node_and_links(&mut nodes, &connections);
+    let elapsed = start.elapsed();
+    println!("   done - {:?}s", elapsed.as_secs());
 
     /*
     debug_print("   saving Node(s)..");

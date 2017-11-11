@@ -27,7 +27,9 @@ pub struct Node {
 impl Node {
 
     // Draw node.
-    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, color: Rgba<u8>, size: u32) {
+    pub fn draw(&mut self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, color: Rgba<u8>, size: u32) {
+
+        self.color = color;
 
         // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
         let x = (self.geo.x +x_offset as i16) as u32;
@@ -35,7 +37,7 @@ impl Node {
 
         for i in 0..size {
             for j in 0..size {
-                image.put_pixel(x +i, y +j,    color);
+                image.put_pixel(x +i, y +j,    self.color);
                 image.put_pixel(x +i +1, y +j +1, Rgba {data: [0,0,0,255]});
             }
         }
