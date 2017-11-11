@@ -2,15 +2,15 @@ pub mod coordinates;
 pub mod nodelink;
 
 
-use std::cmp::{PartialEq, Ordering};
+use std::cmp::PartialEq;
 use std::fs::{OpenOptions, File};
 
 use std::io::prelude::*;
 use std::io;
-use std::f64;
-use std::path::Path;
 
 use super::tools::{util, constants};
+
+use image::{ImageBuffer, Rgba};
 
 /*
     Node
@@ -21,9 +21,27 @@ use super::tools::{util, constants};
 pub struct Node {
     pub name: String,
     pub geo: coordinates::Coordinates,
+    pub color: Rgba<u8>,
 }
 
 impl Node {
+
+    // Draw node.
+    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, color: Rgba<u8>, size: u32) {
+
+        // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
+        let x = (self.geo.x +x_offset as i16) as u32;
+        let y = (self.geo.y +y_offset as i16) as u32;
+
+        for i in 0..size {
+            for j in 0..size {
+                image.put_pixel(x +i, y +j,    color);
+                image.put_pixel(x +i +1, y +j +1, Rgba {data: [0,0,0,255]});
+            }
+        }
+
+
+    }
 
     /*
 
@@ -62,6 +80,7 @@ impl Node {
         Node {
             name,
             geo,
+            color: Rgba {data: [0,0,0,255]}
         }
     }
 
@@ -116,7 +135,7 @@ impl Node {
             .unwrap();
 
         let mut contents = String::new();
-        file.read_to_string(&mut contents);
+        let _ = file.read_to_string(&mut contents);
         let split = contents.split('\n');
 
 
@@ -145,7 +164,8 @@ impl Node {
             geo: coordinates::Coordinates {
                 x,
                 y
-            }
+            },
+            color: Rgba {data: [0,0,0,255]}
         }
 
     }
@@ -179,7 +199,8 @@ impl Clone for Node {
     fn clone(&self) -> Node {
         Node {
             name: self.name.clone(),
-            geo: self.geo.clone()
+            geo: self.geo.clone(),
+            color: self.color.clone(),
         }
     }
 }

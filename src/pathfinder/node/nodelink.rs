@@ -114,7 +114,7 @@ impl<'a> NodeLink<'a> {
             .unwrap();
 
         let mut contents = String::new();
-        file.read_to_string(&mut contents);
+        let _ = file.read_to_string(&mut contents);
         let split = contents.split('\n');
 
         for row in split {
