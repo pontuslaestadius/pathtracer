@@ -15,7 +15,7 @@ use image::{ImageBuffer, Rgba};
 pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     let x = min_max.0;
     let y = min_max.1;
-    ((x.1 - x.0) as u32, (y.1 - x.0) as u32)
+    ((x.1 - x.0) as u32, (y.1 - y.0) as u32)
 }
 
 pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
@@ -63,7 +63,7 @@ pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
 
-pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
+pub fn map_node_and_links(mut nodes: &mut [Node], links: &[NodeLink]) {
 
     // Specifies the max width that a text can use up.
     let node_name_length: u32 = 100;
@@ -81,18 +81,18 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
 
     // Sets the image size.
     let width = (res.0 + node_size*2 +node_name_length) as u32;
-    let height = (res.1 + node_size) as u32;
+    let height = (res.1 + node_size*2) as u32;
 
     println!("Creating map_node_and_links with resolution: {}x{}", width, height);
 
     // Create a new ImgBuf with width: imgx and height: imgy
     let mut imgbuf = gen_canvas(width, height);
 
+    // Draws all nodes.
+    map_nodes(&mut imgbuf, &mut nodes, add, node_size);
+
     // Draws all links
     map_links(&mut imgbuf, &links, add, node_size);
-
-    // Draws all nodes.
-    map_nodes(&mut imgbuf, &nodes, add, node_size);
 
     if constants::DEBUGMODE {
         println!("Placed: {} Nodes", nodes.len());
@@ -103,7 +103,7 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
     let _ = imgbuf.save(&Path::new("examples/example2.png"));
 }
 
-pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],  add: (i16, i16), node_size: u32) {
+pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &mut [Node],  add: (i16, i16), node_size: u32) {
 
     // Iterate over the coordinates and pixels of the image
     for node in nodes {
@@ -149,6 +149,8 @@ pub fn map_links(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink],
         let from = link.from;
         let to = link.to;
 
+        let color = from.color;
+
         // Starting positions.
         let mut x = (from.geo.x + add.0 + (node_size/2) as i16) as i16;
         let mut y = (from.geo.y + add.1 + (node_size/2) as i16) as i16;
@@ -156,8 +158,6 @@ pub fn map_links(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink],
         // Finish positions.
         let to_x = (to.geo.x + add.0 + (node_size/2) as i16) as i16;
         let to_y = (to.geo.y + add.1 + (node_size/2) as i16) as i16;
-
-        let primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
 
         let mut pos = Vec::new();
 
@@ -184,7 +184,7 @@ pub fn map_links(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink],
 
         // Places the pixels.
         for c in pos.iter() {
-            image.put_pixel(c.0, c.1, primary);
+            image.put_pixel(c.0, c.1, color);
         }
     }
 
