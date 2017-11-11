@@ -3,9 +3,6 @@ pub mod map;
 pub mod tools;
 pub mod network;
 
-use std::fs::File;
-use std::io;
-use std::io::prelude::*;
 
 use pathfinder::node::Node;
 
