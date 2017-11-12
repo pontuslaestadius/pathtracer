@@ -62,7 +62,7 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
     let node_name_length: u32 = 100;
 
     // Node size.
-    let node_size: u32 = 8;
+    let node_size: u32 = 4;
 
     let min_max = gen_min_max(nodes);
 
