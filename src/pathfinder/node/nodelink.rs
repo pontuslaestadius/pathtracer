@@ -77,6 +77,7 @@ impl<'a> NodeLink<'a> {
         }
     }
 
+    /// Creates a new nodeLink and binds two nodes together.
     pub fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
         NodeLink {
             from,
@@ -85,6 +86,7 @@ impl<'a> NodeLink<'a> {
         }
     }
 
+    /// Links a list of provided nodes randomly.
     pub fn link(list: &[Node]) -> Vec<NodeLink> {
         let mut connections: Vec<NodeLink> = Vec::new();
 
@@ -93,30 +95,6 @@ impl<'a> NodeLink<'a> {
             // If you are on the last item in the list, There is nothing to link.
 
             let from = list.get(i*2).unwrap();
-
-            let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
-
-            if i + roll >= range {
-                roll = range -1 -i;
-            }
-
-            if i == range -1 {
-                break;
-            }
-            let to = list.get(i +roll).unwrap();
-
-            let link = NodeLink::new(from, to, true);
-            connections.push(link);
-        }
-
-        for i in 0..range {
-            // If you are on the last item in the list, There is nothing to link.
-
-            if util::roll(0,100) > 70 {
-                continue;
-            }
-
-            let from = list.get(i).unwrap();
 
             let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
 
