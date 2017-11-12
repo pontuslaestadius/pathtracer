@@ -5,6 +5,7 @@ use std::fs::{OpenOptions, File};
 
 use super::Node;
 use super::super::tools::{constants, util};
+use image::{ImageBuffer, Rgba};
 
 /*
      NodeLink
@@ -19,6 +20,57 @@ pub struct NodeLink<'a> {
 }
 
 impl<'a> NodeLink<'a> {
+
+    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
+
+        /*
+            // Sets the scaling propety using an anonymous function for links.
+            let scale = |a: i16, b: i16| {
+                let mut res: f64 = 0.0;
+                if b != 0 {
+                    res = a.abs() as f64 / b.abs() as f64;
+                }
+                res
+            };
+            */
+
+        // Starting positions.
+        let mut x = (self.from.geo.x + x_offset + (size/2) as i16) as i16;
+        let mut y = (self.from.geo.y + y_offset + (size/2) as i16) as i16;
+
+        // Finish positions.
+        let to_x = (self.to.geo.x + x_offset + (size/2) as i16) as i16;
+        let to_y = (self.to.geo.y + y_offset + (size/2) as i16) as i16;
+
+        let mut pos = Vec::new();
+
+        // Keep putting pixels until they reach the destination.
+        while x != to_x || y != to_y {
+
+            let xa: u32 = x as u32;
+            let ya: u32 = y as u32;
+
+            pos.push((xa, ya));
+
+            if x < to_x {
+                x+=1;
+            } else if x > to_x {
+                x-=1;
+            }
+
+            if y < to_y {
+                y+=1;
+            } else if y > to_y {
+                y-=1;
+            }
+        }
+
+        // Places the pixels.
+        for c in pos.iter() {
+            image.put_pixel(c.0, c.1, self.from.color);
+        }
+    }
+
     pub fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
         NodeLink {
             from,
@@ -31,10 +83,10 @@ impl<'a> NodeLink<'a> {
         let mut connections: Vec<NodeLink> = Vec::new();
 
         let range = list.len();
-        for i in 0..range {
+        for i in 0..range/2 {
             // If you are on the last item in the list, There is nothing to link.
 
-            let from = list.get(i).unwrap();
+            let from = list.get(i*2).unwrap();
 
             let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
 
