@@ -34,23 +34,29 @@ impl<'a> NodeLink<'a> {
             };
             */
 
+        let size = (size/2) as i16;
+
         // Starting positions.
-        let mut x = (self.from.geo.x + x_offset + (size/2) as i16) as i16;
-        let mut y = (self.from.geo.y + y_offset + (size/2) as i16) as i16;
+        let mut x = (self.from.geo.x + x_offset + size) as u32;
+        let mut y = (self.from.geo.y + y_offset + size) as u32;
 
         // Finish positions.
-        let to_x = (self.to.geo.x + x_offset + (size/2) as i16) as i16;
-        let to_y = (self.to.geo.y + y_offset + (size/2) as i16) as i16;
+        let to_x = (self.to.geo.x + x_offset + size) as u32;
+        let to_y = (self.to.geo.y + y_offset + size) as u32;
 
         let mut pos = Vec::new();
 
         // Keep putting pixels until they reach the destination.
         while x != to_x || y != to_y {
 
-            let xa: u32 = x as u32;
-            let ya: u32 = y as u32;
+            // Identify if the pixels have been occupied.
+            let pixel: &Rgba<u8> = image.get_pixel(x, y);
 
-            pos.push((xa, ya));
+            // If it's not transparent.
+            if pixel.data[3] == 0 {
+                pos.push((x, y));
+            }
+
 
             if x < to_x {
                 x+=1;
