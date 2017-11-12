@@ -21,6 +21,10 @@ impl Group {
             node.draw(image, x_offset, y_offset, size);
         }
     }
+
+    pub fn push(&mut self, node: Node) {
+        self.nodes.push(node);
+    }
 }
 
 pub fn min_max(list: &[Group]) -> ((i16, i16), (i16, i16)) {

@@ -129,21 +129,21 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
     // Creates the groups.
     for _ in 0..nr_groups {
-        let group_coordinates = Coordinates::gen_within_radius(default_coordinates, radius*10);
+        let group_coordinates = Coordinates::gen_within_radius(Coordinates {x: 0, y: 0}, radius*10);
         let group_name = get_random_item(&node_names).clone();
         groups.push(Group::new(
             group_name, group_coordinates));
     }
 
     // Add the nodes to the groups.
-    for group in groups.iter() {
+    for group in groups.iter_mut() {
         // Number of nodes the group has.
         for _ in children_min_max.0..roll(children_min_max.0, children_min_max.1) {
 
             let name = get_random_item(&node_names).clone();
-            let coord = Coordinates::gen_within_radius(group.geo, radius);
+            let coord = Coordinates::gen_within_radius(group.geo.clone(), radius);
 
-            group.nodes.push(Node::new(name, coord));
+            group.push(Node::new(name, coord));
         }
     }
 
