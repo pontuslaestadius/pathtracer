@@ -58,24 +58,9 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
             let name: String = get_random_item(&node_names).clone();
             let mut this_node = Node::new(name,d.clone());
 
-            // Node
-            let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
 
-            // Color of the node.
-            for i in 0..4 {
-                let v = primary.data[i] as u32 + roll(0,255);
 
-                // If v goes above what a u8 can take. Set it to max.
-                let v2 = if v > 255 {
-                    255
-                } else {
-                    v
-                };
-
-                primary.data[i] = v2 as u8;
-            }
-
-            this_node.set_color(primary);
+            this_node.set_color(gen_rgba());
 
             temp_nodes.push(this_node);
 
@@ -135,15 +120,21 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
             group_name, group_coordinates));
     }
 
+
+
     // Add the nodes to the groups.
     for group in groups.iter_mut() {
+        let color = gen_rgba();
+
         // Number of nodes the group has.
         for _ in children_min_max.0..roll(children_min_max.0, children_min_max.1) {
 
             let name = get_random_item(&node_names).clone();
             let coord = Coordinates::gen_within_radius(group.geo.clone(), radius);
 
-            group.push(Node::new(name, coord));
+            let mut node = Node::new(name, coord);
+            node.set_color(color);
+            group.push(node);
         }
     }
 
@@ -156,4 +147,26 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
     Ok(())
 
+}
+
+fn gen_rgba() -> Rgba<u8> {
+
+    // Node
+    let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
+
+    // Color of the node.
+    for i in 0..4 {
+        let v = primary.data[i] as u32 + roll(0,255);
+
+        // If v goes above what a u8 can take. Set it to max.
+        let v2 = if v > 255 {
+            255
+        } else {
+            v
+        };
+
+        primary.data[i] = v2 as u8;
+    }
+
+    primary
 }
