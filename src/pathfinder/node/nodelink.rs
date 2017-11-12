@@ -5,6 +5,7 @@ use std::fs::{OpenOptions, File};
 
 use super::Node;
 use super::super::tools::{constants, util};
+use image::{ImageBuffer, Rgba};
 
 /*
      NodeLink
@@ -19,6 +20,64 @@ pub struct NodeLink<'a> {
 }
 
 impl<'a> NodeLink<'a> {
+
+    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
+
+        /*
+            // Sets the scaling propety using an anonymous function for links.
+            let scale = |a: i16, b: i16| {
+                let mut res: f64 = 0.0;
+                if b != 0 {
+                    res = a.abs() as f64 / b.abs() as f64;
+                }
+                res
+            };
+            */
+
+        let size = (size/2) as i16;
+
+        // Starting positions.
+        let mut x = (self.from.geo.x + x_offset + size) as u32;
+        let mut y = (self.from.geo.y + y_offset + size) as u32;
+
+        // Finish positions.
+        let to_x = (self.to.geo.x + x_offset + size) as u32;
+        let to_y = (self.to.geo.y + y_offset + size) as u32;
+
+        let mut pos = Vec::new();
+
+        // Keep putting pixels until they reach the destination.
+        while x != to_x || y != to_y {
+
+            // Identify if the pixels have been occupied.
+            let pixel: &Rgba<u8> = image.get_pixel(x, y);
+
+            // If it's not transparent.
+            if pixel.data[3] == 0 {
+                pos.push((x, y));
+            }
+
+
+            if x < to_x {
+                x+=1;
+            } else if x > to_x {
+                x-=1;
+            }
+
+            if y < to_y {
+                y+=1;
+            } else if y > to_y {
+                y-=1;
+            }
+        }
+
+        // Places the pixels.
+        for c in pos.iter() {
+            image.put_pixel(c.0, c.1, self.from.color);
+        }
+    }
+
+    /// Creates a new nodeLink and binds two nodes together.
     pub fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
         NodeLink {
             from,
@@ -27,38 +86,15 @@ impl<'a> NodeLink<'a> {
         }
     }
 
+    /// Links a list of provided nodes randomly.
     pub fn link(list: &[Node]) -> Vec<NodeLink> {
         let mut connections: Vec<NodeLink> = Vec::new();
 
         let range = list.len();
-        for i in 0..range {
+        for i in 0..range/2 {
             // If you are on the last item in the list, There is nothing to link.
 
-            let from = list.get(i).unwrap();
-
-            let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
-
-            if i + roll >= range {
-                roll = range -1 -i;
-            }
-
-            if i == range -1 {
-                break;
-            }
-            let to = list.get(i +roll).unwrap();
-
-            let link = NodeLink::new(from, to, true);
-            connections.push(link);
-        }
-
-        for i in 0..range {
-            // If you are on the last item in the list, There is nothing to link.
-
-            if util::roll(0,100) > 70 {
-                continue;
-            }
-
-            let from = list.get(i).unwrap();
+            let from = list.get(i*2).unwrap();
 
             let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
 
