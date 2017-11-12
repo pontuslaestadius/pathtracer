@@ -1,7 +1,6 @@
 extern crate image;
 
 use std::path::Path;
-use std::f64;
 
 use super::tools::constants;
 use pathfinder::node::Node;
@@ -40,10 +39,6 @@ pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
         if min_y > node.geo.y {
             min_y = node.geo.y;
         }
-    }
-
-    if constants::DEBUGMODE {
-        println!("Max_x: {} Min_x: {} Max_y: {} Min_y: {}", max_x, min_x, max_y, min_y);
     }
 
     ((min_x, max_x), (min_y, max_y))
@@ -95,8 +90,7 @@ pub fn map_node_and_links(mut nodes: &mut [Node], links: &[NodeLink]) {
     map_links(&mut imgbuf, &links, add, node_size);
 
     if constants::DEBUGMODE {
-        println!("Placed: {} Nodes", nodes.len());
-        println!("Placed: {} Links", links.len());
+        println!("Placed: {} Nodes and {} Links", nodes.len(), links.len());
     }
 
     // Save the image to local storage.
@@ -125,7 +119,8 @@ pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &mut [No
             primary.data[i] = v2 as u8;
         }
 
-        node.draw(&mut image, add.0 as u32, add.1 as u32, primary, node_size);
+        node.set_color(primary);
+        node.draw(&mut image, add.0 as u32, add.1 as u32, node_size);
 
     }
 
@@ -133,6 +128,7 @@ pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &mut [No
 
 pub fn map_links(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink], add: (i16, i16), node_size: u32) {
 
+    /*
     // Sets the scaling propety using an anonymous function for links.
     let scale = |a: i16, b: i16| {
         let mut res: f64 = 0.0;
@@ -141,6 +137,7 @@ pub fn map_links(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink],
         }
         res
     };
+    */
 
     // Iterate over the coordinates and pixels of the image
     for link in links {

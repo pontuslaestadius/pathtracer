@@ -41,7 +41,7 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
     let mut temp_nodes: Vec<Node> = Vec::new();
-    let mut connections: Vec<NodeLink> = Vec::new();
+    let connections: Vec<NodeLink> = Vec::new();
     let mut c: Coordinates = Coordinates::new(0,0);
 
     // A list of all the names the nodes will be generated from.
