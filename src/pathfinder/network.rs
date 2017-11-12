@@ -31,6 +31,8 @@ use pathfinder::node::*;
 use super::tools::util::*;
 use super::map;
 
+use image::Rgba;
+
 use std::time::Instant;
 
 
@@ -41,7 +43,6 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
     let mut temp_nodes: Vec<Node> = Vec::new();
-    let connections: Vec<NodeLink> = Vec::new();
     let mut c: Coordinates = Coordinates::new(0,0);
 
     // A list of all the names the nodes will be generated from.
@@ -54,7 +55,26 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
         for node in &nodes {
             let d = Coordinates::gen_within_radius(node.geo.clone(), radius);
             let name: String = get_random_item(&node_names).clone();
-            let this_node = Node::new(name,d.clone());
+            let mut this_node = Node::new(name,d.clone());
+
+            // Node
+            let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
+
+            // Color of the node.
+            for i in 0..4 {
+                let v = primary.data[i] as u32 + roll(0,255);
+
+                // If v goes above what a u8 can take. Set it to max.
+                let v2 = if v > 255 {
+                    255
+                } else {
+                    v
+                };
+
+                primary.data[i] = v2 as u8;
+            }
+
+            this_node.set_color(primary);
 
             temp_nodes.push(this_node);
 
@@ -72,32 +92,26 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
         // Generates a location within a range of the previous one.
         c = Coordinates::gen_within_radius(c.clone(), radius);
     }
-    debug_print("   done");
 
     debug_print("   linking nodes..");
-    //connections = NodeLink::link(&nodes);
-
-    debug_print("   done");
+    let connections = NodeLink::link(&nodes);
 
     /*
     debug_print("   saving NodeLink(s)..");
     for con in connections.iter() {
         con.save();
     }
-    debug_print("   done");
     */
     debug_print("   generating map..");
     let start = Instant::now();
-    map::map_node_and_links(&mut nodes, &connections);
+    map::map_node_and_links(&nodes, &connections);
     let elapsed = start.elapsed();
     println!("   done - {:?}s", elapsed.as_secs());
 
     /*
     debug_print("   saving Node(s)..");
     let _ = Node::save_list(&nodes);
-    debug_print("   done");
     */
 
-    debug_print("done");
     Ok(())
 }

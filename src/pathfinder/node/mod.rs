@@ -33,7 +33,6 @@ impl Node {
     // Draw node.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
 
-
         // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
         let x = (self.geo.x +x_offset as i16) as u32;
         let y = (self.geo.y +y_offset as i16) as u32;
