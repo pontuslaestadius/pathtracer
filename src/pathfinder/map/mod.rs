@@ -4,6 +4,7 @@ use std::path::Path;
 
 use super::tools::constants;
 use pathfinder::node::Node;
+use pathfinder::group::*;
 use pathfinder::node::nodelink::NodeLink;
 
 use image::{ImageBuffer, Rgba};
@@ -16,7 +17,7 @@ pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
 }
 
 pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
-    // Finds the min and max nodes, for scaling and bounderies.
+    // Finds the min and max nodes, for scaling and boundaries.
     let mut min_x = list[0].geo.x;
     let mut min_y = list[0].geo.y;
     let mut max_x = list[0].geo.x;
@@ -54,6 +55,42 @@ pub fn gen_stabalize(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 // Generates a canvas and returns it.
 pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
+}
+
+pub fn map_groups(groups: &[Group]) {
+
+    // Specifies the max width that a text can use up.
+    let node_name_length: u32 = 100;
+
+    // Node size.
+    let node_size: u32 = 4;
+
+    let min_max = min_max(groups);
+
+    // Gets the resolution of the image
+    let res = gen_map_dimensions(min_max);
+
+    // Stabilizes the picture to have the action in the center of the image.
+    let add = gen_stabalize(min_max);
+
+    // Sets the image size.
+    let width = (res.0 + node_size*2 +node_name_length) as u32;
+    let height = (res.1 + node_size*2) as u32;
+
+    println!("Creating map_groups with resolution: {}x{}", width, height);
+
+    // Create a new ImgBuf with width: imgx and height: imgy
+    let mut imgbuf = gen_canvas(width, height);
+
+    for group in groups.iter() {
+        group.draw(&mut imgbuf, add.0 as u32, add.1 as u32, node_size);
+    }
+
+    // Save the image to local storage.
+    let _ = imgbuf.save(&Path::new("examples/example2.png"));
+
+
+
 }
 
 pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {

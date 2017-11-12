@@ -28,6 +28,7 @@ use std::io;
 use pathfinder::node::coordinates::Coordinates;
 use pathfinder::node::nodelink::NodeLink;
 use pathfinder::node::*;
+use pathfinder::group::*;
 use super::tools::util::*;
 use super::map;
 
@@ -114,4 +115,45 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     */
 
     Ok(())
+}
+
+pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: i16) -> Result<(), io::Error> {
+    debug_print("creating group network..");
+
+    // Stores all created nodes. So then they can be made in to a network.
+    let mut groups: Vec<Group> = Vec::new();
+    let mut default_coordinates: Coordinates = Coordinates::new(0,0);
+
+    // A list of all the names the nodes will be generated from.
+    let node_names: Vec<String> = get_node_names()?;
+
+    // Creates the groups.
+    for _ in 0..nr_groups {
+        let group_coordinates = Coordinates::gen_within_radius(default_coordinates, radius*10);
+        let group_name = get_random_item(&node_names).clone();
+        groups.push(Group::new(
+            group_name, group_coordinates));
+    }
+
+    // Add the nodes to the groups.
+    for group in groups.iter() {
+        // Number of nodes the group has.
+        for _ in children_min_max.0..roll(children_min_max.0, children_min_max.1) {
+
+            let name = get_random_item(&node_names).clone();
+            let coord = Coordinates::gen_within_radius(group.geo, radius);
+
+            group.nodes.push(Node::new(name, coord));
+        }
+    }
+
+    debug_print("   generating map..");
+    let start = Instant::now();
+    map::map_groups(&groups);
+    let elapsed = start.elapsed();
+    println!("   done - {:?}s", elapsed.as_secs());
+
+
+    Ok(())
+
 }
