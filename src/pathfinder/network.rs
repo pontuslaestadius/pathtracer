@@ -37,7 +37,7 @@ use image::Rgba;
 use std::time::Instant;
 
 
-pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> {
+pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> {
 
     debug_print("creating node network..");
 
@@ -102,7 +102,7 @@ pub fn create_random_network(number: u32, radius: i16) -> Result<(), io::Error> 
     Ok(())
 }
 
-pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: i16) -> Result<(), io::Error> {
+pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
     debug_print("creating group network..");
 
     // Stores all created nodes. So then they can be made in to a network.
@@ -117,7 +117,11 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
         let group_coordinates = Coordinates::gen_within_radius(Coordinates {x: 0, y: 0}, radius*10);
         let group_name = get_random_item(&node_names).clone();
         groups.push(Group::new(
-            group_name, group_coordinates));
+            group_name,
+            group_coordinates,
+            gen_rgba(),
+            radius
+        ));
     }
 
 
@@ -132,8 +136,8 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
             let name = get_random_item(&node_names).clone();
             let coord = Coordinates::gen_within_radius(group.geo.clone(), radius);
 
-            let mut node = Node::new(name, coord);
-            node.set_color(color);
+            let mut node = Node::new(name, coord.clone());
+            node.set_color(group.gen_color(coord));
             group.push(node);
         }
     }

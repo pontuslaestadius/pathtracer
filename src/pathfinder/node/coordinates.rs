@@ -37,7 +37,7 @@ impl Coordinates {
         }
     }
 
-    pub fn gen_within_radius(coord: Coordinates, radius: i16) -> Coordinates {
+    pub fn gen_within_radius(coord: Coordinates, radius: u32) -> Coordinates {
         if radius < 4 {
             panic!("too low radius provided");
         }
