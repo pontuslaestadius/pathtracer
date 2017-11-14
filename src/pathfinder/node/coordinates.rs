@@ -38,12 +38,8 @@ impl Coordinates {
     }
 
     pub fn gen_within_radius(coord: Coordinates, radius: u32) -> Coordinates {
-        if radius < 4 {
-            panic!("too low radius provided");
-        }
 
         // Randomly gets the radius of the circle.
-
         let r = roll(0, radius as u32) as f64;
 
         // gets a point on the circle's circumference.
@@ -84,4 +80,9 @@ impl PartialOrd for Coordinates {
     fn partial_cmp(&self, other: &Coordinates) -> Option<Ordering> {
         Some(self.cmp(other))
     }
+}
+
+// Get difference in distance.
+pub fn difference(c1: &Coordinates, c2: &Coordinates) -> (i16, i16) {
+    ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
 }
