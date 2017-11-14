@@ -37,7 +37,7 @@ impl Coordinates {
         }
     }
 
-    pub fn gen_within_radius(coord: Coordinates, radius: u32) -> Coordinates {
+    pub fn gen_within_radius(coord: &Coordinates, radius: u32) -> Coordinates {
 
         // Randomly gets the radius of the circle.
         let r = roll(0, radius as u32) as f64;
