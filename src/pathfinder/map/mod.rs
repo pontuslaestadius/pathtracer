@@ -58,10 +58,6 @@ pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
 }
 
 pub fn map_groups(groups: &[Group]) {
-
-    // Specifies the max width that a text can use up.
-    let node_name_length: u32 = 100;
-
     // Node size.
     let node_size: u32 = 4;
 
@@ -74,7 +70,7 @@ pub fn map_groups(groups: &[Group]) {
     let add = gen_stabalize(min_max);
 
     // Sets the image size.
-    let width = (res.0 + node_size*2 +node_name_length) as u32;
+    let width  = (res.0 + node_size*2) as u32;
     let height = (res.1 + node_size*2) as u32;
 
     println!("Creating map_groups with resolution: {}x{}", width, height);

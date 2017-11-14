@@ -1,18 +1,23 @@
 
 use pathfinder::node::{Node, coordinates};
 use image::{ImageBuffer, Rgba};
+use pathfinder::tools::util::border;
 
 pub struct Group {
     pub name: String,
     pub nodes: Vec<Node>,
     pub geo: coordinates::Coordinates,
+    pub color: Rgba<u8>,
+    pub radius: u32,
 }
 impl Group {
-    pub fn new(name: String, coordinates: coordinates::Coordinates) -> Group {
+    pub fn new(name: String, coordinates: coordinates::Coordinates, color: Rgba<u8>, radius: u32) -> Group {
         Group {
             name,
             nodes: Vec::new(),
             geo: coordinates,
+            color,
+            radius
         }
     }
 
@@ -24,6 +29,21 @@ impl Group {
 
     pub fn push(&mut self, node: Node) {
         self.nodes.push(node);
+    }
+
+    pub fn gen_color(&self, coordinates: coordinates::Coordinates) -> Rgba<u8> {
+        if coordinates.x > self.geo.x {
+
+            let c = self.color.data;
+            Rgba {data: [
+                border(c[0], -20),
+                border(c[1], -20),
+                border(c[2], -20),
+                border(c[3], -20)
+            ]}
+        } else {
+            self.color
+        }
     }
 }
 
