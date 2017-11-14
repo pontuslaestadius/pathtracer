@@ -54,7 +54,7 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
     for _ in 0..number {
 
         for node in &nodes {
-            let d = Coordinates::gen_within_radius(node.geo.clone(), radius);
+            let d = Coordinates::gen_within_radius(&node.geo, radius);
             let name: String = get_random_item(&node_names).clone();
             let mut this_node = Node::new(name,d.clone());
 
@@ -65,7 +65,7 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
             temp_nodes.push(this_node);
 
             // Generates a location within a range of the previous one.
-            c = Coordinates::gen_within_radius(node.geo.clone(), radius); // TODO is this useless?
+            c = Coordinates::gen_within_radius(&node.geo, radius); // TODO is this useless?
         }
 
         nodes.append(temp_nodes.as_mut());
@@ -76,7 +76,7 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
         nodes.push(Node::new(name,c.clone()));
 
         // Generates a location within a range of the previous one.
-        c = Coordinates::gen_within_radius(c.clone(), radius);
+        c = Coordinates::gen_within_radius(&c, radius);
     }
 
     debug_print("   linking nodes..");
@@ -112,9 +112,11 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = get_node_names()?;
 
+    let zero_zero = Coordinates {x: 0, y: 0};
+
     // Creates the groups.
     for _ in 0..nr_groups {
-        let group_coordinates = Coordinates::gen_within_radius(Coordinates {x: 0, y: 0}, radius*10);
+        let group_coordinates = Coordinates::gen_within_radius(&zero_zero, radius*10);
         let group_name = get_random_item(&node_names).clone();
         groups.push(Group::new(
             group_name,
@@ -125,22 +127,31 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     }
 
 
+    let mut sum = 0;
 
     // Add the nodes to the groups.
     for group in groups.iter_mut() {
         let color = gen_rgba();
 
+        let start = Instant::now();
+
         // Number of nodes the group has.
-        for _ in children_min_max.0..roll(children_min_max.0, children_min_max.1) {
+        for _ in 0..children_min_max.1 {
 
-            let name = get_random_item(&node_names).clone();
-            let coord = Coordinates::gen_within_radius(group.geo.clone(), radius);
+            let coord = Coordinates::gen_within_radius(&group.geo, radius);
 
-            let mut node = Node::new(name, coord.clone());
+            let mut node = Node::new("a".to_string(), coord.clone());
             node.set_color(group.gen_color(coord));
             group.push(node);
         }
+
+        let elapsed2 = start.elapsed();
+        sum += elapsed2.subsec_nanos()/1000000;
+        println!("   g - {:?}ms", elapsed2.subsec_nanos()/1000000);
     }
+
+
+    println!("   groups - {:?}ms, avg: {:?}ms", sum, sum/10);
 
     debug_print("   generating map..");
     let start = Instant::now();

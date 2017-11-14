@@ -36,7 +36,7 @@ fn main() {
     };
     */
 
-    let _ = pathfinder::pathfinder::network::create_group_network(10000, (80000, 90000), 100);
+    let _ = pathfinder::pathfinder::network::create_group_network(10, (80000, 1000000), 100);
 }
 
 

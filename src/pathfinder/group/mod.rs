@@ -41,7 +41,7 @@ impl Group {
         let mut y_scale: f64 = (y_dif as f64/radius as f64) as f64;
 
         let c = self.color.data;
-        let max_multi: f64 = ((c[0] + c[1] + c[2])/3) as f64;
+        let max_multi: f64 = ((c[0] as i32 + c[1] as i32 + c[2] as i32)/3) as f64;
 
         let modify = (-max_multi*(x_scale+y_scale)) as i32;
 
