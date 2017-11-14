@@ -32,18 +32,27 @@ impl Group {
     }
 
     pub fn gen_color(&self, coordinates: coordinates::Coordinates) -> Rgba<u8> {
-        if coordinates.x > self.geo.x {
 
-            let c = self.color.data;
-            Rgba {data: [
-                border(c[0], -20),
-                border(c[1], -20),
-                border(c[2], -20),
-                border(c[3], -20)
-            ]}
-        } else {
-            self.color
-        }
+        let radius = self.radius as i16;
+
+        let (x_dif, y_dif) = coordinates::difference(&self.geo, &coordinates);
+
+        let mut x_scale: f64 = (x_dif as f64/radius as f64) as f64;
+        let mut y_scale: f64 = (y_dif as f64/radius as f64) as f64;
+
+        let c = self.color.data;
+        let max_multi: f64 = ((c[0] + c[1] + c[2])/3) as f64;
+
+        let modify = (-max_multi*(x_scale+y_scale)) as i32;
+
+        // println!("x_dif: {}, y_dif: {}, radius: {} x_scale: {}, y_scale: {}, modify: {}", x_dif, y_dif, radius, x_scale, y_scale, modify);
+
+        Rgba {data: [
+            border(c[0], modify),
+            border(c[1], modify),
+            border(c[2], modify),
+            border(c[3], 0)
+        ]}
     }
 }
 
