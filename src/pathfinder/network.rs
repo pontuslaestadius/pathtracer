@@ -58,8 +58,6 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
             let name: String = get_random_item(&node_names).clone();
             let mut this_node = Node::new(name,d.clone());
 
-
-
             this_node.set_color(gen_rgba());
 
             temp_nodes.push(this_node);
@@ -107,7 +105,6 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut groups: Vec<Group> = Vec::new();
-    let mut default_coordinates: Coordinates = Coordinates::new(0,0);
 
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = get_node_names()?;
@@ -130,7 +127,6 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
     // Add the nodes to the groups.
     for group in groups.iter_mut() {
-        let color = gen_rgba();
 
         // Number of nodes the group has.
         for _ in 0..children_min_max.1 {
