@@ -127,13 +127,10 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     }
 
 
-    let mut sum = 0;
 
     // Add the nodes to the groups.
     for group in groups.iter_mut() {
         let color = gen_rgba();
-
-        let start = Instant::now();
 
         // Number of nodes the group has.
         for _ in 0..children_min_max.1 {
@@ -144,21 +141,15 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
             node.set_color(group.gen_color(coord));
             group.push(node);
         }
-
-        let elapsed2 = start.elapsed();
-        sum += elapsed2.subsec_nanos()/1000000;
-        println!("   g - {:?}ms", elapsed2.subsec_nanos()/1000000);
     }
-
-
-    println!("   groups - {:?}ms, avg: {:?}ms", sum, sum/10);
 
     debug_print("   generating map..");
     let start = Instant::now();
+
     map::map_groups(&groups);
+
     let elapsed = start.elapsed();
     println!("   done - {:?}s", elapsed.as_secs());
-
 
     Ok(())
 
