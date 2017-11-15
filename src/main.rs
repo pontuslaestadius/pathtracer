@@ -26,6 +26,10 @@
  */
 
 extern crate pathfinder;
+extern crate image;
+use pathfinder::pathfinder::*;
+use image::Rgba;
+use pathfinder::pathfinder::group::*;
 
 fn main() {
 
@@ -36,7 +40,53 @@ fn main() {
     };
     */
 
+    /*
     let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
+    */
+
+
+    // Ideal implementation example:
+
+    // Coordinates for the groups.
+    let group1_coordinates = node::coordinates::Coordinates::new(0,0);
+    let group2_coordinates = node::coordinates::Coordinates::new(150,150);
+
+    // Names for the groups.
+    let group1_name = "john doe";
+    let group2_name = "jane doe";
+
+    // Colors for the groups.
+    let group1_color = Rgba {data: [250, 20, 20, 255]};
+    let group2_color = Rgba {data: [20, 20, 250, 255]};
+
+    // Maximum distance for child nodes.
+    let child_node_spawn_radius = 25;
+
+    // Group 1.
+    let group1 = Group::new(
+        group1_name,
+        group1_coordinates,
+        group1_color,
+        child_node_spawn_radius
+    );
+
+    // Group 2.
+    let group2 = Group::new(
+        group2_name,
+        group2_coordinates,
+        group2_color,
+        child_node_spawn_radius
+    );
+
+    // List of groups.
+    let groups = vec!(group1, group2);
+
+
+    // Create a link between the groups.
+    let link = node::nodelink
+
+
+
 }
 
 
