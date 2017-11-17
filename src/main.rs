@@ -81,11 +81,11 @@ fn main() {
     // List of groups.
     let groups = vec!(group1, group2);
 
-
     // Create a link between the groups.
-    let link = node::nodelink
+    let links = vec!(node::link::Link::new(&group1.geo, &group2.geo));
 
-
+    // Maps them on an image and draw it.
+    map::groups_and_links(&groups, &links);
 
 }
 

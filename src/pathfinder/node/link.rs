@@ -3,7 +3,8 @@ use std::io::prelude::*;
 use std::str::FromStr;
 use std::fs::{OpenOptions, File};
 
-use super::Node;
+
+use super::coordinates::Coordinates;
 use super::super::tools::{constants, util};
 use image::{ImageBuffer, Rgba};
 
@@ -13,19 +14,19 @@ use image::{ImageBuffer, Rgba};
      Holds connections between two struct with coordinates.
  */
 
-pub struct Link<'a, T: 'a> {
-    pub from: &'a T,
-    pub to: &'a T,
+pub struct Link<'a> {
+    pub from: &'a Coordinates,
+    pub to: &'a Coordinates,
 }
 
-impl<'a, T> NodeLink<'a, T> {
+impl<'a> Link<'a> {
 
+    #![unimplemented]
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
-        // TODO implement.
     }
 
     /// Creates a new nodeLink and binds two nodes together.
-    pub fn new<'b>(from: &'b Node, to: &'b Node, ) -> NodeLink<'b> {
+    pub fn new<'b>(from: &'b Coordinates, to: &'b Coordinates, ) -> Link<'b> {
         NodeLink {
             from,
             to,
