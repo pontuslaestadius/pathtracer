@@ -21,51 +21,40 @@ pub struct Link<'a> {
 
 impl<'a> Link<'a> {
 
-    #![unimplemented]
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
+        let mut move_x = self.from.x -self.to.x;
+        let move_y = self.from.y -self.to.y;
+
+        let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
+
+        let mut x = self.from.x +x_offset;
+        let mut y = self.from.y +y_offset;
+
+        while move_x != 0 {
+            image.put_pixel(x as u32, y as u32, pixel);
+            if move_x <0 {
+                x += 1;
+                move_x += 1;
+            } else {
+                x -= 1;
+                move_x -= 1;
+            }
+        }
+
     }
 
     /// Creates a new nodeLink and binds two nodes together.
     pub fn new<'b>(from: &'b Coordinates, to: &'b Coordinates, ) -> Link<'b> {
-        NodeLink {
+        Link {
             from,
             to,
         }
     }
-
-    /// Links a list of provided nodes randomly.
-    pub fn link(list: &[Node]) -> Vec<NodeLink> {
-        let mut connections: Vec<NodeLink> = Vec::new();
-
-        let range = list.len();
-        for i in 0..range/2 {
-            // If you are on the last item in the list, There is nothing to link.
-
-            let from = list.get(i*2).unwrap();
-
-            let mut roll: usize = util::roll(0, (range/2) as u32) as usize;
-
-            if i + roll >= range {
-                roll = range -1 -i;
-            }
-
-            if i == range -1 {
-                break;
-            }
-            let to = list.get(i +roll).unwrap();
-
-            let link = NodeLink::new(from, to, true);
-            connections.push(link);
-        }
-
-        connections
-    }
 }
 
-impl<'a> PartialEq for NodeLink<'a> {
-    fn eq(&self, other: &NodeLink) -> bool {
+impl<'a> PartialEq for Link<'a> {
+    fn eq(&self, other: &Link) -> bool {
         (self.from == other.from) &&
-            (self.to == other.to) &&
-            (self.omnidirectional == other.omnidirectional)
+            (self.to == other.to)
     }
 }
