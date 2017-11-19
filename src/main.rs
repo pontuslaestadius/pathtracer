@@ -50,7 +50,7 @@ fn main() {
 
     // Coordinates for the groups.
     let group1_coordinates = node::coordinates::Coordinates::new(0,0);
-    let group2_coordinates = node::coordinates::Coordinates::new(150,150);
+    let group2_coordinates = node::coordinates::Coordinates::new(250,150);
 
     // Names for the groups.
     let group1_name = "john doe".to_string();
@@ -64,7 +64,7 @@ fn main() {
     let child_node_spawn_radius = 25;
 
     // Group 1.
-    let mut group1 = Group::new(
+    let group1 = Group::new(
         group1_name,
         group1_coordinates,
         group1_color,
@@ -72,7 +72,7 @@ fn main() {
     );
 
     // Group 2.
-    let mut group2 = Group::new(
+    let group2 = Group::new(
         group2_name,
         group2_coordinates,
         group2_color,
@@ -82,13 +82,12 @@ fn main() {
     // List of groups.
     let mut groups = vec!(group1, group2);
 
-    let children = 20;
+    let children = 20000;
 
     // Add children.
     for group in groups.iter_mut() {
         network::add_children(group, children);
     }
-
 
     // Create a link between the groups.
     let links = vec!(node::link::Link::new(&groups.get(0).unwrap().geo, &groups.get(1).unwrap().geo));

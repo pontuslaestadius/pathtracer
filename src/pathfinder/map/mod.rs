@@ -88,6 +88,10 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
         group.draw(&mut imgbuf, add.0 as u32, add.1 as u32, node_size);
     }
 
+    for link in links.iter() {
+        link.draw(&mut imgbuf, add.0, add.1, node_size);
+    }
+
     // Save the image to local storage.
     let _ = imgbuf.save(&Path::new(path));
 
