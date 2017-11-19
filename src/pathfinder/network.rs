@@ -150,7 +150,7 @@ pub fn add_children(group: &mut Group, nr_children: u32) {
 }
 
 // Returns a random Rgb color. the opacity is always 255.
-fn gen_rgba() -> Rgba<u8> {
+pub fn gen_rgba() -> Rgba<u8> {
 
     // Node
     let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};

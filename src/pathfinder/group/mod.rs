@@ -27,6 +27,19 @@ impl Group {
         }
     }
 
+    pub fn new_node(&mut self, name: String) {
+        let geo = coordinates::Coordinates::gen_within_radius(&self.geo, self.radius);
+        let color = self.gen_color(geo.clone());
+
+        self.push(
+            Node {
+                name,
+                geo,
+                color
+            }
+        );
+    }
+
     pub fn push(&mut self, node: Node) {
         self.nodes.push(node);
     }
