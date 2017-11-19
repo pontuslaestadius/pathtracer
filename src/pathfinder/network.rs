@@ -123,20 +123,9 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
         ));
     }
 
-
-
     // Add the nodes to the groups.
-    for group in groups.iter_mut() {
-
-        // Number of nodes the group has.
-        for _ in 0..children_min_max.1 {
-
-            let coord = Coordinates::gen_within_radius(&group.geo, radius);
-
-            let mut node = Node::new("a".to_string(), coord.clone());
-            node.set_color(group.gen_color(coord));
-            group.push(node);
-        }
+    for mut group in groups.iter_mut() {
+        add_children(&mut group, children_min_max.1);
     }
 
     debug_print("   generating map..");
@@ -148,9 +137,19 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     println!("   done - {:?}s", elapsed.as_secs());
 
     Ok(())
-
 }
 
+// Adds the number of children supplied randomly to a group.
+pub fn add_children(group: &mut Group, nr_children: u32) {
+    for _ in 0..nr_children {
+        let coord = Coordinates::gen_within_radius(&group.geo, group.radius);
+        let mut node = Node::new("".to_string(), coord.clone());
+        node.set_color(group.gen_color(coord));
+        group.push(node);
+    }
+}
+
+// Returns a random Rgb color. the opacity is always 255.
 fn gen_rgba() -> Rgba<u8> {
 
     // Node

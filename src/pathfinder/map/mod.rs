@@ -6,6 +6,7 @@ use super::tools::constants;
 use pathfinder::node::Node;
 use pathfinder::group::*;
 use pathfinder::node::nodelink::NodeLink;
+use pathfinder::node::link::*;
 
 use image::{ImageBuffer, Rgba};
 
@@ -55,6 +56,45 @@ pub fn gen_stabalize(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 // Generates a canvas and returns it.
 pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
+}
+
+
+pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO imlpementing.
+    // Node size.
+    let node_size: u32 = 4; // TODO make dynamic.
+
+    // Gets the highest and lowest of all the coordinates.
+    let min_max = min_max(groups);
+
+    // If there is no image to render. Panic.
+    if min_max == ((0,0),(0,0)) {
+        panic!("Nothing to map!");
+    }
+
+    // Gets the resolution of the image.
+    let res = gen_map_dimensions(min_max);
+
+    // Stabilizes the picture to have the action in the center of the image.
+    let add = gen_stabalize(min_max);
+
+    // Sets the image size.
+    let width  = (res.0 + node_size*2) as u32;
+    let height = (res.1 + node_size*2) as u32;
+
+    // Create a new ImgBuf with width: imgx and height: imgy
+    let mut imgbuf = gen_canvas(width, height);
+
+    for group in groups.iter() {
+        group.draw(&mut imgbuf, add.0 as u32, add.1 as u32, node_size);
+    }
+
+    for link in links.iter() {
+        link.draw(&mut imgbuf, add.0, add.1, node_size);
+    }
+
+    // Save the image to local storage.
+    let _ = imgbuf.save(&Path::new(path));
+
 }
 
 pub fn map_groups(groups: &[Group]) {
