@@ -151,6 +151,19 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
 }
 
+// Adds the number of children supplied randomly to a group.
+pub fn add_children(mut group: &mut Group, nr_children: u32) {
+    // Number of nodes the group has.
+    for _ in 0..nr_children {
+
+        let coord = Coordinates::gen_within_radius(&group.geo, group.radius);
+
+        let mut node = Node::new("".to_string(), coord.clone());
+        node.set_color(group.gen_color(coord));
+        group.push(node);
+    }
+}
+
 fn gen_rgba() -> Rgba<u8> {
 
     // Node
