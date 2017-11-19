@@ -45,6 +45,7 @@ fn main() {
     let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
     */
 
+    /*
 
     // Ideal implementation example:
 
@@ -97,6 +98,27 @@ fn main() {
 
     // Maps them on an image and draw it.
     map::groups_and_links(&groups, &links, save_path);
+
+    */
+
+    let tag = data::Tag {collection: "Author".to_string(), ignore: Vec::new()};
+
+    let groups = data::convert_file("resources/log.txt", &tag);
+
+    let mut i = 0;
+    for g in groups.iter() {
+        i+=g.nodes.len();
+    }
+
+    println!("{:?} groups with {} nodes", groups.len(), i);
+
+    let links: Vec<node::link::Link> = Vec::new();
+
+    let save_path = "examples/example3.png";
+
+    map::groups_and_links(&groups, &links, save_path);
+
+
 
 }
 

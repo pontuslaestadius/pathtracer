@@ -61,7 +61,7 @@ pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
 
 pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO imlpementing.
     // Node size.
-    let node_size: u32 = 4; // TODO make dynamic.
+    let node_size: u32 = 6; // TODO make dynamic.
 
     // Gets the highest and lowest of all the coordinates.
     let min_max = min_max(groups);
@@ -103,6 +103,11 @@ pub fn map_groups(groups: &[Group]) {
 
     let min_max = min_max(groups);
 
+    // If there is no image to render. Panic.
+    if min_max == ((0,0),(0,0)) {
+        panic!("Nothing to map!");
+    }
+
     // Gets the resolution of the image
     let res = gen_map_dimensions(min_max);
 
@@ -123,7 +128,7 @@ pub fn map_groups(groups: &[Group]) {
     }
 
     // Save the image to local storage.
-    let _ = imgbuf.save(&Path::new("examples/example2.png"));
+    let _ = imgbuf.save(&Path::new("examples/example4.png"));
 
 
 
