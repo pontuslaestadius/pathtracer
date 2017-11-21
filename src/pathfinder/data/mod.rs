@@ -2,14 +2,15 @@
 use super::group::*;
 use super::super::pathfinder::node::coordinates::*;
 use super::super::pathfinder::node::Node;
-use super::super::pathfinder::network::gen_rgba;
 
 use std::fs::{OpenOptions, File};
 use std::io::prelude::*;
 use std::io;
+use super::tools::{util, constants};
 
 
 pub struct Tag {
+    // Tag to divide them in to groups.
     pub collection: String,
     pub ignore: Vec<String>,
 }
@@ -27,16 +28,16 @@ pub fn convert_file(path: &str, tag: &Tag) -> Vec<Group> {
 }
 
 pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
+    let mut groups: Vec<Group> = Vec::new();
     let lines = content.split("\n");
 
-    let mut groups: Vec<Group> = Vec::new();
-
-    let mut ignore_line = false;
+    let mut i = 0;
     for line in lines {
         // Ignore empty lines.
         if line == "" {continue};
 
         if line.starts_with(tag.collection.as_str()) {
+            i+=1;
 
             // Check if a group matches the same.
             let coordinates = Coordinates::new(0,0);
@@ -47,7 +48,6 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
                 if old.name == line {
                     exists = true;
                     old.new_node(line.to_string());
-
                 }
             }
 
@@ -55,10 +55,12 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
 
                 let mut group = Group::new(
                     line.to_string(),
-                    Coordinates::gen_within_radius(&coordinates, radius*4),
-                    gen_rgba(),
+                    gen_radius(&coordinates, 0, radius*4),
+                    util::gen_rgba(),
                     radius
                 );
+
+                group.new_node(line.to_string());
 
                 groups.push(group);
 
@@ -66,6 +68,7 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
 
         }
 
+        println!("{}",i);
     }
 
     groups
