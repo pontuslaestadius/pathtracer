@@ -3,10 +3,10 @@ extern crate image;
 use std::path::Path;
 
 use super::tools::constants;
-use pathfinder::node::Node;
-use pathfinder::group::*;
-use pathfinder::node::nodelink::NodeLink;
-use pathfinder::node::link::*;
+use node::Node;
+use group::*;
+use node::nodelink::NodeLink;
+use node::link::*;
 
 use image::{ImageBuffer, Rgba};
 

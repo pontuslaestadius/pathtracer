@@ -75,10 +75,6 @@ impl Node {
         list
     }
 
-    pub fn quick_sort(list: &mut [Node]) {
-        // TODO implement.
-
-    }
     */
 
     pub fn new(name: String, geo: coordinates::Coordinates) -> Node {
