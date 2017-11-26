@@ -37,28 +37,6 @@ impl Coordinates {
         }
     }
 
-    pub fn gen_within_radius(coord: &Coordinates, radius: u32) -> Coordinates {
-
-        // Randomly gets the radius of the circle.
-        let r = roll(0, radius as u32) as f64;
-
-        // gets a point on the circle's circumference.
-        let cir = |a: f64, b: f64| a + r * b;
-
-        // Gets the Angle
-        let angle = roll(0, 360);
-        let a: f64 = f64::consts::PI * (0.01 * angle as f64);
-
-        let roll2: i16 = roll(0, 2 +(radius/10) as u32) as i16;
-
-        let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
-        let y = cir(coord.y as f64, a.sin()) as i16 -roll2;            // y = cy + r * sin(a)
-
-        Coordinates {
-            x,
-            y
-        }
-    }
 }
 
 impl Clone for Coordinates {
@@ -67,6 +45,32 @@ impl Clone for Coordinates {
             x: self.x,
             y: self.y
         }
+    }
+}
+
+pub fn gen_within_radius(coord: &Coordinates, radius: u32) -> Coordinates {
+    gen_radius(&coord, 0, radius)
+}
+
+pub fn gen_radius(coord: &Coordinates, min: u32, max: u32) -> Coordinates {
+    // Randomly gets the radius of the circle.
+    let r = roll(min, max) as f64;
+
+    // gets a point on the circle's circumference.
+    let cir = |a: f64, b: f64| a + r * b;
+
+    // Gets the Angle
+    let angle = roll(0, 360);
+    let a: f64 = f64::consts::PI * (0.01 * angle as f64);
+
+    let roll2: i16 = roll(min, min+max/10) as i16;
+
+    let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
+    let y = cir(coord.y as f64, a.sin()) as i16 -roll2;         // y = cy + r * sin(a)
+
+    Coordinates {
+        x,
+        y
     }
 }
 
