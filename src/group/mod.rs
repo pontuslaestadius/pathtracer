@@ -1,7 +1,7 @@
 
-use pathfinder::node::{Node, coordinates};
+use node::{Node, coordinates};
 use image::{ImageBuffer, Rgba};
-use pathfinder::tools::util::border;
+use tools::util::border;
 
 pub struct Group {
     pub name: String,
@@ -25,6 +25,34 @@ impl Group {
         for node in self.nodes.iter() {
             node.draw(image, x_offset, y_offset, size);
         }
+    }
+
+    pub fn new_node(&mut self, name: String) {
+        let geo = coordinates::gen_radius(&self.geo, 0, self.radius);
+        self.new_node_inner(geo, name);
+    }
+
+    pub fn new_node_min_auto(&mut self, name: String, min: u32) {
+        let geo = coordinates::gen_radius(&self.geo, min, min+10);
+        self.new_node_inner(geo, name);
+    }
+
+    pub fn new_node_min_max(&mut self, name: String, min: u32, max: u32) {
+        let geo = coordinates::gen_radius(&self.geo, min, max);
+        self.new_node_inner(geo, name);
+    }
+
+    pub fn new_node_inner(&mut self, geo: coordinates::Coordinates, name: String) {
+
+        let color = self.gen_color(geo.clone());
+
+        self.push(
+            Node {
+                name,
+                geo,
+                color
+            }
+        );
     }
 
     pub fn push(&mut self, node: Node) {

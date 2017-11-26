@@ -2,11 +2,13 @@ extern crate image;
 
 use std::path::Path;
 
+pub mod network;
+
 use super::tools::constants;
-use pathfinder::node::Node;
-use pathfinder::group::*;
-use pathfinder::node::nodelink::NodeLink;
-use pathfinder::node::link::*;
+use node::Node;
+use group::*;
+use node::nodelink::NodeLink;
+use node::link::*;
 
 use image::{ImageBuffer, Rgba};
 
@@ -45,7 +47,7 @@ pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
 }
 
 // Sets the additions requried to center the pixels on the map.
-pub fn gen_stabalize(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
+pub fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 
     let x = min_max.0;
     let y = min_max.1;
@@ -61,28 +63,16 @@ pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
 
 pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO imlpementing.
     // Node size.
-    let node_size: u32 = 4; // TODO make dynamic.
+    let node_size: u32 = 6; // TODO make dynamic.
 
     // Gets the highest and lowest of all the coordinates.
     let min_max = min_max(groups);
 
-    // If there is no image to render. Panic.
-    if min_max == ((0,0),(0,0)) {
-        panic!("Nothing to map!");
-    }
-
-    // Gets the resolution of the image.
-    let res = gen_map_dimensions(min_max);
-
     // Stabilizes the picture to have the action in the center of the image.
-    let add = gen_stabalize(min_max);
+    let add = gen_stuff(min_max);
 
-    // Sets the image size.
-    let width  = (res.0 + node_size*2) as u32;
-    let height = (res.1 + node_size*2) as u32;
-
-    // Create a new ImgBuf with width: imgx and height: imgy
-    let mut imgbuf = gen_canvas(width, height);
+    // Generates an image buffer.
+    let mut imgbuf = generate_image_buffer(node_size, min_max);
 
     for group in groups.iter() {
         group.draw(&mut imgbuf, add.0 as u32, add.1 as u32, node_size);
@@ -101,35 +91,42 @@ pub fn map_groups(groups: &[Group]) {
     // Node size.
     let node_size: u32 = 4;
 
+    // Gets the min and max of the canvas.
     let min_max = min_max(groups);
 
-    // Gets the resolution of the image
-    let res = gen_map_dimensions(min_max);
-
     // Stabilizes the picture to have the action in the center of the image.
-    let add = gen_stabalize(min_max);
+    let add = gen_stuff(min_max);
 
-    // Sets the image size.
-    let width  = (res.0 + node_size*2) as u32;
-    let height = (res.1 + node_size*2) as u32;
-
-    println!("Creating map_groups with resolution: {}x{}", width, height);
-
-    // Create a new ImgBuf with width: imgx and height: imgy
-    let mut imgbuf = gen_canvas(width, height);
+    // Generates an image buffer.
+    let mut imgbuf = generate_image_buffer(node_size, min_max);
 
     for group in groups.iter() {
         group.draw(&mut imgbuf, add.0 as u32, add.1 as u32, node_size);
     }
 
     // Save the image to local storage.
-    let _ = imgbuf.save(&Path::new("examples/example2.png"));
-
-
+    let _ = imgbuf.save(&Path::new("examples/example4.png"));
 
 }
 
-pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
+pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) -> image::ImageBuffer<Rgba<u8>, Vec<u8>>  {
+    // If there is no image to render. Panic.
+    if min_max == ((0,0),(0,0)) {
+        panic!("Nothing to map!");
+    }
+
+    // Gets the resolution of the image
+    let res = gen_map_dimensions(min_max);
+
+    // Sets the image size.
+    let width  = res.0 + node_size*2;
+    let height = res.1 + node_size*2;
+
+    // Create a new ImgBuf with width: imgx and height: imgy
+    gen_canvas(width, height)
+}
+
+pub fn node_and_links(nodes: &[Node], links: &[NodeLink]) {
 
     // Specifies the max width that a text can use up.
     let node_name_length: u32 = 100;
@@ -139,20 +136,11 @@ pub fn map_node_and_links(nodes: &[Node], links: &[NodeLink]) {
 
     let min_max = gen_min_max(nodes);
 
-    // Gets the resolution of the image
-    let res = gen_map_dimensions(min_max);
-
     // Stabilizes the picture to have the action in the center of the image.
-    let add = gen_stabalize(min_max);
+    let add = gen_stuff(min_max);
 
-    // Sets the image size.
-    let width = (res.0 + node_size*2 +node_name_length) as u32;
-    let height = (res.1 + node_size*2) as u32;
-
-    println!("Creating map_node_and_links with resolution: {}x{}", width, height);
-
-    // Create a new ImgBuf with width: imgx and height: imgy
-    let mut imgbuf = gen_canvas(width, height);
+    // Generates an image buffer.
+    let mut imgbuf = generate_image_buffer(node_size, min_max);
 
     // Draws all nodes.
     map_nodes(&mut imgbuf, &nodes, add, node_size);
@@ -174,7 +162,6 @@ pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],
     for node in nodes {
         node.draw(&mut image, add.0 as u32, add.1 as u32, node_size);
     }
-
 }
 
 pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink], add: (i16, i16), node_size: u32) {

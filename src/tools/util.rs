@@ -1,6 +1,7 @@
 extern crate rand;
 use super::constants;
 use rand::distributions::{IndependentSample, Range};
+use image::Rgba;
 
 // Standard println with an applied condition.
 pub fn debug_print(str: &str) {
@@ -36,6 +37,29 @@ pub fn border(a: u8, b: i32) -> u8 {
     } else {
         (a+b) as u8
     }
+}
+
+// Returns a random Rgb color. the opacity is always 255.
+pub fn gen_rgba() -> Rgba<u8> {
+
+    // Node
+    let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
+
+    // Color of the node.
+    for i in 0..4 {
+        let v = primary.data[i] as u32 + roll(0,255);
+
+        // If v goes above what a u8 can take. Set it to max.
+        let v2 = if v > 255 {
+            255
+        } else {
+            v
+        };
+
+        primary.data[i] = v2 as u8;
+    }
+
+    primary
 }
 
 #[test]
