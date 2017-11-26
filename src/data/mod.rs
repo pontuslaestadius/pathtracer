@@ -1,7 +1,6 @@
-
-use super::group::*;
-use super::super::pathfinder::node::coordinates::*;
-use super::super::pathfinder::node::Node;
+use group::*;
+use node::coordinates::*;
+use node::Node;
 
 use std::fs::{OpenOptions, File};
 use std::io::prelude::*;
@@ -41,13 +40,13 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
 
             // Check if a group matches the same.
             let coordinates = Coordinates::new(0,0);
-            let radius = 40;
+            let radius = 80;
 
             let mut exists = false;
             for mut old in &mut groups {
                 if old.name == line {
                     exists = true;
-                    old.new_node(line.to_string());
+                    old.new_node_min_auto(line.to_string(), i/10);
                 }
             }
 
@@ -60,7 +59,7 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
                     radius
                 );
 
-                group.new_node(line.to_string());
+                group.new_node_min_auto(line.to_string(), i);
 
                 groups.push(group);
 

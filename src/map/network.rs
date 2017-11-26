@@ -1,29 +1,3 @@
-/*
-/*
-    Network
-    -------
-    Binds the nodes and the connections via an extra layer of abstraction
-*/
-
-pub struct Network<'a>  {
-    wrappers: Vec<Wrapper<'a>>
-}
-
-impl<'a> Network<'a> {
-
-    fn new(nodes: [Node], links: [NodeLink]) -> Network {
-        let wrappers = Vec::new();
-
-        // TODO implement
-
-        Network (
-            wrappers
-        )
-    }
-
-}
-*/
-
 use std::io;
 use pathfinder::node::coordinates::*;
 use pathfinder::node::nodelink::NodeLink;
@@ -37,9 +11,7 @@ use image::Rgba;
 use std::time::Instant;
 
 
-pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> {
-
-    debug_print("creating node network..");
+pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [NodeLink<'a>]), io::Error> {
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
@@ -49,8 +21,6 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = get_node_names()?;
 
-    debug_print("   creating nodes..");
-    // For the number of nodes in the network.
     for _ in 0..number {
 
         for node in &nodes {
@@ -86,11 +56,7 @@ pub fn create_random_network(number: u32, radius: u32) -> Result<(), io::Error> 
         con.save();
     }
     */
-    debug_print("   generating map..");
-    let start = Instant::now();
-    map::node_and_links(&nodes, &connections);
-    let elapsed = start.elapsed();
-    println!("   done - {:?}s", elapsed.as_secs());
+    Ok((nodes, connections))
 
     /*
     debug_print("   saving Node(s)..");

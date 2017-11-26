@@ -23,8 +23,7 @@ mod tests {
         // Since randomness is applied. It's effect is lowered by using many iterations.
         for _ in 0..100 {
             let co5: Coordinates = Coordinates::gen_within_radius(co1.clone(), 100);
-            let res4: bool = co4 > co5;
-            assert_eq!(res4, true)
+            assert_eq!(co4 > co5, true)
         }
 
     }

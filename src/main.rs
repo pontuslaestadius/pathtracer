@@ -27,20 +27,20 @@
 
 extern crate pathfinder;
 extern crate image;
-use pathfinder::pathfinder::*;
 use image::Rgba;
-use pathfinder::pathfinder::group::*;
-use pathfinder::pathfinder::node::*;
+use pathfinder::group::*;
+use pathfinder::node::*;
+
 
 fn main() {
 
-    /*
-    match pathfinder::pathfinder::network::create_random_network(5, 50) {
-        Ok(_) => println!("node network created."),
-            _ => println!("TODO: proper error message here."), //TODO
-    };
-    */
 
+    /*
+    let (nodes, links) =
+        pathfinder::pathfinder::network::create_random_network(5, 50).unwrap_err();
+
+
+    */
     /*
     let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
     */
@@ -101,6 +101,7 @@ fn main() {
 
     */
 
+    /*
     let tag = data::Tag {collection: "Author".to_string(), ignore: Vec::new()};
 
     let groups = data::convert_file("resources/log.txt", &tag);
@@ -118,6 +119,7 @@ fn main() {
 
     map::groups_and_links(&groups, &links, save_path);
 
+    */
 
 
 }
