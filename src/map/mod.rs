@@ -2,6 +2,8 @@ extern crate image;
 
 use std::path::Path;
 
+pub mod network;
+
 use super::tools::constants;
 use node::Node;
 use group::*;
