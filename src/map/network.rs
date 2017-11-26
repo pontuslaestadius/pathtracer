@@ -1,16 +1,16 @@
 use std::io;
-use pathfinder::node::coordinates::*;
-use pathfinder::node::nodelink::NodeLink;
-use pathfinder::node::*;
-use pathfinder::group::*;
-use super::tools::util::*;
-use super::map;
+use super::super::node::coordinates::*;
+use super::super::node::nodelink::NodeLink;
+use super::super::node::*;
+use super::super::group::*;
+use super::super::tools::util::*;
+use super::*;
 
 use image::Rgba;
 
 use std::time::Instant;
 
-
+/*
 pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [NodeLink<'a>]), io::Error> {
 
     // Stores all created nodes. So then they can be made in to a network.
@@ -47,24 +47,12 @@ pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [N
         c = gen_within_radius(&c, radius);
     }
 
-    debug_print("   linking nodes..");
     let connections = NodeLink::link(&nodes);
 
-    /*
-    debug_print("   saving NodeLink(s)..");
-    for con in connections.iter() {
-        con.save();
-    }
-    */
     Ok((nodes, connections))
 
-    /*
-    debug_print("   saving Node(s)..");
-    let _ = Node::save_list(&nodes);
-    */
-
-    Ok(())
 }
+*/
 
 pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
     debug_print("creating group network..");
@@ -97,7 +85,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     debug_print("   generating map..");
     let start = Instant::now();
 
-    map::map_groups(&groups);
+    map_groups(&groups);
 
     let elapsed = start.elapsed();
     println!("   done - {:?}s", elapsed.as_secs());
