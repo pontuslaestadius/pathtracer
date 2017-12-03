@@ -26,11 +26,7 @@
  */
 
 extern crate pathfinder;
-extern crate image;
-use image::Rgba;
-use pathfinder::group::*;
-use pathfinder::node::*;
-
+use pathfinder::{node, map, data, group};
 
 fn main() {
 
@@ -100,27 +96,6 @@ fn main() {
     map::groups_and_links(&groups, &links, save_path);
 
     */
-
-    /*
-    let tag = data::Tag {collection: "Author".to_string(), ignore: Vec::new()};
-
-    let groups = data::convert_file("resources/log.txt", &tag);
-
-    let mut i = 0;
-    for g in groups.iter() {
-        i+=g.nodes.len();
-    }
-
-    println!("{:?} groups with {} nodes", groups.len(), i);
-
-    let links: Vec<node::link::Link> = Vec::new();
-
-    let save_path = "examples/example3.png";
-
-    map::groups_and_links(&groups, &links, save_path);
-
-    */
-
 
 }
 

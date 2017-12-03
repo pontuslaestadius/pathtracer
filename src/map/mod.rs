@@ -83,6 +83,7 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
     }
 
     // Save the image to local storage.
+    println!("saving...");
     let _ = imgbuf.save(&Path::new(path));
 
 }
