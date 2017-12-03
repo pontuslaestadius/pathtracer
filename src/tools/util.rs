@@ -2,6 +2,11 @@ extern crate rand;
 use super::constants;
 use rand::distributions::{IndependentSample, Range};
 use image::Rgba;
+use node::coordinates::*;
+
+use std::cmp::{min, max};
+use std::f64;
+use std::mem::swap;
 
 // Standard println with an applied condition.
 pub fn debug_print(str: &str) {
@@ -62,6 +67,75 @@ pub fn gen_rgba() -> Rgba<u8> {
     primary
 }
 
+
+/// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+/// Plots the pixels between two coordinate points.
+/// Both coordinates must be > 0.
+pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coordinates> {
+
+    if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
+        panic!("Can't plot negative coordinates!");
+    }
+
+    let mut x0 = (coordinates1.x) as usize;
+    let mut x1 = (coordinates2.x) as usize;
+
+    let mut y0 = (coordinates1.y) as usize;
+    let mut y1 = (coordinates2.y) as usize;
+
+    // If it's a vertical line
+    if coordinates1.x == coordinates2.x {
+
+        let mut vec = Vec::new();
+        for y in min(coordinates1.y,coordinates2.y)..max(coordinates1.y,coordinates2.y) {
+            vec.push(Coordinates::new(coordinates1.x, y));
+        }
+        vec
+        // If it's not a vertical line
+    } else {
+        // Swap the values.
+        if x0 > x1 {
+            swap(&mut x0, &mut x1);
+            swap(&mut y0, &mut y1);
+        }
+
+        plot_bresenham(x0, y0, x1, y1)
+    }
+}
+
+/// Draws a line between two coordinate points.
+/// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+/// Assumes the following:
+///      Not vertical (deltaX != 0)
+///      x0 < x1 and y0 < y1
+pub fn plot_bresenham(x0: usize, y0: usize, x1: usize, y1: usize) -> Vec<Coordinates> {
+    let delta_x: f64 = (x1 as i16 - x0 as i16) as f64;
+    let delta_y: f64 = (y1 as i16 - y0 as i16) as f64;
+
+    if delta_x == 0.00 {
+        panic!("Bresenham does not support straight vertical lines!");
+    } else if delta_x < 0.00 {
+        panic!("Bresenham does not support negative delta x!");
+    }
+
+    let delta_err: f64 = (delta_y / delta_x).abs();
+    let mut error: f64 = 0.00;
+
+    let mut y = y0;
+
+    let mut plot: Vec<Coordinates> = Vec::new();
+    for x in x0..x1 {
+        plot.push(Coordinates::new(x as i16, y as i16));
+        error += delta_err;
+        while error >= 0.50 {
+            y += (f64::signum(delta_y) *1.00) as usize;
+            error -= 1.00;
+        }
+    }
+    plot
+}
+
+
 #[test]
 fn test_border() {
     assert_eq!(border(0, 0), 0);
@@ -74,6 +148,5 @@ fn test_border() {
     assert_eq!(border(255, -255), 0);
     assert_eq!(border(255, -255), 0);
     assert_eq!(border(100, 100), 200);
-
 
 }
