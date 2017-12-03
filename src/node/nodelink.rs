@@ -4,6 +4,7 @@ use std::str::FromStr;
 use std::fs::{OpenOptions, File};
 
 use super::Node;
+use super::link::*;
 use super::super::tools::{constants, util};
 use image::{ImageBuffer, Rgba};
 
@@ -108,6 +109,23 @@ impl<'a> NodeLink<'a> {
             let to = list.get(i +roll).unwrap();
 
             let link = NodeLink::new(from, to, true);
+            connections.push(link);
+        }
+
+        connections
+    }
+
+
+    /// Links a list of provided nodes randomly.
+    pub fn link_generic(list: &[Node]) -> Vec<Link> {
+        let mut connections: Vec<Link> = Vec::new();
+
+        let range = list.len();
+        for i in 0..range {
+            let from = list.get(i).unwrap().get_geo();
+            let to = list.get(range-i-1).unwrap().get_geo();
+
+            let link = Link::new(from, to);
             connections.push(link);
         }
 

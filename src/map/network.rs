@@ -10,8 +10,7 @@ use image::Rgba;
 
 use std::time::Instant;
 
-/*
-pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [NodeLink<'a>]), io::Error> {
+pub fn create_random_network<'a>(number: u32, radius: u32) {
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
@@ -19,14 +18,14 @@ pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [N
     let mut c: Coordinates = Coordinates::new(0,0);
 
     // A list of all the names the nodes will be generated from.
-    let node_names: Vec<String> = get_node_names()?;
+    //let node_names: Vec<String> = get_node_names()?;
 
     for _ in 0..number {
 
         for node in &nodes {
             let d = gen_within_radius(&node.geo, radius);
-            let name: String = get_random_item(&node_names).clone();
-            let mut this_node = Node::new(name,d.clone());
+            //let name: String = get_random_item(&node_names).clone();
+            let mut this_node = Node::new(String::new(),d.clone());
 
             this_node.set_color(gen_rgba());
 
@@ -39,20 +38,20 @@ pub fn create_random_network<'a>(number: u32, radius: u32) -> Result<([Node], [N
         nodes.append(temp_nodes.as_mut());
 
         // Gets a name for the node.
-        let name: String = get_random_item(&node_names).clone();
+        //let name: String = get_random_item(&node_names).clone();
 
-        nodes.push(Node::new(name,c.clone()));
+        nodes.push(Node::new(String::new(),c.clone()));
 
         // Generates a location within a range of the previous one.
         c = gen_within_radius(&c, radius);
     }
 
-    let connections = NodeLink::link(&nodes);
+    let connections = NodeLink::link_generic(&nodes);
 
-    Ok((nodes, connections))
-
+    // TODO THIS IS STUPID
+    super::node_and_links(&nodes, &connections);
 }
-*/
+
 
 pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
     debug_print("creating group network..");

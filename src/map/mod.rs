@@ -127,7 +127,7 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     gen_canvas(width, height)
 }
 
-pub fn node_and_links(nodes: &[Node], links: &[NodeLink]) {
+pub fn node_and_links(nodes: &[Node], links: &[Link]) {
 
     // Specifies the max width that a text can use up.
     let node_name_length: u32 = 100;
@@ -146,12 +146,12 @@ pub fn node_and_links(nodes: &[Node], links: &[NodeLink]) {
     // Draws all nodes.
     map_nodes(&mut imgbuf, &nodes, add, node_size);
 
+
+    println!("map links");
     // Draws all links
     map_links(&mut imgbuf, &links, add, node_size);
 
-    if constants::DEBUGMODE {
-        println!("Placed: {} Nodes and {} Links", nodes.len(), links.len());
-    }
+    println!("done");
 
     // Save the image to local storage.
     let _ = imgbuf.save(&Path::new("examples/example2.png"));
@@ -165,10 +165,11 @@ pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],
     }
 }
 
-pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[NodeLink], add: (i16, i16), node_size: u32) {
+pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[Link], add: (i16, i16), node_size: u32) {
 
     // Iterate over the coordinates and pixels of the image
     for link in links {
+        println!("new link");
         link.draw(&mut image, add.0, add.1, node_size);
     }
 
