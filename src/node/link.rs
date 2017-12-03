@@ -1,6 +1,8 @@
 use super::coordinates::Coordinates;
 use image::{ImageBuffer, Rgba};
 
+use super::util::gen_rgba;
+
 /*
      Link
      --------
@@ -16,13 +18,16 @@ impl<'a> Link<'a> {
 
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
 
-        let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
+        //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
+        let pixel = gen_rgba();
 
-        let mut x = self.from.x +x_offset;
-        let mut y = self.from.y +y_offset;
+        let a = (size/2) as i16;
 
-        let mut x_to = self.to.x +x_offset;
-        let mut y_to = self.to.y +y_offset;
+        let mut x = self.from.x +x_offset +a;
+        let mut y = self.from.y +y_offset +a;
+
+        let mut x_to = self.to.x +x_offset +a;
+        let mut y_to = self.to.y +y_offset +a;
 
         let mut move_x = x -x_to;
         let mut move_y = y -y_to;
@@ -55,17 +60,24 @@ impl<'a> Link<'a> {
 
         let mut pos = Vec::new();
 
+        let scale: f64 = x_.len() as f64 /(y_.len()+1) as f64;
+        let mut c: f64 = scale;
+
         while !x_.is_empty() || !y_.is_empty() {
-            println!("{},{}", x, y);
+            //println!("c: {},  {},{}", c, x, y);
             pos.push(Coordinates::new(x, y));
 
-            if x_.len() == y_.len() {
+            if c <= 0.00 && !x_.is_empty() && !y_.is_empty() {
                 x = x_.remove(0);
                 y = y_.remove(0);
-            } else if x_.len() > y_.len()  {
-                x = x_.remove(0);
-            } else  /*x_.len() < y_.len()*/{
-                y = y_.remove(0);
+                c += scale;
+            } else {
+                if x_.len() > y_.len()  {
+                    x = x_.remove(0);
+                } else  /*x_.len() < y_.len()*/{
+                    y = y_.remove(0);
+                }
+                c-=1.00;
             }
 
         }
