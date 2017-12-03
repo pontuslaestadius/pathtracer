@@ -27,6 +27,10 @@ pub struct Node {
 
 impl Node {
 
+    pub fn get_geo(&self) -> &coordinates::Coordinates {
+        &self.geo
+    }
+
     pub fn set_color(&mut self, color: Rgba<u8>) {
         self.color = color;
     }

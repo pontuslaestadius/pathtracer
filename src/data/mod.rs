@@ -2,10 +2,9 @@ use group::*;
 use node::coordinates::*;
 use node::Node;
 
-use std::fs::{OpenOptions, File};
+use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::io;
-use super::tools::{util, constants};
+use super::tools::util;
 
 
 pub struct Tag {

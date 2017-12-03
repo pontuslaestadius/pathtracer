@@ -30,13 +30,8 @@ use pathfinder::{node, map, data, group};
 
 fn main() {
 
+    pathfinder::map::network::create_random_network(5, 50);
 
-    /*
-    let (nodes, links) =
-        pathfinder::pathfinder::network::create_random_network(5, 50).unwrap_err();
-
-
-    */
     /*
     let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
     */
