@@ -94,7 +94,7 @@ pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coord
         // If it's not a vertical line
     } else {
         // Swap the values.
-        if x0 > x1 {
+        if y0 > y1 {
             swap(&mut x0, &mut x1);
             swap(&mut y0, &mut y1);
         }
@@ -107,28 +107,28 @@ pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coord
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Assumes the following:
 ///      Not vertical (deltaX != 0)
-///      x0 < x1 and y0 < y1
+///      y0 < y1
 pub fn plot_bresenham(x0: usize, y0: usize, x1: usize, y1: usize) -> Vec<Coordinates> {
-    let delta_x: f64 = (x1 as i16 - x0 as i16) as f64;
+    let delta_x: f64 = (x1 as i16 - x0 as i16) as f64; // TODO not pretty
     let delta_y: f64 = (y1 as i16 - y0 as i16) as f64;
 
     if delta_x == 0.00 {
         panic!("Bresenham does not support straight vertical lines!");
-    } else if delta_x < 0.00 {
-        panic!("Bresenham does not support negative delta x!");
     }
+
+    println!("delta_y: {}", delta_y);
 
     let delta_err: f64 = (delta_y / delta_x).abs();
     let mut error: f64 = 0.00;
 
-    let mut y = y0;
+    let mut y: i16 = y0 as i16;
 
     let mut plot: Vec<Coordinates> = Vec::new();
-    for x in x0..x1 {
+    for x in min(x0, x1)..max(x0, x1) +1 {
         plot.push(Coordinates::new(x as i16, y as i16));
         error += delta_err;
         while error >= 0.50 {
-            y += (f64::signum(delta_y) *1.00) as usize;
+            y += f64::signum(delta_y) as i16;
             error -= 1.00;
         }
     }
