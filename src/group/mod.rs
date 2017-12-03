@@ -82,8 +82,17 @@ impl Group {
     }
 }
 
+// Counts the amount of groups and child nodes.
+pub fn count(list: &[Group]) -> (usize, usize) {
+    let mut n: usize = 0;
+    for g in list.iter() {
+        n+=g.nodes.len();
+    }
+    (list.len(), n)
+}
+
+// Finds the min and max nodes, for scaling and boundaries.
 pub fn min_max(list: &[Group]) -> ((i16, i16), (i16, i16)) {
-    // Finds the min and max nodes, for scaling and boundaries.
     let mut min_x = 0;
     let mut min_y = 0;
     let mut max_x = 0;
