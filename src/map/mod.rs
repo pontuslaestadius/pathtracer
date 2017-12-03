@@ -146,12 +146,10 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     // Draws all nodes.
     map_nodes(&mut imgbuf, &nodes, add, node_size);
 
-
-    println!("map links");
     // Draws all links
     map_links(&mut imgbuf, &links, add, node_size);
 
-    println!("done");
+    println!("Mapped: {} nodes & {} links", nodes.len(), links.len());
 
     // Save the image to local storage.
     let _ = imgbuf.save(&Path::new("examples/example2.png"));
@@ -169,7 +167,6 @@ pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[Link],
 
     // Iterate over the coordinates and pixels of the image
     for link in links {
-        println!("new link");
         link.draw(&mut image, add.0, add.1, node_size);
     }
 
