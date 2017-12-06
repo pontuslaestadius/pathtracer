@@ -27,10 +27,35 @@
 
 extern crate pathfinder;
 use pathfinder::{node, map, data, group};
+use pathfinder::node::*;
 
 fn main() {
 
-    pathfinder::map::network::create_random_network(2, 70);
+    //pathfinder::map::network::create_random_network(2, 70);
+
+    let node1 = Node::new("".to_string(), coordinates::Coordinates::new(0,0));
+    let node2 = Node::new("".to_string(), coordinates::Coordinates::new(99,130));
+    let node3 = Node::new("".to_string(), coordinates::Coordinates::new(1,80));
+    let node4 = Node::new("".to_string(), coordinates::Coordinates::new(77,4));
+
+    let nodes = vec![node1, node2, node3, node4];
+
+    let mut links = Vec::new();
+
+    for (i, item) in nodes.iter().enumerate() {
+        for (j, item2) in nodes.iter().enumerate() {
+            if i == j {continue};
+            if j < i {continue};
+
+            links.push(
+                link::Link::new(&item.geo, &item2.geo)
+            );
+
+        }
+    }
+
+
+    pathfinder::map::node_and_links(&nodes, &links);
 
     /*
     let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
