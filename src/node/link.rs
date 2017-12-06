@@ -21,12 +21,12 @@ impl<'a> Link<'a> {
         //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
         let pixel = gen_rgba(); // TODO this is not reliable since it's random.
 
-        let mut a = Coordinates::new(
+        let a = Coordinates::new(
             self.from.x +x_offset,
             self.from.y +y_offset
         );
 
-        let mut b = Coordinates::new(
+        let b = Coordinates::new(
             self.to.x +x_offset,
             self.to.y +y_offset
         );
