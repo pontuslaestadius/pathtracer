@@ -34,11 +34,17 @@ fn main() {
     //pathfinder::map::network::create_random_network(2, 70);
 
     let node1 = Node::new("".to_string(), coordinates::Coordinates::new(0,0));
-    let node2 = Node::new("".to_string(), coordinates::Coordinates::new(99,130));
-    let node3 = Node::new("".to_string(), coordinates::Coordinates::new(1,80));
-    let node4 = Node::new("".to_string(), coordinates::Coordinates::new(77,4));
+    let node2 = Node::new("".to_string(), coordinates::Coordinates::new(0,100));
+    let node3 = Node::new("".to_string(), coordinates::Coordinates::new(100,100));
+    let node4 = Node::new("".to_string(), coordinates::Coordinates::new(100,0));
 
-    let nodes = vec![node1, node2, node3, node4];
+    // 3d
+    let node5 = Node::new("".to_string(), coordinates::Coordinates::new(125,-25));
+    let node6 = Node::new("".to_string(), coordinates::Coordinates::new(25,-25));
+    let node7 = Node::new("".to_string(), coordinates::Coordinates::new(125,75));
+    let node8 = Node::new("".to_string(), coordinates::Coordinates::new(25,75));
+
+    let nodes = vec![node1, node2, node3, node4, node5, node6, node7, node8];
 
     let mut links = Vec::new();
 
