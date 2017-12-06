@@ -16,7 +16,7 @@ pub struct Link<'a> {
 
 impl<'a> Link<'a> {
 
-    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
+    pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16) {
 
         //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
         let pixel = gen_rgba(); // TODO this is not reliable since it's random.
