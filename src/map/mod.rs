@@ -79,7 +79,7 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
     }
 
     for link in links.iter() {
-        link.draw(&mut imgbuf, add.0, add.1, node_size);
+        link.draw(&mut imgbuf, add.0 +node_size as i16/2, add.1 +node_size as i16/2);
     }
 
     // Save the image to local storage.
@@ -167,7 +167,7 @@ pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[Link],
 
     // Iterate over the coordinates and pixels of the image
     for link in links {
-        link.draw(&mut image, add.0, add.1, node_size);
+        link.draw(&mut image, add.0 +node_size as i16/2, add.1 +node_size as i16/2);
     }
 
 }
