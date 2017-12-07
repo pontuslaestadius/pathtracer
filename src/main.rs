@@ -26,6 +26,9 @@
  */
 
 extern crate pathfinder;
+extern crate rand;
+
+use rand::*;
 use pathfinder::{node, map, data, group};
 use pathfinder::node::*;
 
@@ -33,18 +36,15 @@ fn main() {
 
     //pathfinder::map::network::create_random_network(2, 70);
 
-    let node1 = Node::new("".to_string(), coordinates::Coordinates::new(0,0));
-    let node2 = Node::new("".to_string(), coordinates::Coordinates::new(0,100));
-    let node3 = Node::new("".to_string(), coordinates::Coordinates::new(100,100));
-    let node4 = Node::new("".to_string(), coordinates::Coordinates::new(100,0));
+    let start = coordinates::Coordinates::new(0,0);
 
-    // 3d
-    let node5 = Node::new("".to_string(), coordinates::Coordinates::new(125,-25));
-    let node6 = Node::new("".to_string(), coordinates::Coordinates::new(25,-25));
-    let node7 = Node::new("".to_string(), coordinates::Coordinates::new(125,75));
-    let node8 = Node::new("".to_string(), coordinates::Coordinates::new(25,75));
+    let mut nodes: Vec<Node> = Vec::new();
 
-    let nodes = vec![node1, node2, node3, node4, node5, node6, node7, node8];
+    for i in 0..200   {
+        let mut new_nodes = figure::rectangle(&start, 10*i, 10*i);
+        nodes.append(&mut new_nodes)
+    }
+
 
     let mut links = Vec::new();
 
@@ -59,6 +59,10 @@ fn main() {
 
         }
     }
+
+    // Shuffle links.
+    let mut rng = thread_rng();
+    rng.shuffle(&mut links);
 
 
     pathfinder::map::node_and_links(&nodes, &links);

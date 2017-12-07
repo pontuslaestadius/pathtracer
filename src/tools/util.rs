@@ -121,8 +121,6 @@ pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize
 
     let mut y: i16 = y0 as i16;
 
-    println!("delta_y: {} delta_x: {}", delta_y, delta_x);
-
     let mut plot: Vec<Coordinates> = Vec::new();
     let mut last_y = y;
     for x in min(x0, x1)..max(x0, x1)+1 {
