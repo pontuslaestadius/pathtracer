@@ -25,7 +25,7 @@ pub fn convert_file(path: &str, tag: &Tag) -> Vec<Group> {
     convert(contents, tag)
 }
 
-pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
+pub fn convert(content: String, tag: &Tag) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
     let lines = content.split("\n");
 
@@ -42,7 +42,7 @@ pub fn convert(mut content: String, tag: &Tag) -> Vec<Group> {
             let radius = 80;
 
             let mut exists = false;
-            for mut old in &mut groups {
+            for old in &mut groups {
                 if old.name == line {
                     exists = true;
                     old.new_node_min_auto(line.to_string(), i/10);
