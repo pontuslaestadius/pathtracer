@@ -1,6 +1,7 @@
 pub mod coordinates;
 pub mod nodelink;
 pub mod link;
+pub mod figure;
 
 
 use std::cmp::PartialEq;
