@@ -36,14 +36,21 @@ fn main() {
 
     //pathfinder::map::network::create_random_network(2, 70);
 
-    let start = coordinates::Coordinate::new(0, 0);
-
     let mut nodes: Vec<Node> = Vec::new();
 
-    for i in 0..200   {
-        let mut new_nodes = figure::rectangle(&start, 10*i, 10*i);
+    /*
+
+    for i in 0..33   {
+        let dif = 10;
+        let start = coordinates::Coordinates::new(-(dif/2)*i,-(dif/2)*i);
+        let mut new_nodes = figure::rectangle(&start, dif*i, dif*i);
         nodes.append(&mut new_nodes)
     }
+    */
+
+    let start = coordinates::Coordinate::new(0,0);
+    nodes = figure::cube(&start, 50, 50, 15, 10);
+
 
 
     let mut links = Vec::new();
@@ -51,7 +58,6 @@ fn main() {
     for (i, item) in nodes.iter().enumerate() {
         for (j, item2) in nodes.iter().enumerate() {
             if i == j {continue};
-            if j < i {continue};
 
             links.push(
                 link::Link::new(&item.geo, &item2.geo)
@@ -62,7 +68,7 @@ fn main() {
 
     // Shuffle links.
     let mut rng = thread_rng();
-    rng.shuffle(&mut links);
+    //rng.shuffle(&mut links);
 
 
     pathfinder::map::node_and_links(&nodes, &links);
