@@ -36,7 +36,7 @@ fn main() {
 
     //pathfinder::map::network::create_random_network(2, 70);
 
-    let start = coordinates::Coordinates::new(0,0);
+    let start = coordinates::Coordinate::new(0, 0);
 
     let mut nodes: Vec<Node> = Vec::new();
 

@@ -1,8 +1,7 @@
-/*
-    Coordinates
-    -----------
-    Stores an x and y coordinate representing a position on a map.
-*/
+///
+///    Coordinate
+///    -----------
+///    Stores an x and y coordinate.
 
 extern crate rand;
 use super::util::roll;
@@ -10,49 +9,49 @@ use std::f64;
 use std::cmp::Ordering;
 
 #[derive(Eq)]
-pub struct Coordinates {
+pub struct Coordinate {
     pub x: i16,
     pub y: i16,
 }
 
-impl PartialEq for Coordinates {
-    fn eq(&self, other: &Coordinates) -> bool {
-        (self.x == other.x) && (self.y == other.y)
-    }
-}
 
-impl Coordinates {
+impl Coordinate {
 
-    pub fn new(x: i16, y: i16) -> Coordinates {
-        Coordinates {
+    pub fn new(x: i16, y: i16) -> Coordinate {
+        Coordinate {
             x,
             y
         }
     }
 
-    pub fn gen() -> Coordinates {
-        Coordinates {
+    pub fn gen() -> Coordinate {
+        Coordinate {
             x: rand::random::<i16>(),
             y: rand::random::<i16>(),
         }
     }
 
-}
-
-impl Clone for Coordinates {
-    fn clone(&self) -> Coordinates {
-        Coordinates {
-            x: self.x,
-            y: self.y
-        }
+    pub fn diff(&self, other: &Coordinate) -> (i16, i16) {
+        diff(&self, other)
     }
+
 }
 
-pub fn gen_within_radius(coord: &Coordinates, radius: u32) -> Coordinates {
+/// Tested
+// Get difference in distance.
+pub fn diff(c1: &Coordinate, c2: &Coordinate) -> (i16, i16) {
+    ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
+}
+
+/// Tested
+/// Generate a Coordinate from a given Coordinate and randomly places it within a radius.
+pub fn gen_within_radius(coord: &Coordinate, radius: u32) -> Coordinate {
     gen_radius(&coord, 0, radius)
 }
 
-pub fn gen_radius(coord: &Coordinates, min: u32, max: u32) -> Coordinates {
+/// Tested
+/// Generate a Coordinate from a given Coordinate and randomly places it within a min and max radius.
+pub fn gen_radius(coord: &Coordinate, min: u32, max: u32) -> Coordinate {
     // Randomly gets the radius of the circle.
     let r = roll(min, max) as f64;
 
@@ -68,25 +67,39 @@ pub fn gen_radius(coord: &Coordinates, min: u32, max: u32) -> Coordinates {
     let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
     let y = cir(coord.y as f64, a.sin()) as i16 -roll2;         // y = cy + r * sin(a)
 
-    Coordinates {
+    Coordinate {
         x,
         y
     }
 }
 
-impl Ord for Coordinates {
-    fn cmp(&self, other: &Coordinates) -> Ordering {
-        self.x.cmp(&other.x) // TODO improve.
+/// Tested
+impl Ord for Coordinate {
+    fn cmp(&self, other: &Coordinate) -> Ordering {
+        (self.x + self.y).cmp(&(&other.x + &other.y))  // TODO improve.
     }
 }
 
-impl PartialOrd for Coordinates {
-    fn partial_cmp(&self, other: &Coordinates) -> Option<Ordering> {
+/// Tested
+impl PartialOrd for Coordinate {
+    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-// Get difference in distance.
-pub fn difference(c1: &Coordinates, c2: &Coordinates) -> (i16, i16) {
-    ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
+/// Tested
+impl Clone for Coordinate {
+    fn clone(&self) -> Coordinate {
+        Coordinate {
+            x: self.x,
+            y: self.y
+        }
+    }
+}
+
+// Tested
+impl PartialEq for Coordinate {
+    fn eq(&self, other: &Coordinate) -> bool {
+        (self.x == other.x) && (self.y == other.y)
+    }
 }

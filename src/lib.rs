@@ -1,6 +1,3 @@
-
-
-
 extern crate rand;
 extern crate image;
 
@@ -10,5 +7,4 @@ pub mod tools;
 pub mod group;
 pub mod data;
 
-// Holds tests
 pub mod tests;
