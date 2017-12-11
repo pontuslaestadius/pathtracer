@@ -1,4 +1,4 @@
-https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master
+[![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
 
 # What is this?
 Pathfinder builds on a simple concept of creating and linking nodes on a image surface. 
