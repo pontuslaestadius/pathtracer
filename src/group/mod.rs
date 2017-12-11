@@ -6,12 +6,12 @@ use tools::util::border;
 pub struct Group {
     pub name: String,
     pub nodes: Vec<Node>,
-    pub geo: coordinates::Coordinates,
+    pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
     pub radius: u32,
 }
 impl Group {
-    pub fn new(name: String, coordinates: coordinates::Coordinates, color: Rgba<u8>, radius: u32) -> Group {
+    pub fn new(name: String, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: u32) -> Group {
         Group {
             name,
             nodes: Vec::new(),
@@ -42,7 +42,7 @@ impl Group {
         self.new_node_inner(geo, name);
     }
 
-    pub fn new_node_inner(&mut self, geo: coordinates::Coordinates, name: String) {
+    pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) {
 
         let color = self.gen_color(geo.clone());
 
@@ -59,11 +59,11 @@ impl Group {
         self.nodes.push(node);
     }
 
-    pub fn gen_color(&self, coordinates: coordinates::Coordinates) -> Rgba<u8> {
+    pub fn gen_color(&self, coordinates: coordinates::Coordinate) -> Rgba<u8> {
 
         let radius = self.radius as i16;
 
-        let (x_dif, y_dif) = coordinates::difference(&self.geo, &coordinates);
+        let (x_dif, y_dif) = coordinates::diff(&self.geo, &coordinates);
 
         let x_scale: f64 = (x_dif as f64/radius as f64) as f64;
         let y_scale: f64 = (y_dif as f64/radius as f64) as f64;

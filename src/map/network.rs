@@ -15,7 +15,7 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
     let mut temp_nodes: Vec<Node> = Vec::new();
-    let mut c: Coordinates = Coordinates::new(0,0);
+    let mut c: Coordinate = Coordinate::new(0, 0);
 
     // A list of all the names the nodes will be generated from.
     //let node_names: Vec<String> = get_node_names()?;
@@ -54,7 +54,6 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
 
 
 pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
-    debug_print("creating group network..");
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut groups: Vec<Group> = Vec::new();
@@ -62,7 +61,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     // A list of all the names the nodes will be generated from.
     let node_names: Vec<String> = get_node_names()?;
 
-    let zero_zero = Coordinates {x: 0, y: 0};
+    let zero_zero = Coordinate {x: 0, y: 0};
 
     // Creates the groups.
     for _ in 0..nr_groups {
@@ -81,7 +80,6 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
         add_children(&mut group, children_min_max.1);
     }
 
-    debug_print("   generating map..");
     let start = Instant::now();
 
     map_groups(&groups);
