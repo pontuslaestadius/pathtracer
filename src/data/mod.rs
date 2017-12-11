@@ -38,7 +38,7 @@ pub fn convert(content: String, tag: &Tag) -> Vec<Group> {
             i+=1;
 
             // Check if a group matches the same.
-            let coordinates = Coordinates::new(0,0);
+            let coordinates = Coordinate::new(0, 0);
             let radius = 80;
 
             let mut exists = false;

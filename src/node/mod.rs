@@ -22,13 +22,13 @@ use image::{ImageBuffer, Rgba};
 
 pub struct Node {
     pub name: String,
-    pub geo: coordinates::Coordinates,
+    pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
 }
 
 impl Node {
 
-    pub fn get_geo(&self) -> &coordinates::Coordinates {
+    pub fn get_geo(&self) -> &coordinates::Coordinate {
         &self.geo
     }
 
@@ -82,7 +82,7 @@ impl Node {
 
     */
 
-    pub fn new(name: String, geo: coordinates::Coordinates) -> Node {
+    pub fn new(name: String, geo: coordinates::Coordinate) -> Node {
         Node {
             name,
             geo,
@@ -167,7 +167,7 @@ impl Node {
 
         Node {
             name,
-            geo: coordinates::Coordinates {
+            geo: coordinates::Coordinate {
                 x,
                 y
             },

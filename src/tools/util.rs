@@ -8,13 +8,6 @@ use std::cmp::{min, max};
 use std::f64;
 use std::mem::swap;
 
-// Standard println with an applied condition.
-pub fn debug_print(str: &str) {
-    if constants::DEBUGMODE {
-        println!("{}", str);
-    }
-}
-
 // Returns a random number between the min and maximum.
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
@@ -28,7 +21,9 @@ pub fn get_random_item(list: &[String]) -> &String {
     &list[roll as usize]
 }
 
-// Checks so that the applied adjustments stay within a u8.
+
+/// Tested
+/// Checks so that the applied adjustments stay within a u8.
 pub fn border(a: u8, b: i32) -> u8 {
     let a = a as i32;
 
@@ -71,7 +66,7 @@ pub fn gen_rgba() -> Rgba<u8> {
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Plots the pixels between two coordinate points.
 /// Both coordinates must be > 0.
-pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coordinates> {
+pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordinate> {
 
     if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
         panic!("Can't plot negative coordinates!");
@@ -88,7 +83,7 @@ pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coord
 
         let mut vec = Vec::new();
         for y in min(coordinates1.y,coordinates2.y)..max(coordinates1.y,coordinates2.y) {
-            vec.push(Coordinates::new(coordinates1.x, y));
+            vec.push(Coordinate::new(coordinates1.x, y));
         }
         vec
         // If it's not a vertical line
@@ -102,7 +97,7 @@ pub fn plot(coordinates1: &Coordinates, coordinates2: &Coordinates) -> Vec<Coord
 /// Assumes the following:
 ///      Not vertical (deltaX != 0)
 ///      y0 < y1
-pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinates> {
+pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
     // Swap the values if 0 > 1.
     if y0 > y1 && x0 > x1 {
         swap(&mut x0, &mut x1);
@@ -121,11 +116,11 @@ pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize
 
     let mut y: i16 = y0 as i16;
 
-    let mut plot: Vec<Coordinates> = Vec::new();
+    let mut plot: Vec<Coordinate> = Vec::new();
     let mut last_y = y;
     for x in min(x0, x1)..max(x0, x1)+1 {
         for i in min(last_y, y)..max(last_y, y)+1 {
-            plot.push(Coordinates::new(x as i16, i));
+            plot.push(Coordinate::new(x as i16, i));
         }
         last_y = y;
 
@@ -136,20 +131,4 @@ pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize
         }
     }
     plot
-}
-
-
-#[test]
-fn test_border() {
-    assert_eq!(border(0, 0), 0);
-    assert_eq!(border(0, -55), 0);
-    assert_eq!(border(0, -255), 0);
-    assert_eq!(border(0, 55), 55);
-    assert_eq!(border(0, 255), 255);
-
-    assert_eq!(border(255, 0), 255);
-    assert_eq!(border(255, -255), 0);
-    assert_eq!(border(255, -255), 0);
-    assert_eq!(border(100, 100), 200);
-
 }

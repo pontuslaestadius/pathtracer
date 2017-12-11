@@ -1,4 +1,4 @@
-use super::coordinates::Coordinates;
+use super::coordinates::Coordinate;
 use image::{ImageBuffer, Rgba};
 
 use super::util::{gen_rgba, plot};
@@ -10,8 +10,8 @@ use super::util::{gen_rgba, plot};
  */
 
 pub struct Link<'a> {
-    pub from: &'a Coordinates,
-    pub to: &'a Coordinates,
+    pub from: &'a Coordinate,
+    pub to: &'a Coordinate,
 }
 
 impl<'a> Link<'a> {
@@ -21,12 +21,12 @@ impl<'a> Link<'a> {
         //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
         let pixel = gen_rgba(); // TODO this is not reliable since it's random.
 
-        let a = Coordinates::new(
+        let a = Coordinate::new(
             self.from.x +x_offset,
             self.from.y +y_offset
         );
 
-        let b = Coordinates::new(
+        let b = Coordinate::new(
             self.to.x +x_offset,
             self.to.y +y_offset
         );
@@ -37,7 +37,7 @@ impl<'a> Link<'a> {
     }
 
     /// Creates a new Link and binds two nodes together.
-    pub fn new(from: &'a Coordinates, to: &'a Coordinates) -> Link<'a> {
+    pub fn new(from: &'a Coordinate, to: &'a Coordinate) -> Link<'a> {
         Link {
             from,
             to,
