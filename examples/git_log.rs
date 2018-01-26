@@ -9,7 +9,6 @@ extern crate pathfinder;
 use pathfinder::{node, map, data, group};
 
 fn main() {
-
     // The tag to find to group them by.
     let find: String = "Author".to_string();
 
@@ -22,7 +21,7 @@ fn main() {
     let log = "resources/log.txt";
 
     // Use the log directory and the tag to create the groups.
-    let groups = data::convert_file(log, &tag);
+    let (groups, links) = data::convert_file(log, &tag);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
@@ -30,13 +29,9 @@ fn main() {
     // Print them.
     println!("{:?} groups with {} nodes", g, n);
 
-    // Link them with nothing.
-    let links: Vec<node::link::Link> = Vec::new();
-
     // Save path for the final result.
     let save_path = "visual_data.png";
 
     // Map them to an RGBA Image and saves it.
     map::groups_and_links(&groups, &links, save_path);
-
 }

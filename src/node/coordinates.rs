@@ -62,7 +62,7 @@ pub fn gen_radius(coord: &Coordinate, min: u32, max: u32) -> Coordinate {
     let angle = roll(0, 360);
     let a: f64 = f64::consts::PI * (0.01 * angle as f64);
 
-    let roll2: i16 = roll(min, min+max/10) as i16;
+    let roll2: i16 = roll(min, max) as i16;
 
     let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
     let y = cir(coord.y as f64, a.sin()) as i16 -roll2;         // y = cy + r * sin(a)
