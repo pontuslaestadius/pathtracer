@@ -1,3 +1,6 @@
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
+
 use group::*;
 use node::coordinates::*;
 use node::Node;
@@ -46,20 +49,28 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
             let radius = 80;
 
             let mut exists = false;
-            for old in &mut groups {
+            let mut index: usize = 0;
+            let hashed_line = calculate_hash(&line);
+            for (j, old) in &mut groups.iter_mut().enumerate() {
                 // If it does not match existing tag.
-                if old.name != line {continue};
+                if calculate_hash(&old.name) != hashed_line {continue};
                 exists = true;
 
-                let ref_node: &Node = old.new_node_min_auto(line.to_string(), (i/10));
+                let ref_node: &Node = old.new_node_min_auto(line.to_string(), (i/100)+1);
                 // Draw a line between the previous and the next commit if they are chained.
-                /*
-                if (old.name.clone() == previous_tag) {
-                    links.push(Link::new(&old.geo, &ref_node.geo));
-                }
-                previous_tag = old.name;
-                */
+                index = j;
+                break;
             }
+
+            /*
+            // Chain linking
+            let group: &Group = &groups.get(index).unwrap();
+            if group.name == previous_tag {
+                let previous_node: &Node = group.nodes.get(group.nodes.len()-2).unwrap();
+                links.push(Link::new(&previous_node.geo, &ref_node_geo.unwrap()));
+                previous_tag = group.name.clone();
+            }
+            */
 
             if !exists {
 
@@ -80,4 +91,10 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
     }
 
     (groups, links)
+}
+
+fn calculate_hash<T: Hash>(t: &T) -> u64 {
+    let mut s = DefaultHasher::new();
+    t.hash(&mut s);
+    s.finish()
 }
