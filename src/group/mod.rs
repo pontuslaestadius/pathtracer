@@ -32,17 +32,17 @@ impl Group {
         self.new_node_inner(geo, name);
     }
 
-    pub fn new_node_min_auto(&mut self, name: String, min: u32) {
-        let geo = coordinates::gen_radius(&self.geo, min, min+10);
-        self.new_node_inner(geo, name);
+    pub fn new_node_min_auto(&mut self, name: String, min: u32) -> &Node {
+        let geo = coordinates::gen_radius(&self.geo, 0, min+5);
+        self.new_node_inner(geo, name)
     }
 
-    pub fn new_node_min_max(&mut self, name: String, min: u32, max: u32) {
+    pub fn new_node_min_max(&mut self, name: String, min: u32, max: u32) -> &Node {
         let geo = coordinates::gen_radius(&self.geo, min, max);
-        self.new_node_inner(geo, name);
+        self.new_node_inner(geo, name)
     }
 
-    pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) {
+    pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) -> &Node {
 
         let color = self.gen_color(geo.clone());
 
@@ -53,6 +53,7 @@ impl Group {
                 color
             }
         );
+        &self.nodes.get(self.nodes.len() -1).unwrap()
     }
 
     pub fn push(&mut self, node: Node) {

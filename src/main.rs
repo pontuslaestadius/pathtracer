@@ -34,11 +34,39 @@ use pathfinder::node::*;
 
 fn main() {
 
+
+    // The tag to find to group them by.
+    let find: String = "Author".to_string();
+
+    let nothing = Vec::new();
+
+    // Save the tag to use to convert the data.
+    let tag = data::Tag {collection: find, ignore: nothing};
+
+    // Fetches the log, replace it with your log directory.
+    let log = "resources/log.txt";
+
+    // Use the log directory and the tag to create the groups.
+    let (groups, links) = data::convert_file(log, &tag);
+
+    // Count the groups and nodes.
+    let (g, n) = group::count(&groups);
+
+    // Print them.
+    println!("{:?} groups with {} nodes", g, n);
+
+    // Save path for the final result.
+    let save_path = "visual_data.png";
+
+    // Map them to an RGBA Image and saves it.
+    map::groups_and_links(&groups, &links, save_path);
+
+    /*
+
     //pathfinder::map::network::create_random_network(2, 70);
 
     let mut nodes: Vec<Node> = Vec::new();
-
-    /*
+    let mut links = Vec::new();
 
     for i in 0..33   {
         let dif = 10;
@@ -46,14 +74,11 @@ fn main() {
         let mut new_nodes = figure::rectangle(&start, dif*i, dif*i);
         nodes.append(&mut new_nodes)
     }
-    */
+
 
     let start = coordinates::Coordinate::new(0,0);
-    nodes = figure::cube(&start, 50, 50, 15, 10);
+    nodes = figure::rectangle(&start, 50, 50);
 
-
-
-    let mut links = Vec::new();
 
     for (i, item) in nodes.iter().enumerate() {
         for (j, item2) in nodes.iter().enumerate() {
@@ -71,13 +96,14 @@ fn main() {
     //rng.shuffle(&mut links);
 
 
+
     pathfinder::map::node_and_links(&nodes, &links);
 
-    /*
-    let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
-    */
 
-    /*
+    let _ = pathfinder::pathfinder::network::create_group_network(5000, (100, 1000), 20);
+
+
+
 
     // Ideal implementation example:
 

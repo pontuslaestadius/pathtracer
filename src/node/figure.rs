@@ -1,6 +1,8 @@
 
 use super::*;
 use super::coordinates::Coordinate;
+use std::cmp::{min, max};
+use image::*;
 
 pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node> {
     rectangle_precise(
@@ -64,5 +66,45 @@ fn cube_precise(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize
 
 /// Given a list of nodes, will return all pixels inside the formation they have.
 fn get_pixels_in_area(list: &[Node]) -> Vec<Coordinate> {
-    Vec::new()
+    Vec::new() // TODO implement.
+
+    /*
+    for the list of nodes ->
+        plot them.
+        create a number of geometric shapes.
+            (triangles or rectangles).
+        use a standard filling method for each variation.
+    */
+}
+
+pub fn get_rectangle(coordinate: Coordinate, width: usize, height: usize) -> Vec<Coordinate> {
+    get_rectangle_precise(
+        coordinate.x,
+        coordinate.y,
+        coordinate.x +width as i16,
+        coordinate.y +height as i16,
+    )
+}
+
+
+// Assumes it's a rectangle.
+// Assumes x1 < x2 && y1 < y2
+pub fn get_rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Coordinate> {
+    let mut vec = Vec::new();
+
+    for x in min(x1, x2)..max(x1, x2) {
+        for y in min(y1, y2)..max(y1, y2) {
+            vec.push(
+                Coordinate::new(x,y)
+            );
+        }
+    }
+
+    vec
+}
+
+pub fn fill(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, color: Rgba<u8>, list: &[Coordinate]) {
+    list.iter().map(|c|
+        image.put_pixel( c.x  as u32, c.y as u32, color)
+    ).collect::<Vec<_>>();
 }

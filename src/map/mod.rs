@@ -9,6 +9,9 @@ use node::Node;
 use group::*;
 use node::nodelink::NodeLink;
 use node::link::*;
+use node::figure;
+use tools::util::gen_rgba;
+use node::coordinates;
 
 use image::{ImageBuffer, Rgba};
 
@@ -148,6 +151,17 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
 
     // Draws all links
     map_links(&mut imgbuf, &links, add, node_size);
+
+    // TODO this is a test.
+    let start = coordinates::Coordinate::new(0,0);
+    let get_area = figure::get_rectangle(start, 50, 50);
+    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
+    let start = coordinates::Coordinate::new(50,-10);
+    let get_area = figure::get_rectangle(start, 20, 50);
+    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
+    let start = coordinates::Coordinate::new(20,-20);
+    let get_area = figure::get_rectangle(start, 50, 20);
+    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
 
     println!("Mapped: {} nodes & {} links", nodes.len(), links.len());
 
