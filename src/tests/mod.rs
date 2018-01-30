@@ -83,6 +83,7 @@ mod tests {
             assert_eq!(co1.diff(&co3) == (103, 103), true);
             assert_eq!(co2.diff(&co3) == (204, 204), true);
             assert_eq!(co1.diff(&co1) == (0, 0), true);
+
         }
 
         // Tests cloning.

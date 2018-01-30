@@ -1,5 +1,4 @@
 extern crate rand;
-use super::constants;
 use rand::distributions::{IndependentSample, Range};
 use image::Rgba;
 use node::coordinates::*;
@@ -20,7 +19,6 @@ pub fn get_random_item(list: &[String]) -> &String {
     let roll = roll(0, list.len() as u32);
     &list[roll as usize]
 }
-
 
 /// Tested
 /// Checks so that the applied adjustments stay within a u8.
@@ -48,6 +46,40 @@ pub fn gen_rgba() -> Rgba<u8> {
     // Color of the node.
     for i in 0..4 {
         let v = primary.data[i] as u32 + roll(0,255);
+
+        // If v goes above what a u8 can take. Set it to max.
+        let v2 = if v > 255 {
+            255
+        } else {
+            v
+        };
+
+        primary.data[i] = v2 as u8;
+    }
+
+    primary
+}
+
+// Returns a random Rgb color. the opacity is always 255.
+pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
+    let seed = seed as u32;
+
+    // Node
+    let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
+
+    let rem = 255;
+    let mut min: u32 = (seed/2) % rem;
+    let mut max: u32 = seed % rem;
+
+    if min > max {
+        swap(&mut min, &mut max);
+    } else if min == max {
+        min -=1;
+    }
+
+    // Color of the node.
+    for i in 0..4 {
+        let v = primary.data[i] as u32 + roll(min, max);
 
         // If v goes above what a u8 can take. Set it to max.
         let v2 = if v > 255 {

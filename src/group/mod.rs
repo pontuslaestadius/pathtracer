@@ -8,10 +8,10 @@ pub struct Group {
     pub nodes: Vec<Node>,
     pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
-    pub radius: u32,
+    pub radius: Option<u32>,
 }
 impl Group {
-    pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: u32) -> Group {
+    pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: Option<u32>) -> Group {
         Group {
             hash: calculate_hash(&name),
             nodes: Vec::new(),
@@ -28,7 +28,7 @@ impl Group {
     }
 
     pub fn new_node(&mut self, name: String) {
-        let geo = coordinates::gen_radius(&self.geo, 0, self.radius);
+        let geo = coordinates::gen_radius(&self.geo, 0, self.get_dynamic_radius());
         self.new_node_inner(geo, name);
     }
 
@@ -60,9 +60,16 @@ impl Group {
         self.nodes.push(node);
     }
 
+    pub fn get_dynamic_radius(&self) -> u32 {
+        match self.radius {
+            Some(x) => x,
+            None => self.nodes.len()as u32 *10 /*TODO should be * nodesize*/  ,
+        }
+    }
+
     pub fn gen_color(&self, coordinates: coordinates::Coordinate) -> Rgba<u8> {
 
-        let radius = self.radius as i16;
+        let radius = self.get_dynamic_radius() as i16;
 
         let (x_dif, y_dif) = coordinates::diff(&self.geo, &coordinates);
 
