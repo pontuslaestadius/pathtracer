@@ -68,7 +68,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
         let group_coordinates = gen_within_radius(&zero_zero, radius*10);
         let group_name = get_random_item(&node_names).clone();
         groups.push(Group::new(
-            group_name,
+            group_name.as_str(),
             group_coordinates,
             gen_rgba(),
             radius

@@ -1,19 +1,19 @@
-
+use super::data::calculate_hash;
 use node::{Node, coordinates};
 use image::{ImageBuffer, Rgba};
 use tools::util::border;
 
 pub struct Group {
-    pub name: String,
+    pub hash: u64,
     pub nodes: Vec<Node>,
     pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
     pub radius: u32,
 }
 impl Group {
-    pub fn new(name: String, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: u32) -> Group {
+    pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: u32) -> Group {
         Group {
-            name,
+            hash: calculate_hash(&name),
             nodes: Vec::new(),
             geo: coordinates,
             color,

@@ -96,7 +96,6 @@ mod tests {
         }
     }
 
-
     mod util {
         use tools::util::*;
 
@@ -115,7 +114,5 @@ mod tests {
         }
 
     }
-
-
 
 }

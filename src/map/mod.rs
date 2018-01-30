@@ -12,6 +12,7 @@ use node::link::*;
 use node::figure;
 use tools::util::gen_rgba;
 use node::coordinates;
+use std::io;
 
 use image::{ImageBuffer, Rgba};
 
@@ -122,9 +123,25 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     // Gets the resolution of the image
     let res = gen_map_dimensions(min_max);
 
+
     // Sets the image size.
     let width  = res.0 + node_size*2;
     let height = res.1 + node_size*2;
+
+
+    // Confirm the image size before proceeding.
+    println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
+    let mut input = String::new();
+    match io::stdin().read_line(&mut input) {
+        Ok(n) => {}
+        Err(error) => println!("error: {}", error),
+    }
+
+    match input.as_str() {
+        "N\n" => panic!("Stopped"),
+        _ => (),
+    }
+
 
     // Create a new ImgBuf with width: imgx and height: imgy
     gen_canvas(width, height)

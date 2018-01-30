@@ -53,7 +53,7 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
             let hashed_line = calculate_hash(&line);
             for (j, old) in &mut groups.iter_mut().enumerate() {
                 // If it does not match existing tag.
-                if calculate_hash(&old.name) != hashed_line {continue};
+                if old.hash != hashed_line {continue};
                 exists = true;
 
                 let ref_node: &Node = old.new_node_min_auto(line.to_string(), (i/100)+1);
@@ -75,7 +75,7 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
             if !exists {
 
                 let mut group = Group::new(
-                    line.to_string(),
+                    &line,
                     gen_radius(&coordinates, 0, radius*4),
                     util::gen_rgba(),
                     radius
@@ -93,7 +93,7 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
     (groups, links)
 }
 
-fn calculate_hash<T: Hash>(t: &T) -> u64 {
+pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);
     s.finish()
