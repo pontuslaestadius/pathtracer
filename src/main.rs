@@ -28,9 +28,7 @@
 extern crate pathfinder;
 extern crate rand;
 
-use rand::*;
-use pathfinder::{node, map, data, group};
-use pathfinder::node::*;
+use pathfinder::{map, data, group};
 
 fn main() {
 

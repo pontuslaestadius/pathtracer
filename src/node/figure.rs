@@ -63,7 +63,7 @@ fn cube_precise(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize
     first
 }
 
-
+/*
 /// Given a list of nodes, will return all pixels inside the formation they have.
 fn get_pixels_in_area(list: &[Node]) -> Vec<Coordinate> {
     Vec::new() // TODO implement.
@@ -76,6 +76,7 @@ fn get_pixels_in_area(list: &[Node]) -> Vec<Coordinate> {
         use a standard filling method for each variation.
     */
 }
+*/
 
 pub fn get_rectangle(coordinate: Coordinate, width: usize, height: usize) -> Vec<Coordinate> {
     get_rectangle_precise(
@@ -103,7 +104,7 @@ pub fn get_rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Coordina
     vec
 }
 
-pub fn fill(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, color: Rgba<u8>, list: &[Coordinate]) {
+pub fn fill(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, color: Rgba<u8>, list: &[Coordinate]) {
     list.iter().map(|c|
         image.put_pixel( c.x  as u32, c.y as u32, color)
     ).collect::<Vec<_>>();

@@ -56,16 +56,16 @@ pub fn gen_radius(coord: &Coordinate, min: u32, max: u32) -> Coordinate {
     let r = roll(min, max) as f64;
 
     // gets a point on the circle's circumference.
-    let cir = |a: f64, b: f64| a + r * b;
+    let circle = |a: f64, b: f64| a + r * b;
 
-    // Gets the Angle
-    let angle = roll(0, 360);
-    let a: f64 = f64::consts::PI * (0.01 * angle as f64);
+    // Gets a random angle.
+    let angle = roll(0, 3600);
+    let a: f64 = f64::consts::PI * (0.001 * angle as f64);
 
-    let roll2: i16 = roll(min, max) as i16;
-
-    let x = cir(coord.x as f64, a.cos()) as i16;                // x = cx + r * cos(a)
-    let y = cir(coord.y as f64, a.sin()) as i16 -roll2;         // y = cy + r * sin(a)
+    // x = cx + r * cos(a)
+    let x = circle(coord.x as f64, a.cos()) as i16;
+    // y = cy + r * sin(a)
+    let y = circle(coord.y as f64, a.sin()) as i16;
 
     Coordinate {
         x,

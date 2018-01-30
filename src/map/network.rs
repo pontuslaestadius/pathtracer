@@ -6,8 +6,6 @@ use super::super::group::*;
 use super::super::tools::util::*;
 use super::*;
 
-use image::Rgba;
-
 use std::time::Instant;
 
 pub fn create_random_network<'a>(number: u32, radius: u32) {
@@ -71,7 +69,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
             group_name.as_str(),
             group_coordinates,
             gen_rgba(),
-            radius
+            None
         ));
     }
 
@@ -93,7 +91,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 // Adds the number of children supplied randomly to a group.
 pub fn add_children(group: &mut Group, nr_children: u32) {
     for _ in 0..nr_children {
-        let coord = gen_within_radius(&group.geo, group.radius);
+        let coord = gen_within_radius(&group.geo, group.get_dynamic_radius());
         let mut node = Node::new("".to_string(), coord.clone());
         node.set_color(group.gen_color(coord));
         group.push(node);

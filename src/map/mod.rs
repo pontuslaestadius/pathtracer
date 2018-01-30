@@ -4,10 +4,8 @@ use std::path::Path;
 
 pub mod network;
 
-use super::tools::constants;
 use node::Node;
 use group::*;
-use node::nodelink::NodeLink;
 use node::link::*;
 use node::figure;
 use tools::util::gen_rgba;
@@ -133,7 +131,7 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
     let mut input = String::new();
     match io::stdin().read_line(&mut input) {
-        Ok(n) => {}
+        Ok(_) => {}
         Err(error) => println!("error: {}", error),
     }
 
@@ -148,9 +146,6 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
 }
 
 pub fn node_and_links(nodes: &[Node], links: &[Link]) {
-
-    // Specifies the max width that a text can use up.
-    let node_name_length: u32 = 100;
 
     // Node size.
     let node_size: u32 = 4;
