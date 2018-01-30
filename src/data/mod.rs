@@ -34,6 +34,11 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut links: Vec<Link> = Vec::new();
     let lines = content.split("\n");
 
+    // Stores the hashed array position rem.
+    let size: usize = 10000;
+    let size_u64: u64 = size as u64;
+    let mut groups_boolean_array: [bool; 10000] = [false; 10000];
+
     let mut i = 0;
     let mut previous_tag = String::new();
     for line in lines {
@@ -48,18 +53,35 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
             let coordinates = Coordinate::new(0, 0);
             let radius = 80;
 
-            let mut exists = false;
             let mut index: usize = 0;
             let hashed_line = calculate_hash(&line);
-            for (j, old) in &mut groups.iter_mut().enumerate() {
-                // If it does not match existing tag.
-                if old.hash != hashed_line {continue};
-                exists = true;
 
-                let ref_node: &Node = old.new_node_min_auto(line.to_string(), (i/100)+1);
-                // Draw a line between the previous and the next commit if they are chained.
-                index = j;
-                break;
+            // Checks the boolean array position for the groups existence.
+            if groups_boolean_array[(hashed_line % size_u64) as usize] {
+
+                for (j, old) in &mut groups.iter_mut().enumerate() {
+                    // If it does not match existing tag.
+                    if old.hash != hashed_line {continue};
+                    let ref_node: &Node = old.new_node_min_auto(line.to_string(), (i/10)+1);
+                    // Draw a line between the previous and the next commit if they are chained.
+                    index = j;
+                    break;
+                }
+
+
+                // Creates a new group because one did not exist.
+            } else {
+                groups_boolean_array[(hashed_line % size_u64) as usize] = true;
+                let mut group = Group::new(
+                    &line,
+                    gen_radius(&coordinates, 0, radius*4),
+                    util::gen_rgba(),
+                    radius
+                );
+
+                group.new_node_min_auto(line.to_string(), i);
+
+                groups.push(group);
             }
 
             /*
@@ -71,21 +93,6 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
                 previous_tag = group.name.clone();
             }
             */
-
-            if !exists {
-
-                let mut group = Group::new(
-                    &line,
-                    gen_radius(&coordinates, 0, radius*4),
-                    util::gen_rgba(),
-                    radius
-                );
-
-                group.new_node_min_auto(line.to_string(), i);
-
-                groups.push(group);
-
-            }
         }
 
     }
