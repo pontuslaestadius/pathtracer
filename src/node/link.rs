@@ -36,6 +36,20 @@ impl<'a> Link<'a> {
         ).collect::<Vec<_>>();
     }
 
+    pub fn draw_width
+    (
+        &self,
+        mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>,
+        x_offset: i16,
+        y_offset: i16,
+        width: u32
+    )
+    {
+        for extra_x in 1..width+1 {
+            self.draw(&mut image, x_offset +extra_x as i16,y_offset+(extra_x/2) as i16);
+        }
+    }
+
     /// Creates a new Link and binds two nodes together.
     pub fn new(from: &'a Coordinate, to: &'a Coordinate) -> Link<'a> {
         Link {
