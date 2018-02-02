@@ -24,17 +24,6 @@ impl<'a> NodeLink<'a> {
 
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
 
-        /*
-            // Sets the scaling propety using an anonymous function for links.
-            let scale = |a: i16, b: i16| {
-                let mut res: f64 = 0.0;
-                if b != 0 {
-                    res = a.abs() as f64 / b.abs() as f64;
-                }
-                res
-            };
-            */
-
         let size = (size/2) as i16;
 
         // Starting positions.

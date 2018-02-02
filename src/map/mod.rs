@@ -81,7 +81,7 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
     }
 
     for link in links.iter() {
-        link.draw(&mut imgbuf, add.0 +node_size as i16/2, add.1 +node_size as i16/2);
+        link.draw_width(&mut imgbuf, add.0 +node_size as i16/2, add.1 +node_size as i16/2, 3);
     }
 
     // Save the image to local storage.
@@ -121,11 +121,9 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     // Gets the resolution of the image
     let res = gen_map_dimensions(min_max);
 
-
     // Sets the image size.
     let width  = res.0 + node_size*2;
     let height = res.1 + node_size*2;
-
 
     // Confirm the image size before proceeding.
     println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
@@ -139,7 +137,6 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
         "N\n" => panic!("Stopped"),
         _ => (),
     }
-
 
     // Create a new ImgBuf with width: imgx and height: imgy
     gen_canvas(width, height)

@@ -36,20 +36,19 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
     // Stores the hashed array position rem.
     let size: usize = 10000;
     let size_u64: u64 = size as u64;
+    let radius = (size/20) as u32;
+    let node_range = 100;
+
+    // Check if a group matches the same.
+    let coordinates = Coordinate::new(0, 0);
     let mut groups_boolean_array: [bool; 10000] = [false; 10000]; // TODO improve.
 
-    let mut i = 0;
     for line in lines {
         // Ignore empty lines.
         if line == "" {continue};
-        let radius = (size/20) as u32;
 
         // Pick up tagged lines.
         if line.starts_with(tag.collection.as_str()) {
-            i+=1;
-
-            // Check if a group matches the same.
-            let coordinates = Coordinate::new(0, 0);
 
             // Hashes the input value for faster comparison.
             let hashed_line = calculate_hash(&line);
@@ -60,8 +59,7 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
                 for old in &mut groups.iter_mut() {
                     // If it does not match existing tag.
                     if old.hash != hashed_line {continue};
-                    let _ = old.new_node_min_auto(String::new(), 100);
-                    // Draw a line between the previous and the next commit if they are chained.
+                    let _ = old.new_node_min_auto(String::new(), node_range);
                     break;
                 }
 
@@ -82,15 +80,6 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
                 groups.push(group);
             }
 
-            /*
-            // Chain linking
-            let group: &Group = &groups.get(index).unwrap();
-            if group.name == previous_tag {
-                let previous_node: &Node = group.nodes.get(group.nodes.len()-2).unwrap();
-                links.push(Link::new(&previous_node.geo, &ref_node_geo.unwrap()));
-                previous_tag = group.name.clone();
-            }
-            */
         }
 
     }
