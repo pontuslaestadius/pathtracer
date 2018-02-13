@@ -45,8 +45,8 @@ impl<'a> Link<'a> {
         width: u32
     )
     {
-        for extra_x in 1..width+1 {
-            self.draw(&mut image, x_offset +extra_x as i16,y_offset+(extra_x/2) as i16);
+        for extra_x in 0..width+1 {
+            self.draw(&mut image, x_offset +extra_x as i16,y_offset+(extra_x) as i16);
         }
     }
 
