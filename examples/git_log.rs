@@ -1,27 +1,43 @@
 //! Author: Pontus Laestadius
-//! Version: 0.1
+//! Version: 0.3
 //! Since: 2017-12-02
 //!
 //! Visualizes a provided log with the marked tags.
 //!
 
 extern crate pathfinder;
-use pathfinder::{node, map, data, group};
+extern crate rand;
+use pathfinder::{map, data, group};
+use std::env;
 
 fn main() {
+
+    // Gets command line arguments.
+    let args: Vec<String> = env::args().collect();
+
+    // If no arguments provided. Notify user and exit.
+    if args.len() < 3 {
+        println!("Invalid arguments, application requires: \
+        <input> <output> [tag]");
+        return ();
+    }
+
     // The tag to find to group them by.
-    let find: String = "Author".to_string();
+    let find: String = if args.len() > 3 {
+        args[3].to_string()
+    } else {
+        "Author".to_string()
+    };
 
-    let nothing = Vec::new();
+    let lambda = |x: &str| {
+        x.starts_with(find.as_str())
+    };
 
-    // Save the tag to use to convert the data.
-    let tag = data::Tag {collection: find, ignore: nothing};
-
-    // Fetches the log, replace it with your log directory.
-    let log = "resources/log.txt";
+    // Fetches the log, from the command line argument.
+    let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, links) = data::convert_file(log, &tag);
+    let (groups, links) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
@@ -30,7 +46,9 @@ fn main() {
     println!("{:?} groups with {} nodes", g, n);
 
     // Save path for the final result.
-    let save_path = "visual_data.png";
+    let save_path = &args[2];
+
+    println!("{} links created", links.len());
 
     // Map them to an RGBA Image and saves it.
     map::groups_and_links(&groups, &links, save_path);
