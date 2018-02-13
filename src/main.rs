@@ -28,20 +28,34 @@
 extern crate pathfinder;
 extern crate rand;
 use pathfinder::{node, map, data, group};
+use std::env;
 
 fn main() {
 
+    // Gets command line arguments.
+    let args: Vec<String> = env::args().collect();
+
+    // If no arguments provided. Notify user and exit.
+    if args.len() < 3 {
+        println!("Invalid arguments, application requires: \
+        <input> <output> [tag]");
+        return ();
+    }
 
     // The tag to find to group them by.
-    let find: String = "Author".to_string();
+    let find: String = if args.len() > 3 {
+        args[3].to_string()
+    } else {
+        "Author".to_string()
+    };
 
     let nothing = Vec::new();
 
     // Save the tag to use to convert the data.
     let tag = data::Tag {collection: find, ignore: nothing};
 
-    // Fetches the log, replace it with your log directory.
-    let log = "resources/log.txt";
+    // Fetches the log, from the command line argument.
+    let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
     let (groups, mut links) = data::convert_file(log, &tag);
@@ -53,7 +67,7 @@ fn main() {
     println!("{:?} groups with {} nodes", g, n);
 
     // Save path for the final result.
-    let save_path = "visual_data.png";
+    let save_path = &args[2];
 
     // Links them, TODO remove, used for testing.
 
