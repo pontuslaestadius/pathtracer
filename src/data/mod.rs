@@ -16,7 +16,7 @@ pub struct Tag {
     pub ignore: Vec<String>,
 }
 
-pub fn convert_file<'a>(path: &str, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
+pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut file = OpenOptions::new()
         .read(true)
         .open(path)
@@ -25,10 +25,10 @@ pub fn convert_file<'a>(path: &str, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut contents = String::new();
     let _ = file.read_to_string(&mut contents);
 
-    convert(contents, tag)
+    convert(contents, &lambda)
 }
 
-pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
+pub fn convert<'a>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut groups: Vec<Group> = Vec::new();
     let links: Vec<Link> = Vec::new();
     let lines = content.split("\n");
@@ -48,7 +48,7 @@ pub fn convert<'a>(content: String, tag: &Tag) -> (Vec<Group>, Vec<Link<'a>>) {
         if line == "" {continue};
 
         // Pick up tagged lines.
-        if line.starts_with(tag.collection.as_str()) {
+        if lambda(line) {
 
             // Hashes the input value for faster comparison.
             let hashed_line = calculate_hash(&line);

@@ -49,16 +49,15 @@ fn main() {
         "Author".to_string()
     };
 
-    let nothing = Vec::new();
-
-    // Save the tag to use to convert the data.
-    let tag = data::Tag {collection: find, ignore: nothing};
+    let lambda = |x: &str| {
+        x.starts_with(find.as_str())
+    };
 
     // Fetches the log, from the command line argument.
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, mut links) = data::convert_file(log, &tag);
+    let (groups, mut links) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
@@ -68,16 +67,6 @@ fn main() {
 
     // Save path for the final result.
     let save_path = &args[2];
-
-    // Links them, TODO remove, used for testing.
-
-    for group in groups.iter() {
-        for group2 in groups.iter().rev() {
-            links.push(
-                node::link::Link::new(&group.geo, &group2.geo)
-            );
-        }
-    }
 
     println!("{} links created", links.len());
 
