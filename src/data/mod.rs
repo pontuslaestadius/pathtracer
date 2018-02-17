@@ -1,14 +1,12 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use std::fs::OpenOptions;
+use std::io::prelude::*;
 
 use group::*;
 use node::coordinates::*;
-
-use std::fs::OpenOptions;
-use std::io::prelude::*;
 use super::tools::util;
 use super::node::link::*;
-
 
 pub struct Tag {
     // Tag to divide them in to groups.
@@ -48,7 +46,6 @@ pub struct CustomConverter<'a> {
     radius: u32,
     size: u64,
     lambda_tag: &'a Fn(&str) -> bool,
-    //lambda_group: &'a Fn(&str) -> bool,
 }
 
 // Heavily customizable.

@@ -27,7 +27,7 @@
 
 extern crate pathfinder;
 extern crate rand;
-use pathfinder::{node, map, data, group};
+use pathfinder::{map, data, group};
 use std::env;
 
 fn main() {
@@ -57,7 +57,7 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, mut links) = data::convert_file(log, &lambda);
+    let (groups, links) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
