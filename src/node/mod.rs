@@ -6,6 +6,7 @@ pub mod figure;
 
 use std::cmp::PartialEq;
 use std::fs::{OpenOptions, File};
+use self::coordinates::Coordinate;
 
 use std::io::prelude::*;
 use std::io;
@@ -24,17 +25,47 @@ pub struct Node {
     pub name: String,
     pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
+    radius: Option<usize>,
 }
 
-impl Node {
 
-    pub fn get_geo(&self) -> &coordinates::Coordinate {
+// Setters and getters.
+impl Node {
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn set_name(&mut self, name: String){
+        self.name = name;
+    }
+
+    pub fn get_geo(&self) -> &Coordinate {
         &self.geo
+    }
+
+    pub fn set_geo(&mut self, geo: Coordinate){
+        self.geo = geo;
+    }
+
+    pub fn get_color(&mut self) -> Rgba<u8> {
+        self.color
     }
 
     pub fn set_color(&mut self, color: Rgba<u8>) {
         self.color = color;
     }
+
+    pub fn get_radius(&self) -> Option<usize> {
+        self.radius
+    }
+
+    pub fn set_radius(&mut self, radius: usize) {
+        self.radius = Some(radius);
+    }
+}
+
+impl Node {
+
 
     // Draw node.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
@@ -54,7 +85,6 @@ impl Node {
     }
 
     /*
-
     pub fn sort(list: [Node]) {
         Node::rec_sort(list,0,list.len());
     }
@@ -86,7 +116,8 @@ impl Node {
         Node {
             name,
             geo,
-            color: Rgba {data: [0,0,0,255]}
+            color: Rgba {data: [0,0,0,255]},
+            radius: None,
         }
     }
 
@@ -165,15 +196,7 @@ impl Node {
         let x = split.next().unwrap().parse::<i16>().unwrap();
         let y = split.next().unwrap().parse::<i16>().unwrap();
 
-        Node {
-            name,
-            geo: coordinates::Coordinate {
-                x,
-                y
-            },
-            color: Rgba {data: [0,0,0,255]}
-        }
-
+        Node::new(name, coordinates::Coordinate::new(x,y))
     }
 
     pub fn save_list(list: &[Node]) -> Result<(), io::Error> {
@@ -207,6 +230,7 @@ impl Clone for Node {
             name: self.name.clone(),
             geo: self.geo.clone(),
             color: self.color.clone(),
+            radius: self.radius.clone(),
         }
     }
 }
@@ -216,33 +240,6 @@ impl PartialEq for Node {
         (self.geo == other.geo) && (self.name == other.name)
     }
 }
-
-/*
-
-
-/*
-    Wrapper
-    -------
-    Wraps around the node and links and creates a correlation.
-*/
-
-pub struct Wrapper {
-    node: Node,
-    links: Vec<NodeLink>
-}
-
-impl<'a> Wrapper<'a> {
-
-    pub fn next(&self) -> Option<NodeLink> {
-        self.links.next()
-    }
-
-    pub fn add(&self, link: NodeLink) {
-        self.links.push(link);
-    }
-
-}
-*/
 
 // Opens
 pub fn get_node_names() -> Result<Vec<String>, io::Error> {
