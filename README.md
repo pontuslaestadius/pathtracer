@@ -9,6 +9,5 @@ Inside the examples directory you can find examples if implementation.
 
 # Planned features
 - Visualize a input data file.
-- Better abstraction for groups.
-- Less randomness and more control.
-
+- Better abstraction for groups of nodes.
+- More predictable node layout.

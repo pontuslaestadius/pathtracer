@@ -47,6 +47,7 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
     let connections = NodeLink::link_generic(&nodes);
 
     // TODO THIS IS STUPID
+    // TODO future me here, Why is it stupid?
     super::node_and_links(&nodes, &connections);
 }
 

@@ -45,14 +45,9 @@ impl Group {
     pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) -> &Node {
 
         let color = self.gen_color(geo.clone());
-
-        self.push(
-            Node {
-                name,
-                geo,
-                color
-            }
-        );
+        let mut node = Node::new(name,geo);
+        node.set_color(color);
+        self.push(node);
         &self.nodes.get(self.nodes.len() -1).unwrap()
     }
 

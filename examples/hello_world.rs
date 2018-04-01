@@ -3,14 +3,19 @@
 extern crate pathfinder;
 
 use pathfinder::map::*;
+use pathfinder::node::*;
+use pathfinder::group::*;
 
 
 fn main() {
+    let group1 = Node::new("Exampl1", coordinates::Coordinate::new(0,0));
+    let group2 = Node::new("Exampl2", coordinates::Coordinate::new(100,100));
+    let vec = vec!(group1, group2);
 
-    // Creates a set of nodes and a set of links between several of the nodes, randomly.
-    //let (nodes, links) = network::create_random_network(5, 50).unwrap_err();
 
-    // Map the nodes and links on to an Image.
-    //node_and_links(&nodes, &connections);
 
+    // Use the log directory and the tag to create the groups.
+    let (groups, links) = data::convert_file(log, &lambda);
+    // Map them to an RGBA Image and saves it.
+    groups_and_links(&groups, &links, "example.png");
 }
