@@ -92,9 +92,9 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 // Adds the number of children supplied randomly to a group.
 pub fn add_children(group: &mut Group, nr_children: u32) {
     for _ in 0..nr_children {
-        let coord = gen_within_radius(&group.geo, group.get_dynamic_radius());
-        let mut node = Node::new("".to_string(), coord.clone());
-        node.set_color(group.gen_color(coord));
+        let co = gen_within_radius(&group.geo, group.get_dynamic_radius());
+        let mut node = Node::new("".to_string(), co.clone());
+        node.set_color(group.gen_color(co));
         group.push(node);
     }
 }

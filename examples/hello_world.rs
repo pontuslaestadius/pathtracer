@@ -10,6 +10,8 @@ fn main() {
     let string = String::new();
     let ls = 35; // Letter spacing.
     let hs = ls/2; // Letter spacing half.
+
+    // This is a "small" list of positions required to make a figure!
     let node_pos: Vec<(i16, i16)> = vec!(
         (0,0), (hs, -hs), (0, -ls), (0, ls),
         (ls, -hs), (ls+hs, ls), (hs, 0), (ls*2 +hs, 0),
@@ -24,10 +26,16 @@ fn main() {
     );
     let mut node_vec = Vec::new();
 
+    // Add each position as a node.
     for pos in node_pos.iter() {
-        node_vec.push(Node::new(string.clone(), coordinates::Coordinate::new(pos.0,pos.1)));
+        let mut node = Node::new(string.clone(), coordinates::Coordinate::new(pos.0,pos.1));
+        node.set_radius(10);
+        node_vec.push(node);
     }
 
+    // Link them sequentially in order.
     let link_vec = sequentially_link_nodes(&node_vec);
+
+    // Create the image using the resource nodes and links.
     node_and_links(&node_vec, &link_vec);
 }

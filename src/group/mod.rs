@@ -23,6 +23,10 @@ impl Group {
         }
     }
 
+    pub fn get_nodes(&self) -> &Vec<Node> {
+        &self.nodes
+    }
+
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
         for node in self.nodes.iter() {
             node.draw(image, x_offset, y_offset, size);
@@ -60,7 +64,8 @@ impl Group {
     pub fn get_dynamic_radius(&self) -> u32 {
         match self.radius {
             Some(x) => x,
-            None => self.nodes.len()as u32 *10 /*TODO should be * nodesize*/  ,
+            None => 10 + self.nodes.len()as u32 /2 /*TODO should be * nodesize*/  ,
+            /* TODO this needs to be re-optimized, currectly it works fine, because 5+.. */
         }
     }
 

@@ -62,10 +62,9 @@ pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
 
-
 pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO imlpementing.
     // Node size.
-    let node_size: u32 = 6; // TODO make dynamic.
+    let node_size: u32 = get_node_size_from_groups(&groups);
 
     // Gets the highest and lowest of all the coordinates.
     let min_max = min_max(groups);
@@ -92,7 +91,7 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
 
 pub fn map_groups(groups: &[Group]) {
     // Node size.
-    let node_size: u32 = 4;
+    let node_size: u32 = get_node_size_from_groups(&groups);
 
     // Gets the min and max of the canvas.
     let min_max = min_max(groups);
@@ -144,10 +143,30 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     gen_canvas(width, height)
 }
 
-pub fn node_and_links(nodes: &[Node], links: &[Link]) {
+pub fn get_node_size(nodes: &[Node]) -> u32 {
+    let mut node_size: u32 = 3; // Minimum default size.
+    for node in nodes.iter() {
+        let rad = node.get_radius();
+        match rad {
+            Some(val) => {if val > node_size {node_size = val;}}
+            None => (),
+        }
+    }
+    node_size
+}
 
+pub fn get_node_size_from_groups(groups: &[Group]) -> u32 {
+    let mut node_size: u32 = 3; // Minimum default size.
+    for group in groups.iter() {
+        let tmp = get_node_size(group.get_nodes());
+        if tmp > node_size {node_size = tmp;}
+    }
+    node_size
+}
+
+pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     // Node size.
-    let node_size: u32 = 4;
+    let node_size: u32 = get_node_size(&nodes);
 
     let min_max = gen_min_max(nodes);
 

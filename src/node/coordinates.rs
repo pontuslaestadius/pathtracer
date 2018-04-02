@@ -14,9 +14,9 @@ pub struct Coordinate {
     pub y: i16,
 }
 
-
 impl Coordinate {
 
+    // Nothing to test.
     pub fn new(x: i16, y: i16) -> Coordinate {
         Coordinate {
             x,
@@ -24,6 +24,7 @@ impl Coordinate {
         }
     }
 
+    // Nothing to test.
     pub fn gen() -> Coordinate {
         Coordinate {
             x: rand::random::<i16>(),
@@ -31,6 +32,7 @@ impl Coordinate {
         }
     }
 
+    // Transitively tested.
     pub fn diff(&self, other: &Coordinate) -> (i16, i16) {
         diff(&self, other)
     }

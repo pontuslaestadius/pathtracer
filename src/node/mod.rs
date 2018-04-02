@@ -25,7 +25,7 @@ pub struct Node {
     pub name: String,
     pub geo: coordinates::Coordinate,
     pub color: Rgba<u8>,
-    radius: Option<usize>,
+    radius: Option<u32>,
 }
 
 
@@ -55,11 +55,11 @@ impl Node {
         self.color = color;
     }
 
-    pub fn get_radius(&self) -> Option<usize> {
+    pub fn get_radius(&self) -> Option<u32> {
         self.radius
     }
 
-    pub fn set_radius(&mut self, radius: usize) {
+    pub fn set_radius(&mut self, radius: u32) {
         self.radius = Some(radius);
     }
 }
@@ -73,6 +73,11 @@ impl Node {
         // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
         let x = (self.geo.x +x_offset as i16) as u32;
         let y = (self.geo.y +y_offset as i16) as u32;
+
+        let size = match self.radius {
+            Some(_) => self.radius.unwrap(),
+            None => size
+        };
 
         for i in 0..size {
             for j in 0..size {
