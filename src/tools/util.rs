@@ -130,15 +130,11 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 ///      Not vertical (deltaX != 0)
 pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
 
-    if y0 < y1 && x0 > x1 {
-        swap(&mut x0, &mut x1);
-        swap(&mut y0, &mut y1);
-    } else if y0 > y1 && x0 > x1 {
+    // This case is handles reversed plotting, meaning going from a larger node to a smaller one.
+    if (y0 < y1 && x0 > x1) || (y0 > y1 && x0 > x1) {
         swap(&mut x0, &mut x1);
         swap(&mut y0, &mut y1);
     }
-
-
 
     let delta_x: f64 = (x1 as i16 - x0 as i16) as f64; // TODO not pretty
     let delta_y: f64 = (y1 as i16 - y0 as i16) as f64; // TODO not pretty
