@@ -2,6 +2,10 @@
 name = "pathfinder"
 version = "0.2.1"
 authors = ["pontus"]
+exclude = [
+    "*.png",
+    "*.jpg",
+]
 
 [dependencies]
 rand = "0.3"
