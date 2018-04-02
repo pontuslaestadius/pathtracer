@@ -29,7 +29,7 @@ fn main() {
     // Add each position as a node.
     for pos in node_pos.iter() {
         let mut node = Node::new(string.clone(), coordinates::Coordinate::new(pos.0,pos.1));
-        node.set_radius(10);
+        node.set_radius(5);
         node_vec.push(node);
     }
 
