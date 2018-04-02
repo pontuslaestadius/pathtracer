@@ -1,9 +1,9 @@
 extern crate rand;
-use rand::distributions::{IndependentSample, Range};
+
 use image::Rgba;
 use node::coordinates::*;
-
-use std::cmp::{min, max};
+use rand::distributions::{IndependentSample, Range};
+use std::cmp::{max, min};
 use std::f64;
 use std::mem::swap;
 

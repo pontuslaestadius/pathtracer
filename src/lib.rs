@@ -1,8 +1,8 @@
 #![cfg_attr(feature="clippy", feature(plugin))]
 #![cfg_attr(feature="clippy", plugin(clippy))]
 
-extern crate rand;
 extern crate image;
+extern crate rand;
 
 pub mod node;
 pub mod map;

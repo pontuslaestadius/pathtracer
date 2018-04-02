@@ -1,15 +1,13 @@
 extern crate image;
 
+use group::*;
+use image::{ImageBuffer, Rgba};
+use node::link::*;
+use node::Node;
+use std::io;
 use std::path::Path;
 
 pub mod network;
-
-use node::Node;
-use group::*;
-use node::link::*;
-use std::io;
-
-use image::{ImageBuffer, Rgba};
 
 // Returns the difference between the lowest and highest x and y values, in that order.
 pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {

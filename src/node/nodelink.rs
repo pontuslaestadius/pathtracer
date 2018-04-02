@@ -1,12 +1,11 @@
+use image::{ImageBuffer, Rgba};
+use std::fs::{File, OpenOptions};
 use std::io;
 use std::io::prelude::*;
 use std::str::FromStr;
-use std::fs::{OpenOptions, File};
-
-use super::Node;
 use super::link::*;
+use super::Node;
 use super::super::tools::{constants, util};
-use image::{ImageBuffer, Rgba};
 
 /*
      NodeLink

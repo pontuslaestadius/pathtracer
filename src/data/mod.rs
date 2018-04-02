@@ -1,12 +1,11 @@
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::fs::OpenOptions;
-use std::io::prelude::*;
-
 use group::*;
 use node::coordinates::*;
-use super::tools::util;
+use std::collections::hash_map::DefaultHasher;
+use std::fs::OpenOptions;
+use std::hash::{Hash, Hasher};
+use std::io::prelude::*;
 use super::node::link::*;
+use super::tools::util;
 
 pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut file = OpenOptions::new()

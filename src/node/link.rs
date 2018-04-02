@@ -1,6 +1,5 @@
-use super::coordinates::Coordinate;
 use image::{ImageBuffer, Rgba};
-
+use super::coordinates::Coordinate;
 use super::util::{gen_rgba, plot};
 
 /*

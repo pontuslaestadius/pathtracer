@@ -1,6 +1,6 @@
-use super::data::calculate_hash;
-use node::{Node, coordinates};
 use image::{ImageBuffer, Rgba};
+use node::{coordinates, Node};
+use super::data::calculate_hash;
 use tools::util::border;
 
 pub struct Group {

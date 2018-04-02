@@ -4,9 +4,10 @@
 ///    Stores an x and y coordinate.
 
 extern crate rand;
-use super::util::roll;
-use std::f64;
+
 use std::cmp::Ordering;
+use std::f64;
+use super::util::roll;
 
 #[derive(Eq)]
 pub struct Coordinate {

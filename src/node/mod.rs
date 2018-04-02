@@ -1,19 +1,16 @@
+use image::{ImageBuffer, Rgba};
+use self::coordinates::Coordinate;
+use std::cmp::PartialEq;
+use std::fs::{File, OpenOptions};
+use std::io;
+use std::io::prelude::*;
+use super::tools::{constants, util};
+
 pub mod coordinates;
 pub mod nodelink;
 pub mod link;
 pub mod figure;
 
-
-use std::cmp::PartialEq;
-use std::fs::{OpenOptions, File};
-use self::coordinates::Coordinate;
-
-use std::io::prelude::*;
-use std::io;
-
-use super::tools::{util, constants};
-
-use image::{ImageBuffer, Rgba};
 
 /*
     Node
