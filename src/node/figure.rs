@@ -41,7 +41,6 @@ pub fn cube(start_point: &Coordinate, width: i16, height: i16, depth_height: i16
         }
     };
 
-
     cube_precise(
         start_point.x,
         start_point.y,
