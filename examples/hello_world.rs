@@ -4,7 +4,6 @@ extern crate pathfinder;
 
 use pathfinder::map::*;
 use pathfinder::node::*;
-use pathfinder::node::coordinates::Coordinate;
 
 fn main() {
     let string = String::new();
