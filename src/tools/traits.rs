@@ -1,8 +1,7 @@
-/*
 use image::rgba;
 
 pub trait Drawable {
-    type color = Rgba<u8>;
+    type Color = Rgba<u8>;
 
     fn draw();
 
@@ -32,4 +31,3 @@ pub trait Drawable {
     }
 
 }
-*/

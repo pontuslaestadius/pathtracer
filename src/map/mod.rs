@@ -125,17 +125,19 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     let width  = res.0 + node_size*2;
     let height = res.1 + node_size*2;
 
-    // Confirm the image size before proceeding.
-    println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
-    let mut input = String::new();
-    match io::stdin().read_line(&mut input) {
-        Ok(_) => {}
-        Err(error) => println!("error: {}", error),
-    }
-
-    match input.as_str() {
-        "N\n" => panic!("Stopped"),
-        _ => (),
+    // Confirm for larger images.
+    if width+height >= 1000 {
+        // Confirm the image size before proceeding.
+        println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
+        let mut input = String::new();
+        match io::stdin().read_line(&mut input) {
+            Ok(_) => {}
+            Err(error) => println!("error: {}", error),
+        }
+        match input.as_str() {
+            "N\n" => panic!("interrupted"),
+            _ => (),
+        }
     }
 
     // Create a new ImgBuf with width: imgx and height: imgy
@@ -161,22 +163,24 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     // Draws all links
     map_links(&mut imgbuf, &links, add, node_size);
 
-    // TODO this is a test.
-    let start = coordinates::Coordinate::new(0,0);
-    let get_area = figure::get_rectangle(start, 50, 50);
-    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
-    let start = coordinates::Coordinate::new(50,-10);
-    let get_area = figure::get_rectangle(start, 20, 50);
-    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
-    let start = coordinates::Coordinate::new(20,-20);
-    let get_area = figure::get_rectangle(start, 50, 20);
-    figure::fill(&mut imgbuf, gen_rgba(),&get_area);
-
     println!("Mapped: {} nodes & {} links", nodes.len(), links.len());
 
     // Save the image to local storage.
     let _ = imgbuf.save(&Path::new("examples/example2.png"));
 }
+
+pub fn sequentially_link_nodes(nodes: &[Node]) -> Vec<Link> {
+    let mut link_vec = Vec::new();
+    for i in 1..nodes.len() {
+        link_vec.push(
+            Link::new(
+                nodes.get(i-1).unwrap().get_geo(),
+                nodes.get(i).unwrap().get_geo())
+        );
+    }
+    link_vec
+}
+
 
 pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],  add: (i16, i16), node_size: u32) {
 
