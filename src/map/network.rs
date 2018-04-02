@@ -1,12 +1,11 @@
 use std::io;
+use std::time::Instant;
+use super::*;
+use super::super::group::*;
+use super::super::node::*;
 use super::super::node::coordinates::*;
 use super::super::node::nodelink::NodeLink;
-use super::super::node::*;
-use super::super::group::*;
 use super::super::tools::util::*;
-use super::*;
-
-use std::time::Instant;
 
 pub fn create_random_network<'a>(number: u32, radius: u32) {
 

@@ -1,8 +1,7 @@
-
+use image::*;
+use std::cmp::{max, min};
 use super::*;
 use super::coordinates::Coordinate;
-use std::cmp::{min, max};
-use image::*;
 
 pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node> {
     rectangle_precise(
