@@ -7,9 +7,6 @@ pub mod network;
 use node::Node;
 use group::*;
 use node::link::*;
-use node::figure;
-use tools::util::gen_rgba;
-use node::coordinates;
 use std::io;
 
 use image::{ImageBuffer, Rgba};
