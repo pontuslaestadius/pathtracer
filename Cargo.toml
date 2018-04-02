@@ -6,6 +6,12 @@ exclude = [
     "*.png",
     "*.jpg",
 ]
+description = "A small library to create nodes, groups of nodes and connection in between them utilizing the image crate."
+repository = "https://github.com/pontuslae/pathfinder"
+readme = "README.md"
+keywords = ["...", "..."]
+categories = ["visualization", "text-processing"]
+license = "GNU General Public License v3.0"
 
 [dependencies]
 rand = "0.3"
