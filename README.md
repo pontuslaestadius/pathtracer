@@ -3,14 +3,14 @@
 ![Pathfinder Logotype](examples/example2.png "Logo")
 
 
-# What is this?
-Pathfinder builds on a simple concept of creating and linking nodes on a image surface. 
-The projects' scope grew as I wanted to have a auto-generated node network (a map) for the algorithms to on. 
-
+# Introduction
+Pathfinder can create nodes, groups of nodes and connection in between them, and plot them resulting in an image.
+It handles text interpretation and data visualisation based on input files.
 # Examples
-Inside the examples directory you can find examples if implementation. 
+Inside the examples directory you can find example implementations of common functions.
 
-# Planned features
-- Visualize a input data file.
+# Planned activities
+- Upload api and documentation.
 - Better abstraction for groups of nodes.
 - More predictable node layout.
+- Integrate with piston for live-view.
