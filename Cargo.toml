@@ -11,7 +11,6 @@ repository = "https://github.com/pontuslae/pathfinder"
 readme = "README.md"
 keywords = ["nodes", "image"]
 categories = ["visualization", "text-processing"]
-license = "GPL-3.0-only"
 
 [dependencies]
 rand = "0.3"
