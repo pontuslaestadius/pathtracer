@@ -13,6 +13,8 @@ use super::super::tools::{constants, util};
      Holds connections between nodes.
  */
 
+// TODO salvage anything worth keeping.
+/// Deprecated. Will be removed.
 pub struct NodeLink<'a> {
     pub from: &'a Node,
     pub to: &'a Node,
@@ -21,6 +23,7 @@ pub struct NodeLink<'a> {
 
 impl<'a> NodeLink<'a> {
 
+    /// Deprecated. Will be removed.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) {
 
         let size = (size/2) as i16;
@@ -66,6 +69,7 @@ impl<'a> NodeLink<'a> {
         }
     }
 
+    /// Deprecated. Will be removed.
     /// Creates a new nodeLink and binds two nodes together.
     pub fn new<'b>(from: &'b Node, to: &'b Node, omnidirectional: bool) -> NodeLink<'b> {
         NodeLink {
@@ -75,6 +79,7 @@ impl<'a> NodeLink<'a> {
         }
     }
 
+    /// Deprecated. Will be removed.
     /// Links a list of provided nodes randomly.
     pub fn link(list: &[Node]) -> Vec<NodeLink> {
         let mut connections: Vec<NodeLink> = Vec::new();
@@ -103,7 +108,7 @@ impl<'a> NodeLink<'a> {
         connections
     }
 
-
+    /// Deprecated. Will be removed.
     /// Links a list of provided nodes randomly.
     pub fn link_generic(list: &[Node]) -> Vec<Link> {
         let mut connections: Vec<Link> = Vec::new();
@@ -120,6 +125,7 @@ impl<'a> NodeLink<'a> {
         connections
     }
 
+    /// Deprecated. Will be removed.
     pub fn save(&self) {
 
         // Opens the node file with specific OpenOptions.
@@ -147,6 +153,7 @@ impl<'a> NodeLink<'a> {
         file.write_all(str.as_bytes()).expect("Couldn't save node");
     }
 
+    /// Deprecated. Will be removed.
     pub fn load<'b>(&self, list: &'b [Node]) -> Vec<NodeLink<'b>> {
         let mut links: Vec<NodeLink> = Vec::new();
 
@@ -169,6 +176,7 @@ impl<'a> NodeLink<'a> {
         links
     }
 
+    /// Deprecated. Will be removed.
     pub fn parse<'b>(str: &str, list: &'b [Node]) -> Result<NodeLink<'b>, io::Error> {
         let string: String = str.to_string();
 

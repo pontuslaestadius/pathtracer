@@ -23,6 +23,7 @@ fn rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Node> {
     ]
 }
 
+/// Returns a list of Nodes placed in the shape of a cube.
 pub fn cube(start_point: &Coordinate, width: i16, height: i16, depth_height: i16, depth_width: i16) -> Vec<Node> {
 
     let rem =
@@ -51,6 +52,7 @@ pub fn cube(start_point: &Coordinate, width: i16, height: i16, depth_height: i16
     )
 }
 
+/// Stricter usage of cube(...).
 fn cube_precise(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize) -> Vec<Node> {
     let mut first = rectangle_precise(x1, y1, x2, y2);
     let mut second = rectangle_precise(x1+dw, y1+dh, x2+dw, y2+dh);
@@ -76,6 +78,7 @@ fn get_pixels_in_area(list: &[Node]) -> Vec<Coordinate> {
 }
 */
 
+/// Creates a Vector of Coordinates in the shape of a rectangle.
 pub fn get_rectangle(coordinate: Coordinate, width: usize, height: usize) -> Vec<Coordinate> {
     get_rectangle_precise(
         coordinate.x,
@@ -85,9 +88,9 @@ pub fn get_rectangle(coordinate: Coordinate, width: usize, height: usize) -> Vec
     )
 }
 
-
-// Assumes it's a rectangle.
-// Assumes x1 < x2 && y1 < y2
+/// Creates a Vector of Coordinates in the shape of a rectangle.
+/// Assumes it's a rectangle.
+/// Assumes x1 < x2 && y1 < y2
 pub fn get_rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Coordinate> {
     let mut vec = Vec::new();
 
@@ -102,6 +105,8 @@ pub fn get_rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Coordina
     vec
 }
 
+/// Fills an area with a solic color on an ImageBuffer.
+/// Experimental and not tested!
 pub fn fill(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, color: Rgba<u8>, list: &[Coordinate]) {
     list.iter().map(|c|
         image.put_pixel( c.x  as u32, c.y as u32, color)

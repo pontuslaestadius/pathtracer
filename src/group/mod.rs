@@ -3,6 +3,8 @@ use node::{coordinates, Node};
 use super::data::calculate_hash;
 use tools::util::border;
 
+/// Holds a set of nodes and applies properties to all child nodes when drawn.
+/// The group itself has displayed output and is not visable.
 pub struct Group {
     pub hash: u64,
     pub nodes: Vec<Node>,
@@ -13,6 +15,8 @@ pub struct Group {
 
 
 impl Group {
+
+    /// Constructs a new Group
     pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: Option<u32>) -> Group {
         Group {
             hash: calculate_hash(&name),
@@ -23,31 +27,37 @@ impl Group {
         }
     }
 
+    /// Returns the nodes that exists inside the Group. If none the Group is draw as blank.
     pub fn get_nodes(&self) -> &Vec<Node> {
         &self.nodes
     }
 
+    /// Draws the Nodes inside that Group.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
         for node in self.nodes.iter() {
             node.draw(image, x_offset, y_offset, size);
         }
     }
 
+    /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self, name: String) {
         let geo = coordinates::gen_radius(&self.geo, 0, self.get_dynamic_radius());
         self.new_node_inner(geo, name);
     }
 
+    /// Adds a Node with a static distance from the center of the Group.
     pub fn new_node_min_auto(&mut self, name: String, min: u32) -> &Node {
         let geo = coordinates::gen_radius(&self.geo, 0, min+5);
         self.new_node_inner(geo, name)
     }
 
+    /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
     pub fn new_node_min_max(&mut self, name: String, min: u32, max: u32) -> &Node {
         let geo = coordinates::gen_radius(&self.geo, min, max);
         self.new_node_inner(geo, name)
     }
 
+    /// Constructs a new node for the Group and mirrors the properties to it.
     pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) -> &Node {
 
         let color = self.gen_color(geo.clone());
@@ -57,10 +67,12 @@ impl Group {
         &self.nodes.get(self.nodes.len() -1).unwrap()
     }
 
+    /// Pushes a Node to the Group.
     pub fn push(&mut self, node: Node) {
         self.nodes.push(node);
     }
 
+    /// Returns a dynamic radius based on the number of Nodes in the Group.
     pub fn get_dynamic_radius(&self) -> u32 {
         match self.radius {
             Some(x) => x,
@@ -69,6 +81,7 @@ impl Group {
         }
     }
 
+    // Generates an Rgba based on the color of the Group and the distance from center.
     pub fn gen_color(&self, coordinates: coordinates::Coordinate) -> Rgba<u8> {
 
         let radius = self.get_dynamic_radius() as i16;
@@ -92,7 +105,7 @@ impl Group {
     }
 }
 
-// Counts the amount of groups and child nodes.
+/// Counts the amount of Groups and child Nodes.
 pub fn count(list: &[Group]) -> (usize, usize) {
     let mut n: usize = 0;
     for g in list.iter() {
@@ -101,7 +114,7 @@ pub fn count(list: &[Group]) -> (usize, usize) {
     (list.len(), n)
 }
 
-// Finds the min and max nodes, for scaling and boundaries.
+/// Finds the min and max nodes used for scaling and setting the boundaries of an image.
 pub fn min_max(list: &[Group]) -> ((i16, i16), (i16, i16)) {
     let mut min_x = 0;
     let mut min_y = 0;

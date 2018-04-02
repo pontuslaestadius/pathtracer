@@ -1,5 +1,5 @@
 use image::rgba;
-
+// TODO either use or remove.
 pub trait Drawable {
     type Color = Rgba<u8>;
 

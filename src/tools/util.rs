@@ -7,14 +7,14 @@ use std::cmp::{max, min};
 use std::f64;
 use std::mem::swap;
 
-// Returns a random number between the min and maximum.
+/// Returns a random number between the min and maximum.
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
     let between: Range<u32> = Range::new(min, max);
     between.ind_sample(&mut rng) as u32
 }
 
-// Returns a random item from a given list.
+/// Returns a random item from a given list.
 pub fn get_random_item(list: &[String]) -> &String {
     let roll = roll(0, list.len() as u32);
     &list[roll as usize]
@@ -37,7 +37,7 @@ pub fn border(a: u8, b: i32) -> u8 {
     }
 }
 
-// Returns a random Rgb color. the opacity is always 255.
+/// Returns a random Rgb color. the opacity is always 255.
 pub fn gen_rgba() -> Rgba<u8> {
 
     // Node
@@ -60,7 +60,7 @@ pub fn gen_rgba() -> Rgba<u8> {
     primary
 }
 
-// Returns a random Rgb color. the opacity is always 255.
+/// Returns a random Rgb color. the opacity is always 255.
 pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
     let seed = seed as u32;
 
@@ -126,8 +126,7 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 
 /// Draws a line between two coordinate points.
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-/// Assumes the following:
-///      Not vertical (deltaX != 0)
+/// Assumes that it is not vertical (deltaX != 0)
 pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
 
     // This case is handles reversed plotting, meaning going from a larger node to a smaller one.

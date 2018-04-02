@@ -7,6 +7,7 @@ use std::io::prelude::*;
 use super::node::link::*;
 use super::tools::util;
 
+/// Reads from the provided file, and converts to a path network using default settings.
 pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut file = OpenOptions::new()
         .read(true)
@@ -19,12 +20,13 @@ pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, V
     convert(contents, &lambda)
 }
 
+/// Initializes a CustomConverter a converts the content to a vector of groups and links.
 pub fn convert<'a>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let cct = CustomConverter::new('\n', 100, 50, 1000, &lambda);
     convert_inner(content, cct)
 }
 
-
+/// Holds configurations for converting a content String to a path network.
 pub struct CustomConverter<'a> {
     split: char,
     node_range: u32,
@@ -35,6 +37,8 @@ pub struct CustomConverter<'a> {
 }
 
 impl<'a> CustomConverter<'a> {
+
+    /// Constructs a new CustomConverter configuration for data interpretation for a path network.
     pub fn new(
         split: char,
         node_range: u32,
@@ -52,9 +56,41 @@ impl<'a> CustomConverter<'a> {
             ignore_empty_lines: true,
         }
     }
+
+    /// Sets the 'split' character for interpreting between lines.
+    pub fn set_split(&mut self, property: char) {
+        self.split = property;
+    }
+
+    /// Sets the node_range for setting the range a node can spawn inside a Group.
+    pub fn set_node_range(&mut self, property: u32) {
+        self.node_range = property;
+    }
+
+    /// Set the radius a group is able to spread it's nodes.
+    pub fn set_radius(&mut self, property: u32) {
+        self.radius = property
+    }
+
+    /// Set the amount of Groups the hash table holds.
+    pub fn set_size(&mut self, property: u64) {
+        self.size = property;
+    }
+
+    /// Set the function used to differentiate between groups.
+    pub fn set_lambda_tag(&mut self, property: &'a Fn(&str) -> bool) {
+        self.lambda_tag = property;
+    }
+
+    /// Set to ignore empty lines. Defaults to true.
+    pub fn set_ignore_empty_lines(&mut self, property: bool) {
+        self.ignore_empty_lines = property;
+    }
+
 }
 
-// Heavily customizable.
+
+/// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
 pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut groups: Vec<Group> = Vec::new();
 
@@ -111,6 +147,8 @@ pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, 
     (groups, Vec::new())
 }
 
+// TODO MAKE PRIVATE
+/// Calculates a default hash.
 pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);

@@ -18,6 +18,7 @@ pub mod figure;
     Nodes represents anchors on a map that are the main focus.
 */
 
+/// A positioned object that can be drawn on an ImageBuffer.
 pub struct Node {
     pub name: String,
     pub geo: coordinates::Coordinate,
@@ -63,8 +64,7 @@ impl Node {
 
 impl Node {
 
-
-    // Draw node.
+    /// Draws a node on an ImageBuffer.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
 
         // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
@@ -86,34 +86,7 @@ impl Node {
 
     }
 
-    /*
-    pub fn sort(list: [Node]) {
-        Node::rec_sort(list,0,list.len());
-    }
-
-    // A recursive sort implementation using divide and conquer.
-    pub fn rec_sort(list: &mut [Node], start: u32, end: u32) -> [Node] {
-
-        match end - start {
-            // If there is only one item, It is already sorted.
-            1 => return list,
-            2 => {
-                if list[0].geo > list[1].geo
-                    return [list[1], list[0]];
-                return [list[0], list[1]];
-            }
-            _ => {
-                let half = (list.len/2) as u32;
-                Node::rec_sort(list, 0, half);
-                Node::rec_sort(list, half, list.len());
-            }
-
-        }
-        list
-    }
-
-    */
-
+    /// Constructs a new Node.
     pub fn new(name: String, geo: coordinates::Coordinate) -> Node {
         Node {
             name,
@@ -123,7 +96,7 @@ impl Node {
         }
     }
 
-    // Saves the node to a text file.
+    /// Saves the node to a text file.
     pub fn save(&self) -> Result<(), io::Error> {
 
         // Opens the node file.
@@ -149,7 +122,8 @@ impl Node {
         Ok(())
     }
 
-    // Creates an identifiable id for the Node.
+    // TODO deprecated from NodeLink
+    /// Creates an identifiable id for the Node.
     pub fn gen_id(&self) -> String {
         let dis = (self.geo.x/2) as i32; // TODO this causes overflow at times.
 
@@ -163,7 +137,7 @@ impl Node {
         ].concat()
     }
 
-    // Loads and returns all saved nodes.
+    /// Loads from a constant path and returns all saved nodes.
     pub fn load() -> Vec<Node> {
 
         let mut nodes: Vec<Node> = Vec::new();
@@ -188,6 +162,7 @@ impl Node {
         nodes
     }
 
+    /// Parses a static str to a Node.
     pub fn parse(str: &str) -> Node {
 
         let string: String = str.to_string();
@@ -201,6 +176,8 @@ impl Node {
         Node::new(name, coordinates::Coordinate::new(x,y))
     }
 
+    /// Saves a list of nodes to a constant path.
+    /// It is more efficient to save several nodes at once.
     pub fn save_list(list: &[Node]) -> Result<(), io::Error> {
 
         // Opens the node file.
@@ -243,7 +220,7 @@ impl PartialEq for Node {
     }
 }
 
-// Opens
+/// Returns a list of names specified in a resource file.
 pub fn get_node_names() -> Result<Vec<String>, io::Error> {
     let mut file = File::open(constants::NAMEPATH)?;
 

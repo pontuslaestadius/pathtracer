@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod tests {
 
-    /// ------------------------------------------------------------
-    /// Each nested module represents one file that is being tested.
-    /// ------------------------------------------------------------
+    // ------------------------------------------------------------
+    // Each nested module represents one file that is being tested.
+    // ------------------------------------------------------------
 
     mod coordinates {
         use node::coordinates::*;

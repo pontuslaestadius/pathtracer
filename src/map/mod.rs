@@ -2,6 +2,7 @@ extern crate image;
 
 use group::*;
 use image::{ImageBuffer, Rgba};
+use tools::constants::CONFIRMA;
 use node::link::*;
 use node::Node;
 use std::io;
@@ -9,15 +10,15 @@ use std::path::Path;
 
 pub mod network;
 
-// Returns the difference between the lowest and highest x and y values, in that order.
+/// Returns the difference between the lowest and highest x and y values, respectively.
 pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     let x = min_max.0;
     let y = min_max.1;
     ((x.1 - x.0) as u32, (y.1 - y.0) as u32)
 }
 
+/// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
 pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
-    // Finds the min and max nodes, for scaling and boundaries.
     let mut min_x = list[0].geo.x;
     let mut min_y = list[0].geo.y;
     let mut max_x = list[0].geo.x;
@@ -43,7 +44,8 @@ pub fn gen_min_max(list: &[Node]) -> ((i16, i16), (i16, i16)) {
     ((min_x, max_x), (min_y, max_y))
 }
 
-// Sets the additions requried to center the pixels on the map.
+/// Sets the additions required to center the pixels on the map.
+/// This allows for negative placements of Coordinates, when adjusted with this function.
 pub fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 
     let x = min_max.0;
@@ -52,12 +54,13 @@ pub fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
     (-x.0, -y.0)
 }
 
-// Generates a canvas and returns it.
+/// Generates a canvas from the image crate.
 pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
 
-pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO imlpementing.
+// TODO
+pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO implementing.
     // Node size.
     let node_size: u32 = get_node_size_from_groups(&groups);
 
@@ -78,12 +81,11 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
         link.draw_width(&mut imgbuf, add.0 +node_size as i16/2, add.1 +node_size as i16/2, 3);
     }
 
-    // Save the image to local storage.
-    println!("saving...");
     let _ = imgbuf.save(&Path::new(path));
 
 }
 
+/// Default implementation for mapping a list of Groups to an image.
 pub fn map_groups(groups: &[Group]) {
     // Node size.
     let node_size: u32 = get_node_size_from_groups(&groups);
@@ -102,10 +104,11 @@ pub fn map_groups(groups: &[Group]) {
     }
 
     // Save the image to local storage.
-    let _ = imgbuf.save(&Path::new("examples/example4.png"));
+    let _ = imgbuf.save(&Path::new("examples/example4.png")); // TODO improve
 
 }
 
+/// Generates an image buffer and will ask for confirmation for larger inputs.
 pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) -> image::ImageBuffer<Rgba<u8>, Vec<u8>>  {
     // If there is no image to render. Panic.
     if min_max == ((0,0),(0,0)) {
@@ -120,7 +123,7 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     let height = res.1 + node_size*2;
 
     // Confirm for larger images.
-    if width+height >= 1000 {
+    if CONFIRMA && width+height >= 10000 { // TODO make this disable-able.
         // Confirm the image size before proceeding.
         println!("The image will be {}x{} pixels. Continue? [Y/N]", width, height);
         let mut input = String::new();
@@ -138,27 +141,7 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
     gen_canvas(width, height)
 }
 
-pub fn get_node_size(nodes: &[Node]) -> u32 {
-    let mut node_size: u32 = 3; // Minimum default size.
-    for node in nodes.iter() {
-        let rad = node.get_radius();
-        match rad {
-            Some(val) => {if val > node_size {node_size = val;}}
-            None => (),
-        }
-    }
-    node_size
-}
-
-pub fn get_node_size_from_groups(groups: &[Group]) -> u32 {
-    let mut node_size: u32 = 3; // Minimum default size.
-    for group in groups.iter() {
-        let tmp = get_node_size(group.get_nodes());
-        if tmp > node_size {node_size = tmp;}
-    }
-    node_size
-}
-
+// TODO
 pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     // Node size.
     let node_size: u32 = get_node_size(&nodes);
@@ -183,6 +166,31 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     let _ = imgbuf.save(&Path::new("examples/example2.png"));
 }
 
+
+/// Returns the max Node size existing inside a list of Nodes.
+pub fn get_node_size(nodes: &[Node]) -> u32 {
+    let mut node_size: u32 = 3; // Minimum default size.
+    for node in nodes.iter() {
+        let rad = node.get_radius();
+        match rad {
+            Some(val) => {if val > node_size {node_size = val;}}
+            None => (),
+        }
+    }
+    node_size
+}
+
+/// Returns the max Node size existing inside a list of Groups.
+pub fn get_node_size_from_groups(groups: &[Group]) -> u32 {
+    let mut node_size: u32 = 3; // Minimum default size.
+    for group in groups.iter() {
+        let tmp = get_node_size(group.get_nodes());
+        if tmp > node_size {node_size = tmp;}
+    }
+    node_size
+}
+
+/// Returns a list of Links connecting the Nodes in the order they were provided.
 pub fn sequentially_link_nodes(nodes: &[Node]) -> Vec<Link> {
     let mut link_vec = Vec::new();
     for i in 1..nodes.len() {
@@ -195,7 +203,7 @@ pub fn sequentially_link_nodes(nodes: &[Node]) -> Vec<Link> {
     link_vec
 }
 
-
+/// Draws the Nodes on an ImageBuffer.
 pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],  add: (i16, i16), node_size: u32) {
 
     // Iterate over the coordinates and pixels of the image
@@ -204,6 +212,7 @@ pub fn map_nodes(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, nodes: &[Node],
     }
 }
 
+/// Draws the Links on an ImageBuffer.
 pub fn map_links(mut image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, links: &[Link], add: (i16, i16), node_size: u32) {
 
     // Iterate over the coordinates and pixels of the image

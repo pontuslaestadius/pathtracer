@@ -1,7 +1,6 @@
 use std::io;
 use std::time::Instant;
 use super::*;
-use super::super::group::*;
 use super::super::node::*;
 use super::super::node::coordinates::*;
 use super::super::node::nodelink::NodeLink;
