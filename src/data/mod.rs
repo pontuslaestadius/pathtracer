@@ -8,12 +8,6 @@ use node::coordinates::*;
 use super::tools::util;
 use super::node::link::*;
 
-pub struct Tag {
-    // Tag to divide them in to groups.
-    pub collection: String,
-    pub ignore: Vec<String>,
-}
-
 pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
     let mut file = OpenOptions::new()
         .read(true)
@@ -27,15 +21,7 @@ pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, V
 }
 
 pub fn convert<'a>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
-
-    let cct = CustomConverter {
-        split: '\n',
-        node_range: 100,
-        radius: 50,
-        size: 1000,
-        lambda_tag: &lambda,
-    };
-
+    let cct = CustomConverter::new('\n', 100, 50, 1000, &lambda);
     convert_inner(content, cct)
 }
 
@@ -46,6 +32,27 @@ pub struct CustomConverter<'a> {
     radius: u32,
     size: u64,
     lambda_tag: &'a Fn(&str) -> bool,
+    ignore_empty_lines: bool,
+}
+
+impl<'a> CustomConverter<'a> {
+    pub fn new(
+        split: char,
+        node_range: u32,
+        radius: u32,
+        size: u64,
+        lambda_tag: &'a Fn(&str) -> bool)
+        -> CustomConverter
+    {
+        CustomConverter {
+            split,
+            node_range,
+            radius,
+            size,
+            lambda_tag,
+            ignore_empty_lines: true,
+        }
+    }
 }
 
 // Heavily customizable.
@@ -61,7 +68,9 @@ pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, 
 
     for line in lines {
         // Ignore empty lines.
-        if line == "" {continue};
+        if cct.ignore_empty_lines {
+            if line == "" {continue};
+        }
 
         // Pick up tagged lines.
         if (cct.lambda_tag)(line) {

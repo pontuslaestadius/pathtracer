@@ -128,13 +128,17 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Assumes the following:
 ///      Not vertical (deltaX != 0)
-///      y0 < y1
 pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
-    // Swap the values if 0 > 1.
-    if y0 > y1 && x0 > x1 {
+
+    if y0 < y1 && x0 > x1 {
+        swap(&mut x0, &mut x1);
+        swap(&mut y0, &mut y1);
+    } else if y0 > y1 && x0 > x1 {
         swap(&mut x0, &mut x1);
         swap(&mut y0, &mut y1);
     }
+
+
 
     let delta_x: f64 = (x1 as i16 - x0 as i16) as f64; // TODO not pretty
     let delta_y: f64 = (y1 as i16 - y0 as i16) as f64; // TODO not pretty

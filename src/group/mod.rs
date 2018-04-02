@@ -10,6 +10,8 @@ pub struct Group {
     pub color: Rgba<u8>,
     pub radius: Option<u32>,
 }
+
+
 impl Group {
     pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: Option<u32>) -> Group {
         Group {
