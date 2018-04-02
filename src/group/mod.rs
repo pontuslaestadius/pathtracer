@@ -10,6 +10,8 @@ pub struct Group {
     pub color: Rgba<u8>,
     pub radius: Option<u32>,
 }
+
+
 impl Group {
     pub fn new(name: &str, coordinates: coordinates::Coordinate, color: Rgba<u8>, radius: Option<u32>) -> Group {
         Group {
@@ -19,6 +21,10 @@ impl Group {
             color,
             radius
         }
+    }
+
+    pub fn get_nodes(&self) -> &Vec<Node> {
+        &self.nodes
     }
 
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
@@ -45,14 +51,9 @@ impl Group {
     pub fn new_node_inner(&mut self, geo: coordinates::Coordinate, name: String) -> &Node {
 
         let color = self.gen_color(geo.clone());
-
-        self.push(
-            Node {
-                name,
-                geo,
-                color
-            }
-        );
+        let mut node = Node::new(name,geo);
+        node.set_color(color);
+        self.push(node);
         &self.nodes.get(self.nodes.len() -1).unwrap()
     }
 
@@ -63,7 +64,8 @@ impl Group {
     pub fn get_dynamic_radius(&self) -> u32 {
         match self.radius {
             Some(x) => x,
-            None => self.nodes.len()as u32 *10 /*TODO should be * nodesize*/  ,
+            None => 10 + self.nodes.len()as u32 /2 /*TODO should be * nodesize*/  ,
+            /* TODO this needs to be re-optimized, currectly it works fine, because 5+.. */
         }
     }
 

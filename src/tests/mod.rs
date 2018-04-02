@@ -116,4 +116,9 @@ mod tests {
 
     }
 
+
+    mod link {
+
+    }
+
 }
