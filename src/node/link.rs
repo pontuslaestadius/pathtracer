@@ -8,6 +8,7 @@ use super::util::{gen_rgba, plot};
      Holds connections between two structures with coordinates.
  */
 
+/// Connects two Nodes.
 pub struct Link<'a> {
     pub from: &'a Coordinate,
     pub to: &'a Coordinate,
@@ -15,6 +16,7 @@ pub struct Link<'a> {
 
 impl<'a> Link<'a> {
 
+    /// Draws the connection using either a modified version of Bresham's line algorithm or a generic one.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16) {
 
         //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
@@ -35,6 +37,8 @@ impl<'a> Link<'a> {
         ).collect::<Vec<_>>();
     }
 
+    /// Experimental!
+    /// Draws a Link with a specified width.
     pub fn draw_width
     (
         &self,

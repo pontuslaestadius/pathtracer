@@ -18,6 +18,7 @@ pub struct Coordinate {
 impl Coordinate {
 
     // Nothing to test.
+    /// Constructs a Coordinates struct.
     pub fn new(x: i16, y: i16) -> Coordinate {
         Coordinate {
             x,
@@ -25,7 +26,7 @@ impl Coordinate {
         }
     }
 
-    // Nothing to test.
+    // COnstructs a randomly positioned coordinate.
     pub fn gen() -> Coordinate {
         Coordinate {
             x: rand::random::<i16>(),
@@ -41,7 +42,7 @@ impl Coordinate {
 }
 
 /// Tested
-// Get difference in distance.
+/// Get difference in distance.
 pub fn diff(c1: &Coordinate, c2: &Coordinate) -> (i16, i16) {
     ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
 }
