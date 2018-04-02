@@ -8,7 +8,7 @@ use pathfinder::node::coordinates::Coordinate;
 
 fn main() {
     let string = String::new();
-    let ls = 15; // Letter spacing.
+    let ls = 35; // Letter spacing.
     let hs = ls/2; // Letter spacing half.
     let node_pos: Vec<(i16, i16)> = vec!(
         (0,0), (hs, -hs), (0, -ls), (0, ls),

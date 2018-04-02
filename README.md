@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
-
-Inline-style: 
+ 
 ![Pathfinder Logotype](examples/example2.png "Logo")
 
 
