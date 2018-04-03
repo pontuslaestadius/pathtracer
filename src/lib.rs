@@ -10,6 +10,8 @@ pub mod tools;
 pub mod group;
 pub mod data;
 
+mod tests;
+
 /// Holds a position used for Nodes and Groups.
 #[derive(Eq, Copy, Clone)]
 pub struct Coordinate {
