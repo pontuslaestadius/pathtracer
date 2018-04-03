@@ -31,12 +31,12 @@ extern crate image;
 use pathfinder::{map, data, group};
 use std::env;
 use pathfinder::node::figure;
-use pathfinder::node::link::Link;
-use pathfinder::node::coordinates::Coordinate;
-use pathfinder::group::Group;
+use pathfinder::*;
 use pathfinder::map::*;
 use pathfinder::node::*;
 use rand::thread_rng;
+use pathfinder::node::link::Link;
+
 
 use image::Rgba;
 

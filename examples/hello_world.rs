@@ -4,9 +4,9 @@ extern crate pathfinder;
 
 use pathfinder::map::*;
 use pathfinder::node::*;
+use pathfinder::*;
 
 fn main() {
-    let string = String::new();
     let ls = 35; // Letter spacing.
     let hs = ls/2; // Letter spacing half.
 
@@ -27,8 +27,8 @@ fn main() {
 
     // Add each position as a node.
     for pos in node_pos.iter() {
-        let mut node = Node::new(string.clone(), coordinates::Coordinate::new(pos.0,pos.1));
-        node.set_radius(5);
+        let mut node = Node::new("", Coordinate::new(pos.0,pos.1));
+        node.radius = Some(5);
         node_vec.push(node);
     }
 

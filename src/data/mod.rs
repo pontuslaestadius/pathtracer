@@ -1,11 +1,10 @@
-use group::*;
 use node::coordinates::*;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
 use std::hash::{Hash, Hasher};
 use std::io::prelude::*;
+use super::{Group, Coordinate};
 use super::node::link::*;
-use super::tools::util;
 
 /// Reads from the provided file, and converts to a path network using default settings.
 pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
@@ -28,12 +27,12 @@ pub fn convert<'a>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group>, V
 
 /// Holds configurations for converting a content String to a path network.
 pub struct CustomConverter<'a> {
-    split: char,
-    node_range: u32,
-    radius: u32,
-    size: u64,
-    lambda_tag: &'a Fn(&str) -> bool,
-    ignore_empty_lines: bool,
+    pub split: char,
+    pub node_range: u32,
+    pub radius: u32,
+    pub size: u64,
+    pub lambda_tag: &'a Fn(&str) -> bool,
+    pub ignore_empty_lines: bool,
 }
 
 impl<'a> CustomConverter<'a> {
@@ -56,37 +55,6 @@ impl<'a> CustomConverter<'a> {
             ignore_empty_lines: true,
         }
     }
-
-    /// Sets the 'split' character for interpreting between lines.
-    pub fn set_split(&mut self, property: char) {
-        self.split = property;
-    }
-
-    /// Sets the node_range for setting the range a node can spawn inside a Group.
-    pub fn set_node_range(&mut self, property: u32) {
-        self.node_range = property;
-    }
-
-    /// Set the radius a group is able to spread it's nodes.
-    pub fn set_radius(&mut self, property: u32) {
-        self.radius = property
-    }
-
-    /// Set the amount of Groups the hash table holds.
-    pub fn set_size(&mut self, property: u64) {
-        self.size = property;
-    }
-
-    /// Set the function used to differentiate between groups.
-    pub fn set_lambda_tag(&mut self, property: &'a Fn(&str) -> bool) {
-        self.lambda_tag = property;
-    }
-
-    /// Set to ignore empty lines. Defaults to true.
-    pub fn set_ignore_empty_lines(&mut self, property: bool) {
-        self.ignore_empty_lines = property;
-    }
-
 }
 
 
@@ -118,8 +86,8 @@ pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, 
 
                 for old in &mut groups.iter_mut() {
                     // If it does not match existing tag.
-                    if old.hash != hashed_line {continue};
-                    let _ = old.new_node_min_auto(String::new(), cct.node_range);
+                    if old.settings.hash != hashed_line {continue};
+                    let _ = old.new_node_min_auto("", cct.node_range); // TODO don't use empty str.
                     break;
                 }
 
@@ -131,12 +99,10 @@ pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, 
                 let mut group = Group::new(
                     &line,
                     gen_radius(&coordinates, 0, cct.radius*2),
-                    util::gen_rgba_reliable(calculate_hash(&line)),
-                    None
                 );
 
                 let len = group.nodes.len() as u32;
-                group.new_node_min_auto(String::new(), len);
+                group.new_node_min_auto("", len); // TODO don't use empty str.
                 groups.push(group);
             }
 

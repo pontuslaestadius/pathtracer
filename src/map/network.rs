@@ -3,8 +3,8 @@ use std::time::Instant;
 use super::*;
 use super::super::node::*;
 use super::super::node::coordinates::*;
-use super::super::node::nodelink::NodeLink;
-use super::super::tools::util::*;
+use super::super::tools::*;
+use super::super::*;
 
 pub fn create_random_network<'a>(number: u32, radius: u32) {
 
@@ -21,9 +21,9 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
         for node in &nodes {
             let d = gen_within_radius(&node.geo, radius);
             //let name: String = get_random_item(&node_names).clone();
-            let mut this_node = Node::new(String::new(),d.clone());
+            let mut this_node = Node::new("",d.clone());
 
-            this_node.set_color(gen_rgba());
+            this_node.color = gen_rgba();
 
             temp_nodes.push(this_node);
 
@@ -36,14 +36,13 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
         // Gets a name for the node.
         //let name: String = get_random_item(&node_names).clone();
 
-        nodes.push(Node::new(String::new(),c.clone()));
+        nodes.push(Node::new("",c.clone()));
 
         // Generates a location within a range of the previous one.
         c = gen_within_radius(&c, radius);
     }
 
-    let connections = NodeLink::link_generic(&nodes);
-
+    let connections = sequentially_link_nodes(&nodes);
     // TODO THIS IS STUPID
     // TODO future me here, Why is it stupid?
     super::node_and_links(&nodes, &connections);
@@ -67,8 +66,6 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
         groups.push(Group::new(
             group_name.as_str(),
             group_coordinates,
-            gen_rgba(),
-            None
         ));
     }
 
@@ -90,9 +87,9 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 // Adds the number of children supplied randomly to a group.
 pub fn add_children(group: &mut Group, nr_children: u32) {
     for _ in 0..nr_children {
-        let co = gen_within_radius(&group.geo, group.get_dynamic_radius());
-        let mut node = Node::new("".to_string(), co.clone());
-        node.set_color(group.gen_color(co));
+        let co = gen_within_radius(&group.settings.geo, group.get_dynamic_radius());
+        let mut node = Node::new("", co.clone());
+        node.color = group.gen_color(co);
         group.push(node);
     }
 }

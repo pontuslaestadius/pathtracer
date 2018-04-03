@@ -1,6 +1,6 @@
 use image::{ImageBuffer, Rgba};
-use super::coordinates::Coordinate;
-use super::util::{gen_rgba, plot};
+use super::super::Coordinate;
+use super::super::tools::*;
 
 /*
      Link
@@ -37,7 +37,7 @@ impl<'a> Link<'a> {
         ).collect::<Vec<_>>();
     }
 
-    /// Experimental!
+    /// Experimental:
     /// Draws a Link with a specified width.
     pub fn draw_width
     (
