@@ -7,6 +7,7 @@ mod tests {
 
     mod coordinates {
         use node::coordinates::*;
+        use super::super::{Coordinate, Node};
 
         // Tests coordinates equality.
         #[test]

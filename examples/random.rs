@@ -31,13 +31,11 @@ extern crate image;
 use pathfinder::{map, data, group};
 use std::env;
 use pathfinder::node::figure;
-use pathfinder::node::link::Link;
-use pathfinder::node::coordinates::Coordinate;
-use pathfinder::group::Group;
+use pathfinder::*;
 use pathfinder::map::*;
 use pathfinder::node::*;
 use rand::thread_rng;
-
+use pathfinder::node::link::Link;
 use image::Rgba;
 
 /**
@@ -63,23 +61,22 @@ fn main() {
     let child_node_spawn_radius = 25;
 
     // Group 1.
-    let group1 = Group::new(
+    let mut group1 = Group::new(
         &group1_name,
         group1_coordinates,
-        group1_color,
-        Some(child_node_spawn_radius)
     );
 
     // Group 2.
-    let group2 = Group::new(
+    let mut group2 = Group::new(
         &group2_name,
         group2_coordinates,
-        group2_color,
-        Some(child_node_spawn_radius)
     );
 
+    group1.settings.color = group1_color;
+    group2.settings.color = group2_color;
+
     // List of groups.
-    let mut groups = vec!(group1, group2);
+    let mut groups: Vec<Group> = vec!(group1, group2);
 
     let children = 200;
 
@@ -89,7 +86,7 @@ fn main() {
     }
 
     // Create a link between the groups.
-    let links = vec!(Link::new(&groups.get(0).unwrap().geo, &groups.get(1).unwrap().geo));
+    let links = vec!(Link::new(&groups.get(0).unwrap().settings.geo, &groups.get(1).unwrap().settings.geo));
 
     // Where and what to call the file.
     let save_path = "examples/example3.png";
