@@ -9,13 +9,28 @@ example: hello_world.rs
 example: random.rs
 
 ![Large example](examples/example4.png "large")
-example: coming soon...
+example: below.
 
 # Introduction
 Pathfinder can create nodes, groups of nodes and connection in between them, and plot them resulting in an image.
 It handles text interpretation and data visualisation based on input files.
 # Examples
 Inside the examples directory you can find example implementations of common functions. Along with some output examples.
+
+A Node is the primary focus. As it's properties are reflected for Groups of nodes as well.
+They are instantiated simply and are used drawing on a canvas.
+```
+use pathfinder::{Coordinate, Node};
+
+let coordinates = Coordinate::new(0,0);
+let mut node = Node::new("name", coordinates);
+```
+The `map` module handles drawing Imagebuffers in a variety of ways. It also has a couple of "quick and dirty" functions
+that are one liners for creating 
+`pub fn create_random_network<'a>(number: u32, radius: u32)` and 
+`pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32)`
+The second one is used for the large example featured above.
+
 # Planned activities
 - Better abstraction for groups of nodes.
 - More predictable node layout.
