@@ -2,11 +2,11 @@ extern crate image;
 
 use group::*;
 use image::{ImageBuffer, Rgba};
-use tools::constants::CONFIRMA;
+use tools::constant::CONFIRMA;
 use node::link::*;
-use node::Node;
 use std::io;
 use std::path::Path;
+use super::*;
 
 pub mod network;
 
@@ -171,7 +171,7 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
 pub fn get_node_size(nodes: &[Node]) -> u32 {
     let mut node_size: u32 = 3; // Minimum default size.
     for node in nodes.iter() {
-        let rad = node.get_radius();
+        let rad = node.radius;
         match rad {
             Some(val) => {if val > node_size {node_size = val;}}
             None => (),
@@ -196,8 +196,8 @@ pub fn sequentially_link_nodes(nodes: &[Node]) -> Vec<Link> {
     for i in 1..nodes.len() {
         link_vec.push(
             Link::new(
-                nodes.get(i-1).unwrap().get_geo(),
-                nodes.get(i).unwrap().get_geo())
+                &nodes.get(i-1).unwrap().geo,
+                &nodes.get(i).unwrap().geo)
         );
     }
     link_vec

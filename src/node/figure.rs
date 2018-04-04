@@ -1,7 +1,6 @@
 use image::*;
 use std::cmp::{max, min};
-use super::*;
-use super::coordinates::Coordinate;
+use super::super::{Coordinate, Node};
 
 pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node> {
     rectangle_precise(
@@ -12,14 +11,13 @@ pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node>
     )
 }
 
-
 /// Returns 4 nodes in a Vec to form a rectangle.
 fn rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Node> {
     vec![
-        Node::new(String::new(), Coordinate::new(x1, y1)),
-        Node::new(String::new(), Coordinate::new(x2, y1)),
-        Node::new(String::new(), Coordinate::new(x1, y2)),
-        Node::new(String::new(), Coordinate::new(x2, y2))
+        Node::new("", Coordinate::new(x1, y1)),
+        Node::new("", Coordinate::new(x2, y1)),
+        Node::new("", Coordinate::new(x1, y2)),
+        Node::new("", Coordinate::new(x2, y2))
     ]
 }
 
@@ -63,21 +61,6 @@ fn cube_precise(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize
     first
 }
 
-/*
-/// Given a list of nodes, will return all pixels inside the formation they have.
-fn get_pixels_in_area(list: &[Node]) -> Vec<Coordinate> {
-    Vec::new() // TODO implement.
-
-    /*
-    for the list of nodes ->
-        plot them.
-        create a number of geometric shapes.
-            (triangles or rectangles).
-        use a standard filling method for each variation.
-    */
-}
-*/
-
 /// Creates a Vector of Coordinates in the shape of a rectangle.
 pub fn get_rectangle(coordinate: Coordinate, width: usize, height: usize) -> Vec<Coordinate> {
     get_rectangle_precise(
@@ -105,8 +88,8 @@ pub fn get_rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Coordina
     vec
 }
 
-/// Fills an area with a solic color on an ImageBuffer.
-/// Experimental and not tested!
+/// Experimental:
+/// Fills an area with a solid color on an ImageBuffer.
 pub fn fill(image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, color: Rgba<u8>, list: &[Coordinate]) {
     list.iter().map(|c|
         image.put_pixel( c.x  as u32, c.y as u32, color)
