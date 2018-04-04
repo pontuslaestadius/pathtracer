@@ -6,7 +6,8 @@ mod tests {
     // ------------------------------------------------------------
 
     mod coordinates {
-        use node::coordinates::*;
+        use Coordinate;
+        use node::coordinates::{gen_radius, gen_within_radius};
 
         // Tests coordinates equality.
         #[test]
@@ -18,15 +19,10 @@ mod tests {
             let co3: Coordinate = Coordinate::new(2, 2);
             let co4: Coordinate = Coordinate::new(300, 2);
 
-            // Comparing
-            let res1: bool = co1 == co2;
-            let res2: bool = co1 == co3;
-            let res3: bool = co1 < co3;
-
             // Asserts
-            assert_eq!(res1, true);
-            assert_ne!(res2, true);
-            assert_eq!(res3, true);
+            assert_eq!(co1 == co2, true);
+            assert_ne!(co1 == co3, true);
+            assert_eq!(co1 < co3, true);
         }
 
         // Tests simple coordinate positioning. And random placements.
@@ -98,7 +94,7 @@ mod tests {
     }
 
     mod util {
-        use tools::util::*;
+        use tools::*;
 
         #[test]
         fn test_border() {
