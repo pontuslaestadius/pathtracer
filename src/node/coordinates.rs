@@ -9,6 +9,7 @@ use std::cmp::Ordering;
 use std::f64;
 use super::super::tools::roll;
 use super::super::Coordinate;
+use std::ops::Add;
 
 // Constructs a randomly positioned coordinate.
 pub fn gen() -> Coordinate {
@@ -19,16 +20,39 @@ pub fn gen() -> Coordinate {
 }
 
 /// Get difference in distance.
+/// # Examples
+/// ```
+/// use pathfinder::Coordinate;
+/// use pathfinder::node::coordinates::*;
+/// let c1 = Coordinate::new(0,0);
+/// let c2 = Coordinate::new(100,100);
+/// let difference = c1.diff(&c2);
+/// assert_eq!(difference, (100, 100));
+/// ```
 pub fn diff(c1: &Coordinate, c2: &Coordinate) -> (i16, i16) {
     ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within a radius.
+/// # Examples
+/// ```
+/// use pathfinder::Coordinate;
+/// use pathfinder::node::coordinates::*;
+/// let c1 = Coordinate::new(0,0);
+/// let c2 = gen_within_radius(&c1, 100);
+/// ```
 pub fn gen_within_radius(coord: &Coordinate, radius: u32) -> Coordinate {
     gen_radius(&coord, 0, radius)
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within a min and max radius.
+/// # Examples
+/// ```
+/// use pathfinder::Coordinate;
+/// use pathfinder::node::coordinates::*;
+/// let c1 = Coordinate::new(0,0);
+/// let c2 = gen_radius(&c1, 50, 100);
+/// ```
 pub fn gen_radius(coord: &Coordinate, min: u32, max: u32) -> Coordinate {
     // Randomly gets the radius of the circle.
     let r = roll(min, max) as f64;
@@ -66,5 +90,12 @@ impl PartialOrd for Coordinate {
 impl PartialEq for Coordinate {
     fn eq(&self, other: &Coordinate) -> bool {
         (self.x == other.x) && (self.y == other.y)
+    }
+}
+
+impl Add for Coordinate {
+    type Output = Coordinate;
+    fn add(self, other: Coordinate) -> Coordinate {
+        Coordinate::new(self.x + other.x, self.y + other.y)
     }
 }

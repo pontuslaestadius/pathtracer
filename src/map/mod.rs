@@ -194,11 +194,12 @@ pub fn get_node_size_from_groups(groups: &[Group]) -> u32 {
 pub fn sequentially_link_nodes(nodes: &[Node]) -> Vec<Link> {
     let mut link_vec = Vec::new();
     for i in 1..nodes.len() {
-        link_vec.push(
-            Link::new(
-                &nodes.get(i-1).unwrap().geo,
-                &nodes.get(i).unwrap().geo)
-        );
+        let mut link = Link::new(
+            &nodes.get(i-1).unwrap().geo,
+            &nodes.get(i).unwrap().geo);
+        link.color = nodes.get(i).unwrap().color.clone();
+
+        link_vec.push(link);
     }
     link_vec
 }
