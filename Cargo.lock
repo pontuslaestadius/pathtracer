@@ -187,7 +187,7 @@ dependencies = [
 
 [[package]]
 name = "pathfinder"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "image 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
