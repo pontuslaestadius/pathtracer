@@ -55,7 +55,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
     let mut groups: Vec<Group> = Vec::new();
 
     // A list of all the names the nodes will be generated from.
-    let node_names: Vec<String> = get_node_names()?;
+    let node_names: Vec<String> = get_node_names(tools::constant::NODEPATH)?;
 
     let zero_zero = Coordinate {x: 0, y: 0};
 

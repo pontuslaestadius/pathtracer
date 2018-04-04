@@ -98,12 +98,16 @@ impl Node {
 
 impl Group {
 
-    /// Returns the nodes that exists inside the Group. If none the Group is draw as blank.
+    /// Returns the nodes that exists inside the Group.
     pub fn get_nodes(&self) -> &Vec<Node> {
         &self.nodes
     }
 
-    /// Draws the Nodes inside that Group.
+    /// Draws the Nodes inside that Group. If none the Group is draw as blank.
+    /// # Examples
+    /// ```
+    /// panic!("TODO");
+    /// ```
     pub fn draw(&self, image: &mut image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
         for node in self.nodes.iter() {
             node.draw(image, x_offset, y_offset, size);
@@ -145,8 +149,7 @@ impl Group {
     pub fn get_dynamic_radius(&self) -> u32 {
         match self.settings.radius {
             Some(x) => x,
-            None => 10 + self.nodes.len()as u32 /2 /*TODO should be * nodesize*/  ,
-            /* TODO this needs to be re-optimized, currectly it works fine, because 5+.. */
+            None => 10 + self.nodes.len()as u32 /2,
         }
     }
 

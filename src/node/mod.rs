@@ -16,15 +16,13 @@ impl PartialEq for Node {
 }
 
 /// Returns a list of names specified in a resource file.
-pub fn get_node_names() -> Result<Vec<String>, io::Error> {
-    let mut file = File::open(constant::NAMEPATH)?;
-
+pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
+    let mut file = File::open(path)?;
     let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-    let split = contents.split('\n');
-
     let mut names: Vec<String> = Vec::new();
 
+    file.read_to_string(&mut contents)?;
+    let split = contents.split('\n');
     for value in split {
         names.push(value.to_string());
     }

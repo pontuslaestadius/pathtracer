@@ -12,15 +12,13 @@ use super::super::tools::*;
 pub struct Link<'a> {
     pub from: &'a Coordinate,
     pub to: &'a Coordinate,
+    pub color: Rgba<u8>,
 }
 
 impl<'a> Link<'a> {
 
     /// Draws the connection using either a modified version of Bresham's line algorithm or a generic one.
     pub fn draw(&self, image: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16) {
-
-        //let pixel: Rgba<u8> = Rgba {data: [0,0,0,255]};
-        let pixel = gen_rgba(); // TODO this is not reliable since it's random.
 
         let a = Coordinate::new(
             self.from.x +x_offset,
@@ -33,7 +31,7 @@ impl<'a> Link<'a> {
         );
 
         plot(&a, &b).iter().map(|c|
-            image.put_pixel( c.x  as u32, c.y as u32, pixel)
+            image.put_pixel( c.x  as u32, c.y as u32, self.color)
         ).collect::<Vec<_>>();
     }
 
@@ -58,6 +56,7 @@ impl<'a> Link<'a> {
         Link {
             from,
             to,
+            color: gen_rgba(),
         }
     }
 }

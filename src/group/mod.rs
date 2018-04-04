@@ -1,4 +1,6 @@
 use super::Group;
+use std::ops::Add;
+
 
 /// Counts the amount of Groups and child Nodes.
 pub fn count(list: &[Group]) -> (usize, usize) {

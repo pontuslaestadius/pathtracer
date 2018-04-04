@@ -9,7 +9,6 @@ extern crate pathfinder;
 extern crate rand;
 use pathfinder::{map, data, group};
 use std::env;
-use pathfinder::*;
 
 fn main() {
 

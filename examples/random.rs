@@ -28,13 +28,8 @@
 extern crate pathfinder;
 extern crate rand;
 extern crate image;
-use pathfinder::{map, data, group};
-use std::env;
-use pathfinder::node::figure;
+use pathfinder::map;
 use pathfinder::*;
-use pathfinder::map::*;
-use pathfinder::node::*;
-use rand::thread_rng;
 use pathfinder::node::link::Link;
 use image::Rgba;
 
@@ -56,9 +51,6 @@ fn main() {
     // Colors for the groups.
     let group1_color = Rgba {data: [250, 20, 20, 255]};
     let group2_color = Rgba {data: [20, 20, 250, 255]};
-
-    // Maximum distance for child nodes.
-    let child_node_spawn_radius = 25;
 
     // Group 1.
     let mut group1 = Group::new(
