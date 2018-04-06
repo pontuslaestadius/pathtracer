@@ -11,6 +11,12 @@ use std::f64;
 use std::mem::swap;
 
 /// Returns a random number between the min and maximum.
+/// # Example
+/// ```
+/// use pathfinder::tools;
+/// let nr = tools::roll(50,100);
+/// assert_eq!(nr >= 50 && nr <= 100, true);
+/// ```
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
     let between: Range<u32> = Range::new(min, max);
@@ -23,8 +29,17 @@ pub fn get_random_item(list: &[String]) -> &String {
     &list[roll as usize]
 }
 
-/// Tested
 /// Checks so that the applied adjustments stay within a u8.
+/// # Example
+/// ```
+/// use pathfinder::tools;
+/// let a = 50;
+/// let b = 250;
+/// let max = tools::border(a, b);
+/// let zero = tools::border(a, -b);
+/// assert_eq!(max, 255);
+/// assert_eq!(zero, 0);
+/// ```
 pub fn border(a: u8, b: i32) -> u8 {
     let a = a as i32;
 
@@ -100,6 +115,17 @@ pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Plots the pixels between two coordinate points.
 /// Both coordinates must be > 0.
+/// Checks so that the applied adjustments stay within a u8.
+/// # Example
+/// ```
+/// use pathfinder::tools;
+/// use pathfinder::Coordinate;
+/// let a = Coordinate::new(0,0);
+/// let b = Coordinate::new(1,1);
+/// let path = tools::plot(&a, &b);
+/// let correct_path = vec!(Coordinate::new(0,0), Coordinate::new(1,0), Coordinate::new(1,1));
+/// assert_eq!(path, correct_path);
+/// ```
 pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordinate> {
 
     if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
@@ -126,7 +152,7 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
     }
 }
 
-/// Draws a line between two coordinate points.
+/// Draws a line between two coordinate points. 
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Assumes that it is not vertical (deltaX != 0)
 pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {

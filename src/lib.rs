@@ -13,7 +13,7 @@ pub mod data;
 mod tests;
 
 /// Holds a position used for Nodes and Groups.
-#[derive(Eq, Copy, Clone)]
+#[derive(Debug, Eq, Copy, Clone)]
 pub struct Coordinate {
     pub x: i16,
     pub y: i16,
@@ -104,10 +104,6 @@ impl Group {
     }
 
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
-    /// # Examples
-    /// ```
-    /// panic!("TODO");
-    /// ```
     pub fn draw(&self, image: &mut image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
         for node in self.nodes.iter() {
             node.draw(image, x_offset, y_offset, size);

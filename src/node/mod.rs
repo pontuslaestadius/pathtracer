@@ -2,7 +2,6 @@ use std::cmp::PartialEq;
 use std::fs::{File, OpenOptions};
 use std::io;
 use std::io::prelude::*;
-use super::tools::constant;
 use super::Node;
 
 pub mod coordinates;
@@ -52,8 +51,7 @@ pub fn save_list(list: &[Node]) -> Result<(), io::Error> {
     }
     Ok(())
 }
-*/
-/*
+
 /// Parses a static str to a Node.
 pub fn parse(str: &str) -> Node {
 

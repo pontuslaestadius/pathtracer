@@ -4,9 +4,8 @@ use super::*;
 use super::super::node::*;
 use super::super::node::coordinates::*;
 use super::super::tools::*;
-use super::super::*;
 
-pub fn create_random_network<'a>(number: u32, radius: u32) {
+pub fn create_random_network<'a>(path: &Path, number: u32, radius: u32) {
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut nodes: Vec<Node> = Vec::new();
@@ -45,11 +44,11 @@ pub fn create_random_network<'a>(number: u32, radius: u32) {
     let connections = sequentially_link_nodes(&nodes);
     // TODO THIS IS STUPID
     // TODO future me here, Why is it stupid?
-    super::node_and_links(&nodes, &connections);
+    super::node_and_links(path, &nodes, &connections);
 }
 
 
-pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
+pub fn create_group_network(path: &Path, nr_groups: u32, children_min_max: (u32, u32), radius: u32) -> Result<(), io::Error> {
 
     // Stores all created nodes. So then they can be made in to a network.
     let mut groups: Vec<Group> = Vec::new();
@@ -76,7 +75,7 @@ pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius
 
     let start = Instant::now();
 
-    map_groups(&groups);
+    map_groups(path, &groups);
 
     let elapsed = start.elapsed();
     println!("   done - {:?}s", elapsed.as_secs());
