@@ -5,6 +5,7 @@ extern crate pathfinder;
 use pathfinder::map::*;
 use pathfinder::node::*;
 use pathfinder::*;
+use std::path::Path;
 
 fn main() {
     let ls = 35; // Letter spacing.
@@ -36,5 +37,5 @@ fn main() {
     let link_vec = sequentially_link_nodes(&node_vec);
 
     // Create the image using the resource nodes and links.
-    node_and_links(&node_vec, &link_vec);
+    node_and_links(&Path::new("hello_world.png"), &node_vec, &link_vec);
 }

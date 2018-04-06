@@ -86,7 +86,7 @@ pub fn groups_and_links(groups: &[Group], links: &[Link], path: &str) { // TODO 
 }
 
 /// Default implementation for mapping a list of Groups to an image.
-pub fn map_groups(groups: &[Group]) {
+pub fn map_groups(path: &Path, groups: &[Group]) {
     // Node size.
     let node_size: u32 = get_node_size_from_groups(&groups);
 
@@ -104,7 +104,7 @@ pub fn map_groups(groups: &[Group]) {
     }
 
     // Save the image to local storage.
-    let _ = imgbuf.save(&Path::new("examples/example4.png")); // TODO improve
+    let _ = imgbuf.save(path); // TODO improve
 
 }
 
@@ -142,7 +142,7 @@ pub fn generate_image_buffer(node_size: u32, min_max: ((i16, i16), (i16, i16))) 
 }
 
 // TODO
-pub fn node_and_links(nodes: &[Node], links: &[Link]) {
+pub fn node_and_links(path: &Path, nodes: &[Node], links: &[Link]) {
     // Node size.
     let node_size: u32 = get_node_size(&nodes);
 
@@ -163,7 +163,7 @@ pub fn node_and_links(nodes: &[Node], links: &[Link]) {
     println!("Mapped: {} nodes & {} links", nodes.len(), links.len());
 
     // Save the image to local storage.
-    let _ = imgbuf.save(&Path::new("examples/example2.png"));
+    let _ = imgbuf.save(path);
 }
 
 
