@@ -114,7 +114,6 @@ pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
 
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Plots the pixels between two coordinate points.
-/// Both coordinates must be > 0.
 /// Checks so that the applied adjustments stay within a u8.
 /// # Example
 /// ```
@@ -128,8 +127,33 @@ pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
 /// ```
 pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordinate> {
 
+    // If any of the coordinates are negative, interally add to make them positive.
     if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
-        panic!("Can't plot negative coordinates!");
+
+        let add_x = if coordinates1.x < coordinates2.x {
+            -coordinates1.x
+        } else {
+            -coordinates2.x
+        };
+
+        let add_y = if coordinates1.y < coordinates2.y {
+            -coordinates1.y
+        } else {
+            -coordinates2.y
+        };
+        let new_coordinate1 = Coordinate::new(coordinates1.x+ add_x, coordinates1.y +add_y);
+        let new_coordinate2 = Coordinate::new(coordinates2.x+ add_x, coordinates2.y +add_y);
+        
+        let new_coordinates = plot(&new_coordinate1, &new_coordinate2);
+
+        let mut vec_final = Vec::new();
+
+        for c in new_coordinates.iter() {
+            vec_final.push(
+                Coordinate::new(c.x -add_x, c.y -add_y)
+            );
+        }
+        return vec_final;
     }
 
     let x0 = (coordinates1.x) as usize;
@@ -155,7 +179,7 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 /// Draws a line between two coordinate points. 
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// Assumes that it is not vertical (deltaX != 0)
-pub fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
+fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
 
     // This case is handles reversed plotting, meaning going from a larger node to a smaller one.
     if (y0 < y1 && x0 > x1) || (y0 > y1 && x0 > x1) {

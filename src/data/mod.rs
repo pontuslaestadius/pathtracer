@@ -1,3 +1,4 @@
+
 use node::coordinates::*;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
@@ -8,6 +9,13 @@ use super::node::link::*;
 
 /// Reads from the provided file, and converts to a path network using default settings.
 pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group<T>>, Vec<Link<'a>>) {
+    let content = get_content(path);
+    convert(content, &lambda)
+}
+
+
+/// Reads from the provided file, and returns content.
+fn get_content(path: &str) -> String {
     let mut file = OpenOptions::new()
         .read(true)
         .open(path)
@@ -15,8 +23,7 @@ pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec
 
     let mut contents = String::new();
     let _ = file.read_to_string(&mut contents);
-
-    convert(contents, &lambda)
+    contents
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
@@ -99,6 +106,7 @@ pub fn convert_inner<'a, T: Shape>(content: String, cct: CustomConverter) -> (Ve
                     &line,
                     gen_radius(&coordinates, 0, cct.radius*2),
                 );
+                group.settings.radius = Some(cct.radius/4);
 
                 let len = group.nodes.len() as u32;
                 group.new_node_min_auto("", len); // TODO don't use empty str.
@@ -112,7 +120,6 @@ pub fn convert_inner<'a, T: Shape>(content: String, cct: CustomConverter) -> (Ve
     (groups, Vec::new())
 }
 
-// TODO MAKE PRIVATE
 /// Calculates a default hash.
 pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();

@@ -38,7 +38,7 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, links): (Vec<Group<Square>>, Vec<node::link::Link>) = data::convert_file(log, &lambda);
+    let (groups, links): (Vec<Group<Triangle>>, Vec<node::link::Link>) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);

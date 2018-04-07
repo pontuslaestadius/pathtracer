@@ -50,6 +50,9 @@ pub struct Square {}
 #[derive(Debug)]
 pub struct Circle {}
 
+#[derive(Debug)]
+pub struct Triangle {}
+
 // ------------------------------------------------------------------
 
 impl Shape for Square {
@@ -76,30 +79,54 @@ impl Shape for Circle {
     }
 
     /// Returns all coordinates that the shape occupies. 
-    /// Assume that you start at coordinate x: 0, y: 0.
+    /// Algorithm is derived from: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
 
-        let l = |size| {
-            let mut vec = Vec::new();
-            let r2 = (size*size) as i16;
-            let size = size as i16;
-            let h = size/2;
-            for x in 0..size +1 {
-                let f = (r2 - x*x) as f64;
-                let y = (f.sqrt() + 0.1) as i16;
-                vec.push(Coordinate::new(h +x,h +y));
-                vec.push(Coordinate::new(h +x,h -y));
-                vec.push(Coordinate::new(h -x,h +y));
-                vec.push(Coordinate::new(h -x,h -y));
-            }
-            vec
-        };
+        let mut x: i16 = (size-1) as i16;
+        let mut y: i16 = 0;
+        let mut dx: i16 = 1;
+        let mut dy: i16 = 1;
+        let x0: i16 = 0;
+        let y0: i16 = 0;
+        let mut err: i16 = dx - (size << 1) as i16;
 
-        for i in 0..size+1 {
-            vec.append(&mut l(i));
+    while x >= y {
+        vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 + y), &Coordinate::new(x0 - x, y0 + y)));
+        vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 - y), &Coordinate::new(x0 - x, y0 - y)));
+        vec.append(&mut tools::plot(&Coordinate::new(x0 - y, y0 - x), &Coordinate::new(x0 - y, y0 + x)));
+        vec.append(&mut tools::plot(&Coordinate::new(x0 + y, y0 - x), &Coordinate::new(x0 + y, y0 + x)));
+
+        if err <= 0 {
+            y += 1;
+            err += dy;
+            dy += 2;
+        } else {
+            x -= 1;
+            dx += 2;
+            err += dx - (size << 1) as i16;
         }
+    }
 
+        vec
+    }
+}
+
+impl Shape for Triangle {
+    fn new() -> Triangle {
+        Triangle {}
+    }
+
+    /// Returns all coordinates that the shape occupies. 
+    /// Assume that you start at coordinate x: 0, y: 0.
+    fn area(&self, size: u32) -> Vec<Coordinate> {
+        let mut vec = Vec::new();
+        let size = size as i16;
+        let start_x = size/2;
+
+        for i in 0..size {
+            vec.append(&mut tools::plot(&Coordinate::new(start_x,0), &Coordinate::new(i, size)));
+        }
         vec
     }
 }
@@ -160,7 +187,7 @@ impl<T: Shape> Node<T> {
         };
 
       	for offset in self.shape.area(size) {
-      		image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, image::Rgba {data: [0,0,0,255]});
+      		image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, self.color);
       	}
     }
 }
@@ -201,6 +228,7 @@ impl<T: Shape> Group<T> {
     pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node<T> {
         let mut node = Node::new(name,geo.clone());
         node.color = self.gen_color(geo);
+        node.radius = self.settings.radius;
         self.push(node);
         &self.nodes.get(self.nodes.len() -1).unwrap()
     }
