@@ -21,20 +21,90 @@ pub struct Coordinate {
 
 /// A positioned object that can be drawn on an image::ImageBuffer.
 #[derive(Clone)]
-pub struct Node {
+pub struct Node<T: Shape> {
     pub hash: u64,
     pub geo: Coordinate,
     pub color: image::Rgba<u8>,
     pub radius: Option<u32>,
+    shape: T
 }
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
 /// The group itself has no displayed output and is not visible.
 #[derive(Clone)]
-pub struct Group {
-    pub settings: Node,
-    pub nodes: Vec<Node>,
+pub struct Group<T: Shape> {
+    pub settings: Node<T>,
+    pub nodes: Vec<Node<T>>,
 }
+
+// ------------------------------------------------------------------
+
+pub trait Shape {
+	fn new() -> Self;
+    fn area(&self, size: u32) -> Vec<Coordinate>;
+}
+
+#[derive(Debug)]
+pub struct Square {}
+
+#[derive(Debug)]
+pub struct Circle {}
+
+// ------------------------------------------------------------------
+
+impl Shape for Square {
+	fn new() -> Square {
+		Square {}
+	}
+
+	/// Returns all coordinates that the shape occupies. 
+	/// Assume that you start at coordinate x: 0, y: 0.
+    fn area(&self, size: u32) -> Vec<Coordinate> {
+        let mut vec = Vec::new();
+        for i in 0..size {
+            for j in 0..size {
+                vec.push(Coordinate::new(i as i16, j as i16));
+            }
+        }
+        vec
+    }
+}
+
+impl Shape for Circle {
+    fn new() -> Circle {
+        Circle {}
+    }
+
+    /// Returns all coordinates that the shape occupies. 
+    /// Assume that you start at coordinate x: 0, y: 0.
+    fn area(&self, size: u32) -> Vec<Coordinate> {
+        let mut vec = Vec::new();
+
+        let l = |size| {
+            let mut vec = Vec::new();
+            let r2 = (size*size) as i16;
+            let size = size as i16;
+            let h = size/2;
+            for x in 0..size +1 {
+                let f = (r2 - x*x) as f64;
+                let y = (f.sqrt() + 0.1) as i16;
+                vec.push(Coordinate::new(h +x,h +y));
+                vec.push(Coordinate::new(h +x,h -y));
+                vec.push(Coordinate::new(h -x,h +y));
+                vec.push(Coordinate::new(h -x,h -y));
+            }
+            vec
+        };
+
+        for i in 0..size+1 {
+            vec.append(&mut l(i));
+        }
+
+        vec
+    }
+}
+
+// ------------------------------------------------------------------
 
 impl Coordinate {
     /// Constructs a Coordinate struct.
@@ -46,21 +116,22 @@ impl Coordinate {
     }
 }
 
-impl Node {
+impl<T: Shape> Node<T> {
     /// Constructs a Node struct.
-    pub fn new(name: &str, geo: Coordinate) -> Node {
+    pub fn new(name: &str, geo: Coordinate) -> Node<T> {
         Node {
             hash: data::calculate_hash(&name),
             geo,
             color: image::Rgba {data: [0,0,0,255]},
             radius: None,
+            shape: T::new(),
         }
     }
 }
 
-impl Group {
+impl<T: Shape> Group<T> {
     /// Constructs a new Group
-    pub fn new(name: &str, coordinates: Coordinate) -> Group {
+    pub fn new(name: &str, coordinates: Coordinate) -> Group<T> {
         Group {
             settings: Node::new(name, coordinates),
             nodes: Vec::new(),
@@ -77,29 +148,27 @@ impl Coordinate {
     }
 }
 
-impl Node {
+impl<T: Shape> Node<T> {
     /// Draws a node on an ImageBuffer.
     pub fn draw(&self, image: &mut image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: u32, y_offset: u32, size: u32) {
         // Adds the offset to the geo location as i16. Because geo can be negative but offset can not.
-        let x = (self.geo.x +x_offset as i16) as u32;
-        let y = (self.geo.y +y_offset as i16) as u32;
+        let x = self.geo.x +x_offset as i16;
+        let y = self.geo.y +y_offset as i16;
         let size = match self.radius {
             Some(_) => self.radius.unwrap(),
             None => size
         };
-        for i in 0..size {
-            for j in 0..size {
-                image.put_pixel(x +i, y +j,    self.color);
-                image.put_pixel(x +i +1, y +j +1, image::Rgba {data: [0,0,0,255]});
-            }
-        }
+
+      	for offset in self.shape.area(size) {
+      		image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, image::Rgba {data: [0,0,0,255]});
+      	}
     }
 }
 
-impl Group {
+impl<T: Shape> Group<T> {
 
     /// Returns the nodes that exists inside the Group.
-    pub fn get_nodes(&self) -> &Vec<Node> {
+    pub fn get_nodes(&self) -> &Vec<Node<T>> {
         &self.nodes
     }
 
@@ -117,19 +186,19 @@ impl Group {
     }
 
     /// Adds a Node with a static distance from the center of the Group.
-    pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node {
+    pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node<T> {
         let geo = node::coordinates::gen_radius(&self.settings.geo, 0, min+5);
         self.new_node_inner(geo, name)
     }
 
     /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
-    pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node {
+    pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node<T> {
         let geo = node::coordinates::gen_radius(&self.settings.geo, min, max);
         self.new_node_inner(geo, name)
     }
 
     /// Constructs a new node for the Group and mirrors the properties to it.
-    pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node {
+    pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node<T> {
         let mut node = Node::new(name,geo.clone());
         node.color = self.gen_color(geo);
         self.push(node);
@@ -137,7 +206,7 @@ impl Group {
     }
 
     /// Pushes a Node to the Group.
-    pub fn push(&mut self, node: Node) {
+    pub fn push(&mut self, node: Node<T>) {
         self.nodes.push(node);
     }
 

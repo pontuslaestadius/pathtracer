@@ -68,7 +68,7 @@ fn main() {
     group2.settings.color = group2_color;
 
     // List of groups.
-    let mut groups: Vec<Group> = vec!(group1, group2);
+    let mut groups: Vec<Group<Square>> = vec!(group1, group2);
 
     let children = 200;
 
@@ -81,10 +81,10 @@ fn main() {
     let links = vec!(Link::new(&groups.get(0).unwrap().settings.geo, &groups.get(1).unwrap().settings.geo));
 
     // Where and what to call the file.
-    let save_path = "examples/example3.png";
+    let path= std::path::Path::new("random.png");
 
     // Maps them on an image and draw it.
-    map::groups_and_links(&groups, &links, save_path);
+    map::groups_and_links(&path, &groups, &links);
 }
 
 
