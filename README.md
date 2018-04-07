@@ -3,13 +3,16 @@
 ![Pathfinder Logotype](examples/example2.png "Logo")
 example: hello_world.rs
 
+![Pathfinder Logotype_gif](examples/hello_world.gif "Gif")
+example: hello_world_gif.rs
+
 [Documentation](https://docs.rs/pathfinder/0.2.1/pathfinder/)
 
 ![Groups example](examples/example3.png "groups")
 example: random.rs
 
 ![Large example](examples/example4.png "large")
-example: below.
+example: src/map/network.rs
 
 # Introduction
 Pathfinder can create nodes, groups of nodes and connection in between them, and plot them resulting in an image.
