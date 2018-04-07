@@ -3,11 +3,11 @@ use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
 use std::hash::{Hash, Hasher};
 use std::io::prelude::*;
-use super::{Group, Coordinate};
+use super::{Group, Coordinate, Shape};
 use super::node::link::*;
 
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
+pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group<T>>, Vec<Link<'a>>) {
     let mut file = OpenOptions::new()
         .read(true)
         .open(path)
@@ -20,7 +20,7 @@ pub fn convert_file<'a>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group>, V
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
-pub fn convert<'a>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group>, Vec<Link<'a>>) {
+pub fn convert<'a, T: Shape>(content: String, lambda: &Fn(&str) -> bool) -> (Vec<Group<T>>, Vec<Link<'a>>) {
     let cct = CustomConverter::new('\n', 100, 50, 1000, &lambda);
     convert_inner(content, cct)
 }
@@ -57,10 +57,9 @@ impl<'a> CustomConverter<'a> {
     }
 }
 
-
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
-pub fn convert_inner<'a>(content: String, cct: CustomConverter) -> (Vec<Group>, Vec<Link<'a>>) {
-    let mut groups: Vec<Group> = Vec::new();
+pub fn convert_inner<'a, T: Shape>(content: String, cct: CustomConverter) -> (Vec<Group<T>>, Vec<Link<'a>>) {
+    let mut groups: Vec<Group<T>> = Vec::new();
 
     let lines = content.split(cct.split);
 

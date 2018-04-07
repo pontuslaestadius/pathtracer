@@ -44,8 +44,7 @@ fn main() {
 
     //pathfinder::map::network::create_random_network(2, 70);
 
-    let mut nodes: Vec<Node> = Vec::new();
-    let mut links = Vec::new();
+    let mut nodes: Vec<Node<Square>> = Vec::new();
 
     for i in 0..33   {
         let dif = 10;
@@ -57,16 +56,11 @@ fn main() {
     let start = Coordinate::new(0,0);
     nodes = figure::rectangle(&start, 50, 50);
 
-    for (i, item) in nodes.iter().enumerate() {
-        for (j, item2) in nodes.iter().enumerate() {
-            if i == j {continue};
+    let links = sequentially_link_nodes(&nodes);
 
-            links.push(
-                Link::new(&item.geo, &item2.geo)
-            );
+    let path = std::path::Path::new("figure.png");
 
-        }
-    }
+    node_and_links(&path, &nodes, &links);
 }
 
 

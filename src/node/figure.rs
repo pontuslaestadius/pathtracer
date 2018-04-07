@@ -1,8 +1,9 @@
 use image::*;
 use std::cmp::{max, min};
-use super::super::{Coordinate, Node};
+use super::super::{Coordinate, Node, Shape};
 
-pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node> {
+
+pub fn rectangle<T: Shape>(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node<T>> {
     rectangle_precise(
         start_point.x,
         start_point.y,
@@ -12,17 +13,17 @@ pub fn rectangle(start_point: &Coordinate, width: i16, height: i16) -> Vec<Node>
 }
 
 /// Returns 4 nodes in a Vec to form a rectangle.
-fn rectangle_precise(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Node> {
+fn rectangle_precise<T: Shape>(x1: i16, y1: i16, x2: i16, y2: i16) -> Vec<Node<T>> {
     vec![
         Node::new("", Coordinate::new(x1, y1)),
         Node::new("", Coordinate::new(x2, y1)),
-        Node::new("", Coordinate::new(x1, y2)),
-        Node::new("", Coordinate::new(x2, y2))
+        Node::new("", Coordinate::new(x2, y2)),
+        Node::new("", Coordinate::new(x1, y2))
     ]
 }
 
 /// Returns a list of Nodes placed in the shape of a cube.
-pub fn cube(start_point: &Coordinate, width: i16, height: i16, depth_height: i16, depth_width: i16) -> Vec<Node> {
+pub fn cube<T: Shape>(start_point: &Coordinate, width: i16, height: i16, depth_height: i16, depth_width: i16) -> Vec<Node<T>> {
 
     let rem =
         if depth_width < 0 {
@@ -51,7 +52,7 @@ pub fn cube(start_point: &Coordinate, width: i16, height: i16, depth_height: i16
 }
 
 /// Stricter usage of cube(...).
-fn cube_precise(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize) -> Vec<Node> {
+fn cube_precise<T: Shape>(x1: i16, y1: i16, x2: i16, y2: i16, dh: i16, dw: i16, rem: usize) -> Vec<Node<T>> {
     let mut first = rectangle_precise(x1, y1, x2, y2);
     let mut second = rectangle_precise(x1+dw, y1+dh, x2+dw, y2+dh);
 

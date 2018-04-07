@@ -1,7 +1,7 @@
-use super::Group;
+use super::{Group, Shape};
 
 /// Counts the amount of Groups and child Nodes.
-pub fn count(list: &[Group]) -> (usize, usize) {
+pub fn count<T: Shape>(list: &[Group<T>]) -> (usize, usize) {
     let mut n: usize = 0;
     for g in list.iter() {
         n+=g.nodes.len();
@@ -10,7 +10,7 @@ pub fn count(list: &[Group]) -> (usize, usize) {
 }
 
 /// Finds the min and max nodes used for scaling and setting the boundaries of an image.
-pub fn min_max(list: &[Group]) -> ((i16, i16), (i16, i16)) {
+pub fn min_max<T: Shape>(list: &[Group<T>]) -> ((i16, i16), (i16, i16)) {
     let mut min_x = 0;
     let mut min_y = 0;
     let mut max_x = 0;

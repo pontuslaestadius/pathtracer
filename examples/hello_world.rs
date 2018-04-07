@@ -24,18 +24,20 @@ fn main() {
         (ls*8, 0), (ls*8 -hs, -hs), (ls*8 -ls, 0), (ls*8 -hs, ls), (ls*8 +hs, ls),
         (ls*9 -hs, -hs/3), (ls*9 -hs, 0), (ls*9, 0), (ls*9, hs/3)
     );
-    let mut node_vec = Vec::new();
+    let mut node_vec: Vec<Node<Circle>> = Vec::new();
 
     // Add each position as a node.
     for pos in node_pos.iter() {
         let mut node = Node::new("", Coordinate::new(pos.0,pos.1));
-        node.radius = Some(5);
+        node.radius = Some(3);
         node_vec.push(node);
     }
 
     // Link them sequentially in order.
     let link_vec = sequentially_link_nodes(&node_vec);
 
+    let path = Path::new("hello_world.png");
+
     // Create the image using the resource nodes and links.
-    node_and_links(&Path::new("hello_world.png"), &node_vec, &link_vec);
+    node_and_links(&path, &node_vec, &link_vec);
 }

@@ -7,7 +7,8 @@
 
 extern crate pathfinder;
 extern crate rand;
-use pathfinder::{map, data, group};
+use pathfinder::{map, data, group, node};
+use pathfinder::*;
 use std::env;
 
 fn main() {
@@ -37,19 +38,17 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, links) = data::convert_file(log, &lambda);
+    let (groups, links): (Vec<Group<Square>>, Vec<node::link::Link>) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
 
     // Print them.
-    println!("{:?} groups with {} nodes", g, n);
+    println!("{:?} groups with {} nodes with {} links", g, n, links.len());
 
     // Save path for the final result.
-    let save_path = &args[2];
-
-    println!("{} links created", links.len());
+    let path = std::path::Path::new(&args[2]);
 
     // Map them to an RGBA Image and saves it.
-    map::groups_and_links(&groups, &links, save_path);
+    map::groups_and_links(&path, &groups, &links);
 }

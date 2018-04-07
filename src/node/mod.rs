@@ -2,14 +2,14 @@ use std::cmp::PartialEq;
 use std::fs::{File, OpenOptions};
 use std::io;
 use std::io::prelude::*;
-use super::Node;
+use super::{Node, Shape};
 
 pub mod coordinates;
 pub mod link;
 pub mod figure;
 
-impl PartialEq for Node {
-    fn eq(&self, other: &Node) -> bool {
+impl<T: Shape> PartialEq for Node<T> {
+    fn eq(&self, other: &Node<T>) -> bool {
         self.hash == other.hash
     }
 }
