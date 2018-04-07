@@ -2,10 +2,7 @@
 name = "pathfinder"
 version = "0.3.1"
 authors = ["pontus"]
-exclude = [
-    "*.png",
-    "*.jpg",
-]
+include = ["src/**/*", "Cargo.toml"]
 description = "A small library to create nodes, groups of nodes and connection in between them utilizing the image crate."
 repository = "https://github.com/pontuslae/pathfinder"
 readme = "README.md"
