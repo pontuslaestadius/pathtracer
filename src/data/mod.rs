@@ -4,8 +4,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
 use std::hash::{Hash, Hasher};
 use std::io::prelude::*;
-use super::{Group, Coordinate, Shape};
-use super::node::link::*;
+use super::{Group, Coordinate, Shape, Link};
 
 /// Reads from the provided file, and converts to a path network using default settings.
 pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group<T>>, Vec<Link<'a>>) {

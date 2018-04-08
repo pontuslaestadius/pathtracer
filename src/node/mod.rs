@@ -5,7 +5,6 @@ use std::io::prelude::*;
 use super::{Node, Shape};
 
 pub mod coordinates;
-pub mod link;
 pub mod figure;
 
 impl<T: Shape> PartialEq for Node<T> {
