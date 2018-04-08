@@ -4,7 +4,7 @@ use super::*;
 use super::super::node::*;
 use super::super::node::coordinates::*;
 use super::super::tools::*;
-
+/*
 pub fn create_random_network<'a>(path: &Path, number: u32, radius: u32) {
 
     // Stores all created nodes. So then they can be made in to a network.
@@ -82,7 +82,7 @@ pub fn create_group_network(path: &Path, nr_groups: u32, children_min_max: (u32,
 
     Ok(())
 }
-
+*/
 // Adds the number of children supplied randomly to a group.
 pub fn add_children<T: Shape>(group: &mut Group<T>, nr_children: u32) {
     for _ in 0..nr_children {
