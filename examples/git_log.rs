@@ -38,7 +38,7 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, links): (Vec<Group<Triangle>>, Vec<node::link::Link>) = data::convert_file(log, &lambda);
+    let (groups, links): (Vec<Group<Triangle>>, Vec<Link>) = data::convert_file(log, &lambda);
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
@@ -49,6 +49,9 @@ fn main() {
     // Save path for the final result.
     let path = std::path::Path::new(&args[2]);
 
-    // Map them to an RGBA Image and saves it.
-    map::groups_and_links(&path, &groups, &links);
+    let mut map = Map::new();
+    map = map
+        .map(&groups)
+        .map(&links);
+    map.image.unwrap().save(&path);
 }

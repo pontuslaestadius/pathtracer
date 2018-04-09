@@ -38,6 +38,10 @@ fn main() {
 
     let path = Path::new("hello_world.png");
 
-    // Create the image using the resource nodes and links.
-    node_and_links(&path, &node_vec, &link_vec);
+    let mut map = Map::new();
+    map = map
+        .map(&node_vec)
+        .map(&link_vec);
+
+    map.image.unwrap().save(&path);
 }

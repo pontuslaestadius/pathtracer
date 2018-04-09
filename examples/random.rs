@@ -30,7 +30,6 @@ extern crate rand;
 extern crate image;
 use pathfinder::map;
 use pathfinder::*;
-use pathfinder::node::link::Link;
 use image::Rgba;
 
 /**
@@ -83,8 +82,12 @@ fn main() {
     // Where and what to call the file.
     let path= std::path::Path::new("random.png");
 
-    // Maps them on an image and draw it.
-    map::groups_and_links(&path, &groups, &links);
+    let mut map = Map::new();
+    map = map
+        .map(&groups)
+        .map(&links);
+
+    map.image.unwrap().save(&path);
 }
 
 
