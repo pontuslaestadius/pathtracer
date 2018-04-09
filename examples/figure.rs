@@ -41,8 +41,6 @@ use image::Rgba;
 
 fn main() {
 
-    //pathfinder::map::network::create_random_network(2, 70);
-
     let mut nodes: Vec<Node<Square>> = Vec::new();
 
     for i in 0..33   {
