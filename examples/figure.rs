@@ -35,7 +35,6 @@ use pathfinder::*;
 use pathfinder::map::*;
 use pathfinder::node::*;
 use rand::thread_rng;
-use pathfinder::node::link::Link;
 
 
 use image::Rgba;
@@ -60,7 +59,12 @@ fn main() {
 
     let path = std::path::Path::new("figure.png");
 
-    node_and_links(&path, &nodes, &links);
+
+    let mut map = Map::new();
+    map = map
+        .map(&nodes)
+        .map(&links);
+    map.image.unwrap().save(&path);
 }
 
 

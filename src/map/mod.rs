@@ -92,6 +92,8 @@ pub fn groups_and_links<T: Shape>(path: &Path, groups: &[Group<T>], links: &[Lin
     // Node size.
     let node_size: u32 = get_node_size_from_groups(&groups);
 
+    let map = Map::new();
+
     // Gets the highest and lowest of all the coordinates.
     let min_max = min_max(groups);
 
