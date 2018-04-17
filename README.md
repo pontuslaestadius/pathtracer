@@ -28,13 +28,19 @@ use pathfinder::{Coordinate, Node};
 let coordinates = Coordinate::new(0,0);
 let mut node = Node::new("name", coordinates);
 ```
-The `map` module handles drawing Imagebuffers in a variety of ways. It also has a couple of "quick and dirty" functions
-that are one liners for creating 
-`pub fn create_random_network<'a>(number: u32, radius: u32)` and 
-`pub fn create_group_network(nr_groups: u32, children_min_max: (u32, u32), radius: u32)`
-The second one is used for the large example featured above.
+
+This library contains a wrapper for image and gif encoding. Which can be used to easily draw up node, groups and links.
+```
+let mut map = Map::new();
+map = map
+    .map(&groups)
+    .map(&links);
+
+map.image.unwrap().save(&path);
+```
 
 # Planned activities
 - Better abstraction for groups of nodes.
 - More predictable node layout.
 - Integrate with piston for live-view.
+- Implement pathfinding on a linked network.

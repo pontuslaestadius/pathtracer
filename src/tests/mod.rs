@@ -17,7 +17,6 @@ mod tests {
             let co1: Coordinate = Coordinate::new(1, 1);
             let co2: Coordinate = co1.clone();
             let co3: Coordinate = Coordinate::new(2, 2);
-            let co4: Coordinate = Coordinate::new(300, 2);
 
             // Asserts
             assert_eq!(co1 == co2, true);

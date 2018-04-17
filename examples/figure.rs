@@ -28,16 +28,9 @@
 extern crate pathfinder;
 extern crate rand;
 extern crate image;
-use pathfinder::{map, data, group};
-use std::env;
 use pathfinder::node::figure;
 use pathfinder::*;
 use pathfinder::map::*;
-use pathfinder::node::*;
-use rand::thread_rng;
-
-
-use image::Rgba;
 
 fn main() {
 
@@ -62,7 +55,7 @@ fn main() {
     map = map
         .map(&nodes)
         .map(&links);
-    map.image.unwrap().save(&path);
+    let _ = map.image.unwrap().save(&path);
 }
 
 

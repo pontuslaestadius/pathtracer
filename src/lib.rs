@@ -71,7 +71,7 @@ pub struct Triangle {}
 
 
 pub trait Draw {
-    fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
+    fn draw(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
     fn get_coordinate(&self) -> Vec<&Coordinate>;
@@ -375,6 +375,17 @@ impl Map {
     }
 //     pub fn map<T: Draw, S: Shape>(mut self, element: &[Node<Square>]) {
 
+    /// Maps any struct that has implemented Draw, on to an ImageBuffer.
+    /// ```
+    /// use pathfinder::*;
+    /// let nodes: Vec<Node<Square>> = vec!(
+    ///     Node::new("1", Coordinate::new(0,0)),
+    ///     Node::new("2", Coordinate::new(100,100))
+    /// );
+    /// // Add content to vectors.
+    /// let mut map = Map::new();
+    /// map = map.map(&nodes);
+    /// ```
     pub fn map<T: Draw>(mut self, element: &[T]) -> Self {
     //pub fn map<T: Draw, S: Shape>(&mut self, element: &[Group<S>]) {
         if self.image.is_none() {
