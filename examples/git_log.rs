@@ -7,7 +7,7 @@
 
 extern crate pathfinder;
 extern crate rand;
-use pathfinder::{map, data, group, node};
+use pathfinder::{data, group};
 use pathfinder::*;
 use std::env;
 
@@ -53,5 +53,5 @@ fn main() {
     map = map
         .map(&groups)
         .map(&links);
-    map.image.unwrap().save(&path);
+    let _ = map.image.unwrap().save(&path);
 }

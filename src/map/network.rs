@@ -1,9 +1,5 @@
-use std::io;
-use std::time::Instant;
 use super::*;
-use super::super::node::*;
 use super::super::node::coordinates::*;
-use super::super::tools::*;
 /*
 pub fn create_random_network<'a>(path: &Path, number: u32, radius: u32) {
 

@@ -4,9 +4,7 @@ use std::io;
 use gif;
 use gif::*;
 use image::{Rgba, ImageBuffer};
-use std::io::Write;
 use std::fs::File;
-use image;
 
 
 pub struct Gif  {
@@ -19,7 +17,7 @@ impl Gif {
     /// Constructs a Gif struct and initializes a file on the system for the Gif to be stored.
     pub fn new(output: &str, width: u16, height: u16) -> Result<Gif, io::Error> {
         // Initalize encoder.
-        let mut file = File::create(output).unwrap();
+        let file = File::create(output).unwrap();
         let mut encoder = gif::Encoder::new(file, width, height, &[])?;
         encoder.set(Repeat::Infinite)?;
         Ok(Gif {
@@ -30,7 +28,7 @@ impl Gif {
     }
 
     /// Pushes a frame to the Gif structure, This also immediately saves it to disk.
-    pub fn push_frame(&mut self, mut image: ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
+    pub fn push_frame(&mut self, image: ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
 
         let mut pixels: Vec<u8> = Vec::new();
 

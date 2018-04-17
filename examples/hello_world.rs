@@ -43,5 +43,5 @@ fn main() {
         .map(&node_vec)
         .map(&link_vec);
 
-    map.image.unwrap().save(&path);
+    let _ = map.image.unwrap().save(&path);
 }

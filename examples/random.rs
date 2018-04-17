@@ -87,7 +87,7 @@ fn main() {
         .map(&groups)
         .map(&links);
 
-    map.image.unwrap().save(&path);
+    let _ = map.image.unwrap().save(&path);
 }
 
 

@@ -1,10 +1,6 @@
 extern crate image;
 
-use group::*;
-use image::{ImageBuffer, Rgba};
-use tools::constant::CONFIRMA;
-use std::io;
-use std::path::Path;
+use image::Rgba;
 use super::*;
 
 pub mod network;
@@ -50,7 +46,7 @@ pub fn gen_min_max<T: Shape + Draw>(list: &[Node<T>]) -> ((i16, i16), (i16, i16)
 
 /// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
 pub fn min_max<T: Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
-    let mut size: i16  = 4; // TODO
+    let mut size: i16  = 6; // TODO
     let mut elem = Vec::new();
 
     for item in list {
