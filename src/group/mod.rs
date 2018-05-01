@@ -1,4 +1,5 @@
 use super::{Group, Shape};
+use std::cmp::{min, max};
 
 /// Counts the amount of Groups and child Nodes.
 pub fn count<T: Shape>(list: &[Group<T>]) -> (usize, usize) {
@@ -11,29 +12,20 @@ pub fn count<T: Shape>(list: &[Group<T>]) -> (usize, usize) {
 
 /// Finds the min and max nodes used for scaling and setting the boundaries of an image.
 pub fn min_max<T: Shape>(list: &[Group<T>]) -> ((i16, i16), (i16, i16)) {
-    let mut min_x = 0;
-    let mut min_y = 0;
-    let mut max_x = 0;
-    let mut max_y = 0;
+    let mut mi = (0, 0);
+    let mut ma = (0, 0);
 
     for group in list {
         for node in group.nodes.iter() {
             // Iterates over the nodes and finds the minimum and maximum x and y values.
-            if node.geo.x > max_x {
-                max_x = node.geo.x;
-            }
-            if min_x > node.geo.x {
-                min_x = node.geo.x;
-            }
+            ma.0 = max(node.geo.x, ma.0);
+            ma.1 = max(node.geo.y, ma.1);
 
-            if node.geo.y > max_y {
-                max_y = node.geo.y;
-            }
-            if min_y > node.geo.y {
-                min_y = node.geo.y;
-            }
+            mi.0 = min(node.geo.x, mi.0);
+            mi.1 = min(node.geo.y, mi.0);
+
         }
     }
 
-    ((min_x, max_x), (min_y, max_y))
+    ((mi.0, ma.0), (mi.1, ma.1))
 }

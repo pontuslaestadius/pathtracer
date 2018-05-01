@@ -4,6 +4,7 @@
 extern crate image;
 extern crate rand;
 extern crate gif;
+extern crate pythagoras;
 
 pub mod node;
 pub mod map;
@@ -51,11 +52,20 @@ pub struct Link<'a> {
     pub color: image::Rgba<u8>,
 }
 
+pub struct Network<'a, T: Draw + Hash + Shape> {
+    pub connections: Vec<Link<'a>>,
+    pub elements: Vec<T>,
+}
+
 // ------------------------------------------------------------------
 
 pub trait Shape {
-	fn new() -> Self;
+    fn new() -> Self;
     fn area(&self, size: u32) -> Vec<Coordinate>;
+}
+
+pub trait Hash {
+    fn get_hash(&self) -> u64;
 }
 
 #[derive(Debug)]
@@ -165,12 +175,12 @@ impl<'a> Draw for Link<'a> {
 // ------------------------------------------------------------------
 
 impl Shape for Square {
-	fn new() -> Square {
-		Square {}
-	}
+    fn new() -> Square {
+        Square {}
+    }
 
-	/// Returns all coordinates that the shape occupies. 
-	/// Assume that you start at coordinate x: 0, y: 0.
+    /// Returns all coordinates that the shape occupies.
+    /// Assume that you start at coordinate x: 0, y: 0.
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
         for i in 0..size {
@@ -187,7 +197,7 @@ impl Shape for Circle {
         Circle {}
     }
 
-    /// Returns all coordinates that the shape occupies. 
+    /// Returns all coordinates that the shape occupies.
     /// Algorithm is derived from: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
@@ -200,22 +210,22 @@ impl Shape for Circle {
         let y0: i16 = 0;
         let mut err: i16 = dx - (size << 1) as i16;
 
-    while x >= y {
-        vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 + y), &Coordinate::new(x0 - x, y0 + y)));
-        vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 - y), &Coordinate::new(x0 - x, y0 - y)));
-        vec.append(&mut tools::plot(&Coordinate::new(x0 - y, y0 - x), &Coordinate::new(x0 - y, y0 + x)));
-        vec.append(&mut tools::plot(&Coordinate::new(x0 + y, y0 - x), &Coordinate::new(x0 + y, y0 + x)));
+        while x >= y {
+            vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 + y), &Coordinate::new(x0 - x, y0 + y)));
+            vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 - y), &Coordinate::new(x0 - x, y0 - y)));
+            vec.append(&mut tools::plot(&Coordinate::new(x0 - y, y0 - x), &Coordinate::new(x0 - y, y0 + x)));
+            vec.append(&mut tools::plot(&Coordinate::new(x0 + y, y0 - x), &Coordinate::new(x0 + y, y0 + x)));
 
-        if err <= 0 {
-            y += 1;
-            err += dy;
-            dy += 2;
-        } else {
-            x -= 1;
-            dx += 2;
-            err += dx - (size << 1) as i16;
+            if err <= 0 {
+                y += 1;
+                err += dy;
+                dy += 2;
+            } else {
+                x -= 1;
+                dx += 2;
+                err += dx - (size << 1) as i16;
+            }
         }
-    }
 
         vec
     }
@@ -226,7 +236,7 @@ impl Shape for Triangle {
         Triangle {}
     }
 
-    /// Returns all coordinates that the shape occupies. 
+    /// Returns all coordinates that the shape occupies.
     /// Assume that you start at coordinate x: 0, y: 0.
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
@@ -282,6 +292,15 @@ impl<'a> Link<'a> {
             from,
             to,
             color: image::Rgba {data: [0,0,0,255]},
+        }
+    }
+}
+
+impl<'a, T: Shape + Draw + Hash> Network<'a, T> {
+    pub fn new(connections: Vec<Link<'a>>, elements: Vec<T>) -> Network<'a, T> {
+        Network {
+            connections,
+            elements,
         }
     }
 }
@@ -373,7 +392,6 @@ impl Map {
             size: 5, // TODO set dynamically.
         }
     }
-//     pub fn map<T: Draw, S: Shape>(mut self, element: &[Node<Square>]) {
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
     /// ```
@@ -387,10 +405,10 @@ impl Map {
     /// map = map.map(&nodes);
     /// ```
     pub fn map<T: Draw>(mut self, element: &[T]) -> Self {
-    //pub fn map<T: Draw, S: Shape>(&mut self, element: &[Group<S>]) {
         if self.image.is_none() {
             let min_max = map::min_max(&element);
             // Stabilizes the picture to have the action in the center of the image.
+            // This functionality doesn't work that well for gif encoding.
             self.add = map::gen_stuff(min_max);
             let res = map::gen_map_dimensions(min_max);
             // Generates an image buffer.
@@ -406,6 +424,58 @@ impl Map {
         }
         self
     }
+}
+
+impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> {
+
+    /// Calculates the path from node A to node B.
+    /// ```
+    /// use pathfinder::{Node, Coordinate, Network};
+    /// let a = Node::<Square>new("A", Coordinate::new(0,0));
+    /// //let b = Node<Square>::new("B", Coordinate::new(20,20));
+    /// //let network = Network::new(Vec::new(), vec!(a, b));
+    /// ```
+    pub fn path<'b>(&self, a: &str, b: &str, _algorithm: &FnOnce()) -> Vec<Link<'b>> {
+        let node_a: Node<T> = Node::new(a, Coordinate::new(0,0));
+        let _node_b: Node<T> = Node::new(b, Coordinate::new(0,0));
+
+        let mut current = None;
+        for (i, elem) in self.elements.iter().enumerate() {
+            if elem.get_hash() == node_a.hash {
+                current = Some(i);
+                break;
+            }
+        }
+
+        if current == None {
+            panic!("starting node {} does not exist.", a);
+        }
+        /*
+
+        Make a list,
+        Use insert at proper index depending on distance
+        Implement an algorithm for the rest.
+
+        */
+
+        let list: Vec<(u32, usize)> = Vec::new();
+
+        let mut m_elem: Vec<T>= self.elements.clone();
+
+        m_elem.sort_unstable_by(
+            |a, b|
+                node::coordinates::distance(
+                    a.get_coordinate().get(0).unwrap(),
+                    b.get_coordinate().get(0).unwrap())
+                    .cmp(&0)
+        );
+
+        println!("{:?}", m_elem);
+
+        panic!("TODO")
+
+    }
+
 }
 
 // ------------------------------------------------------------------
