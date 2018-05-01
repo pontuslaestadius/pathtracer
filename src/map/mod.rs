@@ -12,37 +12,22 @@ pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     let y = min_max.1;
     ((x.1 - x.0) as u32, (y.1 - y.0) as u32)
 }
-/*
-/// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
-pub fn gen_min_max<T: Shape + Draw>(list: &[Node<T>]) -> ((i16, i16), (i16, i16)) {
 
-    let size = get_node_size(&list) as i16;
+/// Returns a list of Links connecting the Nodes in the order they were provided.
+/// E.g. provided a list with three nodes the result would be:
+/// 1----2----3, dashes representing links.
+pub fn sequentially_link_nodes<T: Shape>(nodes: &[Node<T>]) -> Vec<Link> {
+    let mut link_vec = Vec::new();
+    for i in 1..nodes.len() {
+        let mut link = Link::new(
+            &nodes.get(i-1).unwrap().geo,
+            &nodes.get(i).unwrap().geo);
+        link.color = nodes.get(i).unwrap().color.clone();
 
-    let mut min_x = list[0].geo.x;
-    let mut min_y = list[0].geo.y;
-    let mut max_x = list[0].geo.x;
-    let mut max_y = list[0].geo.y;
-
-    // Iterates over the nodes and finds the minimum and maximum x and y values.
-    for node in list.iter() {
-        if node.geo.x > max_x {
-            max_x = node.geo.x;
-        }
-        if min_x > node.geo.x {
-            min_x = node.geo.x;
-        }
-
-        if node.geo.y > max_y {
-            max_y = node.geo.y;
-        }
-        if min_y > node.geo.y {
-            min_y = node.geo.y;
-        }
+        link_vec.push(link);
     }
-
-    ((min_x -size, max_x +size), (min_y -size, max_y +size))
+    link_vec
 }
-*/
 
 /// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
 pub fn min_max<T: Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
@@ -82,6 +67,39 @@ pub fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
 pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
+
+/*
+/// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
+pub fn gen_min_max<T: Shape + Draw>(list: &[Node<T>]) -> ((i16, i16), (i16, i16)) {
+
+    let size = get_node_size(&list) as i16;
+
+    let mut min_x = list[0].geo.x;
+    let mut min_y = list[0].geo.y;
+    let mut max_x = list[0].geo.x;
+    let mut max_y = list[0].geo.y;
+
+    // Iterates over the nodes and finds the minimum and maximum x and y values.
+    for node in list.iter() {
+        if node.geo.x > max_x {
+            max_x = node.geo.x;
+        }
+        if min_x > node.geo.x {
+            min_x = node.geo.x;
+        }
+
+        if node.geo.y > max_y {
+            max_y = node.geo.y;
+        }
+        if min_y > node.geo.y {
+            min_y = node.geo.y;
+        }
+    }
+
+    ((min_x -size, max_x +size), (min_y -size, max_y +size))
+}
+*/
+
 /*
 // TODO
 pub fn groups_and_links<T: Shape>(path: &Path, groups: &[Group<T>], links: &[Link]) { // TODO implementing.
@@ -194,20 +212,6 @@ pub fn get_node_size_from_groups<T: Shape>(groups: &[Group<T>]) -> u32 {
 }
 
 */
-
-/// Returns a list of Links connecting the Nodes in the order they were provided.
-pub fn sequentially_link_nodes<T: Shape>(nodes: &[Node<T>]) -> Vec<Link> {
-    let mut link_vec = Vec::new();
-    for i in 1..nodes.len() {
-        let mut link = Link::new(
-            &nodes.get(i-1).unwrap().geo,
-            &nodes.get(i).unwrap().geo);
-        link.color = nodes.get(i).unwrap().color.clone();
-
-        link_vec.push(link);
-    }
-    link_vec
-}
 
 /*
 
