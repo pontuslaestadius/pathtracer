@@ -4,25 +4,24 @@ use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
 use std::hash::{Hash, Hasher};
 use std::io::prelude::*;
+use std::io;
 use super::{Group, Coordinate, Shape, Link};
 
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> (Vec<Group<T>>, Vec<Link<'a>>) {
-    let content = get_content(path);
-    convert(content, &lambda)
+pub fn convert_file<'a, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> Result<(Vec<Group<T>>, Vec<Link<'a>>), io::Error> {
+    let content = get_content(path)?;
+    Ok(convert(content, &lambda))
 }
 
-
 /// Reads from the provided file, and returns content.
-fn get_content(path: &str) -> String {
+fn get_content(path: &str) -> Result<String, io::Error> {
     let mut file = OpenOptions::new()
         .read(true)
-        .open(path)
-        .unwrap();
+        .open(path)?;
 
     let mut contents = String::new();
     let _ = file.read_to_string(&mut contents);
-    contents
+    Ok(contents)
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
@@ -103,7 +102,7 @@ pub fn convert_inner<'a, T: Shape>(content: String, cct: CustomConverter) -> (Ve
                 // Produce a new group.
                 let mut group = Group::new(
                     &line,
-                    gen_radius(&coordinates, 0, cct.radius*2),
+                    gen_radius(&coordinates, 0, cct.radius),
                 );
                 group.settings.radius = Some(cct.radius/4);
 

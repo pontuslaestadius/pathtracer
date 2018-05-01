@@ -4,6 +4,7 @@
 ///    Stores an x and y coordinate.
 
 extern crate rand;
+extern crate pythagoras;
 
 use std::cmp::Ordering;
 use std::f64;
@@ -31,6 +32,21 @@ pub fn gen() -> Coordinate {
 /// ```
 pub fn diff(c1: &Coordinate, c2: &Coordinate) -> (i16, i16) {
     ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
+}
+
+/// Get the distance between two Coordinates'.
+/// # Examples
+/// ```
+/// use pathfinder::Coordinate;
+/// use pathfinder::node::coordinates::distance;
+/// let a = Coordinate::new(0, 0);
+/// let b = Coordinate::new(3,4);
+/// let distance = distance(&a, &b);
+/// assert_eq!(distance, 5);
+/// ```
+pub fn distance(a: &Coordinate, b: &Coordinate) -> u32 {
+    let diff = diff(a, b);
+    pythagoras::equation(diff.0, diff.1) as u32
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within a radius.
