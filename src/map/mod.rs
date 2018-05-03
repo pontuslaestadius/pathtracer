@@ -13,31 +13,38 @@ pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     ((x.1 - x.0) as u32, (y.1 - y.0) as u32)
 }
 
+/* FIXME Stuck on iterative mut assignment.
 /// Returns a list of Links connecting the Nodes in the order they were provided.
 /// E.g. provided a list with three nodes the result would be:
 /// 1----2----3, dashes representing links.
-pub fn sequentially_link_nodes<T: Shape>(nodes: &[Node<T>]) -> Vec<Link> {
-    let mut link_vec = Vec::new();
-    for i in 1..nodes.len() {
-        let mut link = Link::new(
-            &nodes.get(i-1).unwrap().geo,
-            &nodes.get(i).unwrap().geo);
-        link.color = nodes.get(i).unwrap().color.clone();
+pub fn sequentially_link_nodes<'a, T: Shape + Draw>(nodes: &'a mut [Node<'a, T>]) {
+    let mut b: Option<&mut Node<T>> = None;
 
-        link_vec.push(link);
+    for (i, node) in nodes.iter_mut().enumerate() {
+        let mut a = node;
+
+        //let tmp = b;
+        //b = Some(a);
+
+        if b.is_none() {
+            continue;
+        }
+
+        a.link(&b.unwrap());
+
     }
-    link_vec
 }
+*/
 
 /// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
 pub fn min_max<T: Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
-    let mut size: i16  = 6; // TODO
+    let mut size: i16 = 6; // TODO
     let mut elem = Vec::new();
 
     for item in list {
         let tmp = item.get_size();
         if tmp as i16 > size {size = tmp as i16;}
-        elem.append(&mut item.get_coordinate())
+        elem.push(item.get_coordinate())
     }
 
     let mut min_x: i16 = 0;
