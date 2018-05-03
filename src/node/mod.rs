@@ -7,7 +7,7 @@ use super::{Node, Shape, Coordinate};
 pub mod coordinates;
 pub mod figure;
 
-impl<T: Shape> PartialEq for Node<T> {
+impl<'a, T: Shape> PartialEq for Node<'a, T> {
     fn eq(&self, other: &Node<T>) -> bool {
         self.hash == other.hash
     }

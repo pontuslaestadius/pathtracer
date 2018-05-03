@@ -63,6 +63,8 @@ fn main() {
         group2_coordinates,
     );
 
+    //group1.link(&group2);
+
     group1.settings.color = group1_color;
     group2.settings.color = group2_color;
 
@@ -76,16 +78,12 @@ fn main() {
         map::network::add_children(group, children);
     }
 
-    // Create a link between the groups.
-    let links = vec!(Link::new(&groups.get(0).unwrap().settings.geo, &groups.get(1).unwrap().settings.geo));
-
     // Where and what to call the file.
     let path= std::path::Path::new("random.png");
 
     let mut map = Map::new();
     map = map
-        .map(&groups)
-        .map(&links);
+        .map(&groups);
 
     let _ = map.image.unwrap().save(&path);
 }
