@@ -38,20 +38,19 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let (groups, links): (Vec<Group<Circle>>, Vec<Link>) = data::convert_file(log, &lambda).unwrap();
+    let groups:Vec<Group<Circle>> = data::convert_file(log, &lambda).unwrap();
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);
 
     // Print them.
-    println!("{:?} groups with {} nodes with {} links", g, n, links.len());
+    println!("{:?} groups with {} nodes", g, n);
 
     // Save path for the final result.
     let path = std::path::Path::new(&args[2]);
 
     let mut map = Map::new();
     map = map
-        .map(&groups)
-        .map(&links);
+        .map(&groups);
     let _ = map.image.unwrap().save(&path);
 }
