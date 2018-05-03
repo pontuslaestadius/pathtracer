@@ -46,15 +46,15 @@ fn main() {
     let start = Coordinate::new(0,0);
     nodes = figure::rectangle(&start, 50, 50);
 
-    let links = sequentially_link_nodes(&nodes);
+    //let links = sequentially_link_nodes(&nodes);
 
     let path = std::path::Path::new("figure.png");
 
 
     let mut map = Map::new();
     map = map
-        .map(&nodes)
-        .map(&links);
+        .map(&nodes);
+        //.map(&links);
     let _ = map.image.unwrap().save(&path);
 }
 

@@ -34,14 +34,14 @@ fn main() {
     }
 
     // Link them sequentially in order.
-    let link_vec = sequentially_link_nodes(&node_vec);
+    //let link_vec = sequentially_link_nodes(&node_vec);
 
     let path = Path::new("hello_world.png");
 
     let mut map = Map::new();
     map = map
-        .map(&node_vec)
-        .map(&link_vec);
+        .map(&node_vec);
+       // .map(&link_vec);
 
     let _ = map.image.unwrap().save(&path);
 }

@@ -23,22 +23,24 @@ pub struct Coordinate {
 
 /// A positioned object that can be drawn on an image::ImageBuffer.
 #[derive(Clone)]
-pub struct Node<T: Shape> {
+pub struct Node<'a, T: Shape> {
     pub hash: u64,
     pub geo: Coordinate,
     pub color: image::Rgba<u8>,
     pub radius: Option<u32>,
+    pub connections: Vec<Link<'a>>,
     shape: T
 }
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
 /// The group itself has no displayed output and is not visible.
 #[derive(Clone)]
-pub struct Group<T: Shape> {
-    pub settings: Node<T>,
-    pub nodes: Vec<Node<T>>,
+pub struct Group<'a, 'b, T: Shape> {
+    pub settings: Node<'b, T>,
+    pub nodes: Vec<Node<'a, T>>,
 }
 
+#[derive(Clone)]
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
     pub add: (i16, i16),
@@ -46,14 +48,14 @@ pub struct Map {
 }
 
 /// Connects two Coordinate points.
+#[derive(Clone)]
 pub struct Link<'a> {
-    pub from: &'a Coordinate,
     pub to: &'a Coordinate,
     pub color: image::Rgba<u8>,
 }
 
-pub struct Network<'a, T: Draw + Hash + Shape> {
-    pub connections: Vec<Link<'a>>,
+#[derive(Clone)]
+pub struct Network<T: Draw + Hash + Shape> {
     pub elements: Vec<T>,
 }
 
@@ -84,10 +86,10 @@ pub trait Draw {
     fn draw(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
-    fn get_coordinate(&self) -> Vec<&Coordinate>;
+    fn get_coordinate(&self) -> &Coordinate;
 }
 
-impl<T: Shape> Draw for Node<T> {
+impl<'a, T: Shape> Draw for Node<'a, T> {
     fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let x = self.geo.x +x_offset as i16;
@@ -107,12 +109,12 @@ impl<T: Shape> Draw for Node<T> {
             false => self.radius.unwrap(),
         }
     }
-    fn get_coordinate(&self) -> Vec<&Coordinate> {
-        vec!(&self.geo)
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.geo
     }
 }
 
-impl<T: Shape> Draw for Group<T> {
+impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
     fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
@@ -134,12 +136,8 @@ impl<T: Shape> Draw for Group<T> {
             None => max,
         }
     }
-    fn get_coordinate(&self) -> Vec<&Coordinate> {
-        let mut vec = Vec::new();
-        for item in self.nodes.iter() {
-            vec.append(&mut item.get_coordinate())
-        }
-        vec
+    fn get_coordinate(&self) -> &Coordinate {
+        self.settings.get_coordinate()
     }
 }
 
@@ -147,6 +145,7 @@ impl<'a> Draw for Link<'a> {
     /// Draws the connection using either a modified version of Bresham's line algorithm or a generic one.
     fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+        /*
         let x_offset = x_offset + (size/2) as i16;
         let y_offset = y_offset + (size/2) as i16;
 
@@ -163,12 +162,14 @@ impl<'a> Draw for Link<'a> {
             image.put_pixel( c.x  as u32, c.y as u32, self.color)
         ).collect::<Vec<_>>();
         image
+        */
+        panic!("New version not added.")
     }
     fn get_size(&self) -> u32 {
         1
     }
-    fn get_coordinate(&self) -> Vec<&Coordinate> {
-        vec!(&self.from, &self.from)
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.to
     }
 }
 
@@ -262,44 +263,52 @@ impl Coordinate {
     }
 }
 
-impl<T: Shape> Node<T> {
+impl<'a, T: Shape> Node<'a, T> {
     /// Constructs a Node struct.
-    pub fn new(name: &str, geo: Coordinate) -> Node<T> {
+    pub fn new(name: &str, geo: Coordinate) -> Node<'a, T> {
         Node {
             hash: data::calculate_hash(&name),
             geo,
             color: image::Rgba {data: [0,0,0,255]},
             radius: None,
+            connections: Vec::new(),
             shape: T::new(),
         }
     }
+
+    pub fn link<D: Shape + Draw>(&mut self, other: &'a Node<D>) {
+        self.connections.push(Link::new(other.get_coordinate()));
+    }
+
 }
 
-impl<T: Shape> Group<T> {
+impl<'a, 'b, T: Shape> Group<'a, 'b, T> {
     /// Constructs a new Group
-    pub fn new(name: &str, coordinates: Coordinate) -> Group<T> {
+    pub fn new(name: &str, coordinates: Coordinate) -> Group<'a, 'b, T> {
         Group {
             settings: Node::new(name, coordinates),
             nodes: Vec::new(),
         }
     }
+
+    pub fn link<D: Shape + Draw>(&mut self, other: &'b Group<'a, 'b, D>) {
+        self.settings.link(&other.settings);
+    }
 }
 
 impl<'a> Link<'a> {
     /// Creates a new Link and binds two nodes together.
-    pub fn new(from: &'a Coordinate, to: &'a Coordinate) -> Link<'a> {
+    pub fn new(to: &'a Coordinate) -> Link<'a> {
         Link {
-            from,
             to,
             color: image::Rgba {data: [0,0,0,255]},
         }
     }
 }
 
-impl<'a, T: Shape + Draw + Hash> Network<'a, T> {
-    pub fn new(connections: Vec<Link<'a>>, elements: Vec<T>) -> Network<'a, T> {
+impl<T: Shape + Draw + Hash> Network<T> {
+    pub fn new(elements: Vec<T>) -> Network<T> {
         Network {
-            connections,
             elements,
         }
     }
@@ -314,7 +323,7 @@ impl Coordinate {
     }
 }
 
-impl<T: Shape> Group<T> {
+impl<'a, 'b, T: Shape> Group<'a, 'b, T> {
 
     /// Returns the nodes that exists inside the Group.
     pub fn get_nodes(&self) -> &Vec<Node<T>> {
@@ -349,12 +358,12 @@ impl<T: Shape> Group<T> {
     }
 
     /// Removes all non-essentials from the standard implementation.
-    pub fn new_simple(x: i16, y: i16) -> Group<T> {
+    pub fn new_simple(x: i16, y: i16) -> Group<'a, 'b, T> {
         Group::new("", Coordinate::new(x, y))
     }
 
     /// Pushes a Node to the Group.
-    pub fn push(&mut self, node: Node<T>) {
+    pub fn push(&mut self, node: Node<'a, T>) {
         self.nodes.push(node);
     }
 
@@ -425,7 +434,7 @@ impl Map {
         self
     }
 }
-
+/*
 impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> {
 
     /// Calculates the path from node A to node B.
@@ -477,12 +486,12 @@ impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> 
     }
 
 }
+*/
 
 // ------------------------------------------------------------------
 
 impl<'a> PartialEq for Link<'a> {
     fn eq(&self, other: &Link) -> bool {
-        (self.from == other.from) &&
-            (self.to == other.to)
+        self.to == other.to
     }
 }
