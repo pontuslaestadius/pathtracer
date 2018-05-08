@@ -10,6 +10,7 @@ fn main() {
     let ls = 35; // Letter spacing.
     let hs = ls/2; // Letter spacing half.
 
+    // TODO improve, by using a SVG or something.
     // This is a "small" list of positions required to make a figure!
     let node_pos: Vec<(i16, i16)> = vec!(
         (0,0), (hs, -hs), (0, -ls), (0, ls),

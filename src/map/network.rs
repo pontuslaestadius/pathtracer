@@ -82,7 +82,7 @@ pub fn create_group_network(path: &Path, nr_groups: u32, children_min_max: (u32,
 // Adds the number of children supplied randomly to a group.
 pub fn add_children<T: Shape>(group: &mut Group<T>, nr_children: u32) {
     for _ in 0..nr_children {
-        let co = gen_within_radius(&group.settings.geo, group.get_dynamic_radius());
+        let co = gen_within_radius(&group.settings.geo, group.settings.get_size());
         let mut node = Node::new("", co.clone());
         node.color = group.gen_color(co);
         group.push(node);

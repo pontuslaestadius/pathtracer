@@ -276,7 +276,17 @@ impl<'a, T: Shape> Node<'a, T> {
         }
     }
 
-    pub fn link<D: Shape + Draw>(&mut self, other: &'a Node<D>) {
+    /// Links Node self to the provided node's coordinate.
+    /// ```
+    /// use pathfinder::{Node, Square, Coordinate};
+    /// let nodeB: Node<Square> = Node::new("B", Coordinate::new(100,100));
+    /// let mut nodeA: Node<Square> = Node::new("A", Coordinate::new(0,0));
+    /// nodeA.link(&nodeB);
+    /// assert_eq!(
+    ///     nodeA.connections.get(0).unwrap().to,
+    ///     &nodeB.geo);
+    /// ```
+    pub fn link<S: Shape>(&mut self, other: &'a Node<S>) {
         self.connections.push(Link::new(other.get_coordinate()));
     }
 
@@ -291,7 +301,17 @@ impl<'a, 'b, T: Shape> Group<'a, 'b, T> {
         }
     }
 
-    pub fn link<D: Shape + Draw>(&mut self, other: &'b Group<'a, 'b, D>) {
+    /// Links together two groups.
+    /// ```
+    /// use pathfinder::{Group, Square, Coordinate};
+    /// let groupB: Group<Square> = Group::new("B", Coordinate::new(100,100));
+    /// let mut groupA: Group<Square> = Group::new("A", Coordinate::new(0,0));
+    /// groupA.link(&groupB);
+    /// assert_eq!(
+    ///     groupA.settings.connections.get(0).unwrap().to,
+    ///     &groupB.settings.geo);
+    /// ```
+    pub fn link<S: Shape>(&mut self, other: &'b Group<'a, 'b, S>) {
         self.settings.link(&other.settings);
     }
 }
@@ -398,7 +418,7 @@ impl Map {
         Map {
             image: None,
             add: (0, 0),
-            size: 5, // TODO set dynamically.
+            size: 4, // TODO set dynamically.
         }
     }
 
@@ -422,7 +442,9 @@ impl Map {
             let res = map::gen_map_dimensions(min_max);
             // Generates an image buffer.
             self.image = Some(map::gen_canvas(res.0, res.1));
+            println!("{}x{} | {}x{} | {}", res.0, res.1, self.add.0, self.add.1, self.size);
         }
+
         for e in element {
             self.image = Some(e.draw(
                 self.image.unwrap(),
