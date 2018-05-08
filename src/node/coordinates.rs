@@ -1,8 +1,3 @@
-///
-///    Coordinate
-///    -----------
-///    Stores an x and y coordinate.
-
 extern crate rand;
 extern crate pythagoras;
 
