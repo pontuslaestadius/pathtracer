@@ -5,7 +5,6 @@ use std::io::prelude::*;
 use super::{Node, Shape, Coordinate};
 
 pub mod coordinates;
-pub mod figure;
 
 impl<'a, T: Shape> PartialEq for Node<'a, T> {
     fn eq(&self, other: &Node<T>) -> bool {
@@ -13,7 +12,7 @@ impl<'a, T: Shape> PartialEq for Node<'a, T> {
     }
 }
 
-/// Returns a list of names specified in a resource file.
+/// Returns a list of Strings split using \n in a Vec.
 pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
