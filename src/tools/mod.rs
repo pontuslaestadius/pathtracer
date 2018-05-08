@@ -1,4 +1,3 @@
-pub mod constant;
 pub mod generic;
 
 extern crate rand;
@@ -78,16 +77,15 @@ pub fn gen_rgba() -> Rgba<u8> {
     primary
 }
 
-/// Returns a random Rgb color. the opacity is always 255.
-pub fn gen_rgba_reliable(seed: u64) -> Rgba<u8> {
-    let seed = seed as u32;
+/// Returns a Rgb color based on a seed value. the opacity is always 255.
+pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 
     // Node
     let mut primary: Rgba<u8> = Rgba {data: [0,0,0,255]};
 
-    let rem = 255;
-    let mut min: u32 = (seed/2) % rem;
-    let mut max: u32 = seed % rem;
+    let rem: u64 = 255;
+    let mut min: u32 = ((seed/2) % rem) as u32;
+    let mut max: u32 = (seed % rem) as u32;
 
     if min > max {
         swap(&mut min, &mut max);
@@ -178,7 +176,9 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 
 /// Draws a line between two coordinate points. 
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-/// Assumes that it is not vertical (deltaX != 0)
+/// # Panics
+///
+/// delta_x == 0.00
 fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
 
     // This case is handles reversed plotting, meaning going from a larger node to a smaller one.
@@ -187,8 +187,8 @@ fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) ->
         swap(&mut y0, &mut y1);
     }
 
-    let delta_x: f64 = (x1 as i16 - x0 as i16) as f64; // TODO not pretty
-    let delta_y: f64 = (y1 as i16 - y0 as i16) as f64; // TODO not pretty
+    let delta_x: f64 = (x1 - x0) as f64; // TODO not pretty
+    let delta_y: f64 = (y1 - y0) as f64; // TODO not pretty
 
     if delta_x == 0.00 {
         panic!("Bresenham does not support straight vertical lines!");
