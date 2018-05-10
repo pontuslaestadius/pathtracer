@@ -187,8 +187,9 @@ fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) ->
         swap(&mut y0, &mut y1);
     }
 
-    let delta_x: f64 = (x1 - x0) as f64; // TODO not pretty
-    let delta_y: f64 = (y1 - y0) as f64; // TODO not pretty
+    // Convert the numbers to be isize to enable the usize values to be less than 0.
+    let delta_x: f64 = (x1 as isize - x0 as isize) as f64;
+    let delta_y: f64 = (y1 as isize - y0 as isize) as f64;
 
     if delta_x == 0.00 {
         panic!("Bresenham does not support straight vertical lines!");

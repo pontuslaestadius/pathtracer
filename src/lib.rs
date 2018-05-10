@@ -70,13 +70,13 @@ pub trait Hash {
     fn get_hash(&self) -> u64;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Square {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Circle {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Triangle {}
 
 // ------------------------------------------------------------------
@@ -98,6 +98,11 @@ impl<'a, T: Shape> Draw for Node<'a, T> {
             Some(_) => self.radius.unwrap(),
             None => size
         };
+
+        for link in self.connections.iter() {
+            image = link.draw(image, x_offset, y_offset, size, self.geo.clone());
+        }
+
         for offset in self.shape.area(size) {
             image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, self.color);
         }
@@ -123,6 +128,8 @@ impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
         }
         image
     }
+
+    // Returns the largest node that exists within the group.
     fn get_size(&self) -> u32 {
         let mut max = 0;
         for node in self.nodes.iter() {
@@ -141,17 +148,21 @@ impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
     }
 }
 
-impl<'a> Draw for Link<'a> {
+impl<'a> Link<'a> {
     /// Draws the connection using either a modified version of Bresham's line algorithm or a generic one.
-    fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
+    fn draw(&self,
+            mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+            x_offset: i16, y_offset: i16,
+            size: u32,
+            from: Coordinate
+    ) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        /*
         let x_offset = x_offset + (size/2) as i16;
         let y_offset = y_offset + (size/2) as i16;
 
         let a = Coordinate::new(
-            self.from.x +x_offset,
-            self.from.y +y_offset
+            from.x +x_offset,
+            from.y +y_offset
         );
         let b = Coordinate::new(
             self.to.x +x_offset,
@@ -162,8 +173,6 @@ impl<'a> Draw for Link<'a> {
             image.put_pixel( c.x  as u32, c.y as u32, self.color)
         ).collect::<Vec<_>>();
         image
-        */
-        panic!("New version not added.")
     }
     fn get_size(&self) -> u32 {
         1
@@ -252,6 +261,21 @@ impl Shape for Triangle {
 }
 
 // ------------------------------------------------------------------
+
+impl<'a, T: Shape> Hash for Node<'a, T> {
+    fn get_hash(&self) -> u64 {
+        self.hash
+    }
+}
+
+impl<'a, 'b, T: Shape> Hash for Group<'a, 'b, T> {
+    fn get_hash(&self) -> u64 {
+        self.settings.get_hash()
+    }
+}
+
+// ------------------------------------------------------------------
+
 
 impl Coordinate {
     /// Constructs a Coordinate struct.
@@ -456,8 +480,8 @@ impl Map {
         self
     }
 }
-/*
-impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> {
+
+impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<T> {
 
     /// Calculates the path from node A to node B.
     /// ```
@@ -496,8 +520,8 @@ impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> 
         m_elem.sort_unstable_by(
             |a, b|
                 node::coordinates::distance(
-                    a.get_coordinate().get(0).unwrap(),
-                    b.get_coordinate().get(0).unwrap())
+                    a.get_coordinate(),
+                    b.get_coordinate())
                     .cmp(&0)
         );
 
@@ -508,7 +532,6 @@ impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<'a, T> 
     }
 
 }
-*/
 
 // ------------------------------------------------------------------
 

@@ -36,7 +36,6 @@ This library contains a wrapper for image and gif encoding. Which can be used to
 let mut map = Map::new();
 map = map
     .map(&groups)
-    .map(&links);
 
 map.image.unwrap().save(&path);
 ```
