@@ -27,16 +27,17 @@ They are instantiated simply and are used drawing on a canvas.
 ```
 use pathfinder::{Coordinate, Node};
 
-let coordinates = Coordinate::new(0,0);
-let mut node = Node::new("name", coordinates);
+let a: Node<Square> = Node::new("A", Coordinate::new(0,0));
+let mut b: Node<Square> = Node::new("B", Coordinate::new(100,100));
+
+b.link(&a);
 ```
 
 This library contains a wrapper for image and gif encoding. Which can be used to easily draw up node, groups and links.
 ```
 let mut map = Map::new();
 map = map
-    .map(&groups)
-    .map(&links);
+    .map(&groups);
 
 map.image.unwrap().save(&path);
 ```
