@@ -535,6 +535,7 @@ impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<T> {
 
 // ------------------------------------------------------------------
 
+
 impl<'a> PartialEq for Link<'a> {
     fn eq(&self, other: &Link) -> bool {
         self.to == other.to

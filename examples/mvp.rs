@@ -21,4 +21,5 @@ fn main() {
 
     let nodes: Vec<Node<Square>> = [d.clone(), c.clone(), b.clone(), a.clone()].to_vec();
     let net = Network::new(nodes);
+    let path = net.path("A", "D");
 }
