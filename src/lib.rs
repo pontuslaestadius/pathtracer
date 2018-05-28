@@ -22,7 +22,7 @@ pub struct Coordinate {
 }
 
 /// A positioned object that can be drawn on an image::ImageBuffer.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Node<'a, T: Shape> {
     pub hash: u64,
     pub geo: Coordinate,
@@ -34,13 +34,13 @@ pub struct Node<'a, T: Shape> {
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
 /// The group itself has no displayed output and is not visible.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Group<'a, 'b, T: Shape> {
     pub settings: Node<'b, T>,
     pub nodes: Vec<Node<'a, T>>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
     pub add: (i16, i16),
@@ -48,13 +48,13 @@ pub struct Map {
 }
 
 /// Connects two Coordinate points.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Link<'a> {
     pub to: &'a Coordinate,
     pub color: image::Rgba<u8>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Network<T: Draw + Hash> {
     pub elements: Vec<T>,
 }
@@ -156,7 +156,7 @@ impl<'a> Link<'a> {
             size: u32,
             from: Coordinate
     ) ->
-    image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+            image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let x_offset = x_offset + (size/2) as i16;
         let y_offset = y_offset + (size/2) as i16;
 
@@ -481,42 +481,31 @@ impl Map {
     }
 }
 
-impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<T> {
+impl<'a, T: Hash + Draw + Clone> Network<T> {
 
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
-    /// let a = Node::<Square>new("A", Coordinate::new(0,0));
-    /// //let b = Node<Square>::new("B", Coordinate::new(20,20));
-    /// //let network = Network::new(Vec::new(), vec!(a, b));
+    /// let b = Node<Square>::new("B", Coordinate::new(20,20));
+    /// let mut a = Node::<Square>new("A", Coordinate::new(0,0));
+    /// a.link(&b);
+    /// let network = Network::new(vec!(a, b));
+    /// let path = network.path("A", "B", Network::path_djikstra);
+    /// assert_eq!(path, vec!(a));
     /// ```
-    pub fn path<'b>(&self, a: &str, b: &str, _algorithm: &FnOnce()) -> Vec<Link<'b>> {
-        let node_a: Node<T> = Node::new(a, Coordinate::new(0,0));
-        let _node_b: Node<T> = Node::new(b, Coordinate::new(0,0));
+    pub fn path<'b>(&self, a: &str, b: &str, _algorithm: &Fn(Self) -> Self) -> Vec<Link<'b>> {
+        let mut start: Node<Square> = Node::new(a, Coordinate::new(0,0));
+        let goal: Node<Square> = Node::new(b, Coordinate::new(0,0));
 
-        let mut current = None;
-        for (i, elem) in self.elements.iter().enumerate() {
-            if elem.get_hash() == node_a.hash {
-                current = Some(i);
-                break;
-            }
+        if !self.contains(&start) {
+            panic!("starting node '{}' not in the network", a);
         }
-
-        if current == None {
-            panic!("starting node {} does not exist.", a);
-        }
-        /*
-
-        Make a list,
-        Use insert at proper index depending on distance
-        Implement an algorithm for the rest.
-
-        */
 
         let list: Vec<(u32, usize)> = Vec::new();
-
+        // We create a clone so we can manipulate the data in place.
         let mut m_elem: Vec<T>= self.elements.clone();
 
+        /* Sort the distance between the current node and all the other nodes it is connected too. */
         m_elem.sort_unstable_by(
             |a, b|
                 node::coordinates::distance(
@@ -525,10 +514,29 @@ impl<'a, T: Shape + Hash + Ord + Draw + Clone + std::fmt::Debug> Network<T> {
                     .cmp(&0)
         );
 
-        println!("{:?}", m_elem);
+        let mut current: Node<Square> = Node::new(a, Coordinate::new(0,0));
+
+
+        while current != goal {
+            panic!("TODO")
+        }
 
         panic!("TODO")
+    }
 
+    /// Returns if the given hash exists in the network.
+    pub fn contains<H: Hash>(&self, element: &H) -> bool {
+        for elem in self.elements.iter() {
+            if elem.get_hash() == element.get_hash() {
+                return true;
+            }
+        }
+        false
+    }
+
+    // TODO
+    pub fn path_djikstra(mut self) -> Self {
+        self
     }
 
 }
