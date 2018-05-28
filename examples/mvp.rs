@@ -1,6 +1,6 @@
 extern crate pathfinder;
 
-use pathfinder::{Coordinate, Square, Node, Map, Network};
+use pathfinder::{Coordinate, Square, Node, Network};
 
 fn main() {
 
@@ -14,11 +14,11 @@ fn main() {
     d.link(&c);
 
     // let map = Map::new();
-    // let map = map.map(&[d.clone(), c.clone(), b.clone(), a.clone()]);
+    // let map = map.map(&[d.clone(), c.clone(), b.clone(), a.clone()]blu);
 
     //let path= std::path::Path::new("mvp.png");
     //let _ = map.image.unwrap().save(&path);
 
-    let net = Network::new([d, c, b, a].to_vec());
-
+    let nodes: Vec<Node<Square>> = [d.clone(), c.clone(), b.clone(), a.clone()].to_vec();
+    let net = Network::new(nodes);
 }

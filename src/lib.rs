@@ -55,7 +55,7 @@ pub struct Link<'a> {
 }
 
 #[derive(Clone)]
-pub struct Network<T: Draw + Hash + Shape> {
+pub struct Network<T: Draw + Hash> {
     pub elements: Vec<T>,
 }
 
@@ -350,7 +350,7 @@ impl<'a> Link<'a> {
     }
 }
 
-impl<T: Shape + Draw + Hash> Network<T> {
+impl<T: Draw + Hash> Network<T> {
     pub fn new(elements: Vec<T>) -> Network<T> {
         Network {
             elements,
