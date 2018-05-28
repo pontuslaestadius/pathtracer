@@ -490,10 +490,10 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
     /// let mut a = Node::<Square>new("A", Coordinate::new(0,0));
     /// a.link(&b);
     /// let network = Network::new(vec!(a, b));
-    /// let path = network.path("A", "B", Network::path_djikstra);
+    /// let path = network.path("A", "B", Network::path_shortest_leg);
     /// assert_eq!(path, vec!(a));
     /// ```
-    pub fn path<'b>(&self, a: &str, b: &str, _algorithm: &Fn(Self) -> Self) -> Vec<Link<'b>> {
+    pub fn path<'b>(&self, a: &str, b: &str, algorithm: &Fn(&Network<T>, &str, &str) -> Vec<Node<'b, Square>>) -> Vec<Node<'b, Square>> {
         let mut start: Node<Square> = Node::new(a, Coordinate::new(0,0));
         let goal: Node<Square> = Node::new(b, Coordinate::new(0,0));
 
@@ -501,27 +501,7 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
             panic!("starting node '{}' not in the network", a);
         }
 
-        let list: Vec<(u32, usize)> = Vec::new();
-        // We create a clone so we can manipulate the data in place.
-        let mut m_elem: Vec<T>= self.elements.clone();
-
-        /* Sort the distance between the current node and all the other nodes it is connected too. */
-        m_elem.sort_unstable_by(
-            |a, b|
-                node::coordinates::distance(
-                    a.get_coordinate(),
-                    b.get_coordinate())
-                    .cmp(&0)
-        );
-
-        let mut current: Node<Square> = Node::new(a, Coordinate::new(0,0));
-
-
-        while current != goal {
-            panic!("TODO")
-        }
-
-        panic!("TODO")
+        algorithm(&self, a, b)
     }
 
     /// Returns if the given hash exists in the network.
@@ -534,9 +514,75 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
         false
     }
 
-    // TODO
-    pub fn path_djikstra(mut self) -> Self {
-        self
+    /// Returns the index of the element.
+    pub fn contains_index<H: Hash>(&self, element: &H) -> Option<usize> {
+        for (i, elem) in self.elements.iter().enumerate() {
+            if elem.get_hash() == element.get_hash() {
+                return Some(i);
+            }
+        }
+        None
+    }
+
+    /// Retrieves an element given a &str.
+    pub fn get_element(&self, id: &str) -> Option<T> {
+        let mut tmp: Node<Square> = Node::new(id, Coordinate::new(0,0));
+        let goal_index_opt = self.contains_index(&tmp);
+        if goal_index_opt.is_none() {
+            return None;
+        }
+        let goal_index = goal_index_opt.unwrap();
+        let goal_opt: &T = self.elem.get(goal_index);
+        if goal_opt.is_none() {
+            return None;
+        }
+        goal_opt.unwrap()
+    }
+
+    /*
+        TODO:
+        Use any shape.
+        Remove panics.
+        Implement leg functionality.
+        Efficiently do it.
+        Simplify and remove dead code.
+    */
+    pub fn path_shortest_leg(network: &Network<T>, a: &str, b: &str) -> Vec<Node<'a, Square>> {
+        let mut node_path: Vec<Node<Square>> = Vec::new();
+        let mut m_elem: Vec<T>= network.elements.clone();
+
+        let current: Node<Square> = network.get_element(a)
+            .expect("goal does not exist in network");
+
+        let goal: Node<Square> = network.get_element(b)
+            .expect("goal does not exist in network");
+
+        // TODO borrow might complain.
+        node_path.push(current);
+        // TODO remove current from m_elem.
+
+        while current != goal {
+
+            /* Sort the distance between the current node and all the other nodes it is connected too. */
+            m_elem.sort_unstable_by(
+                |a, b|
+                    node::coordinates::distance(
+                        a.get_coordinate(),
+                        b.get_coordinate())
+                        .cmp(&0) // TODO for djikstras, replace with stacked value.
+            );
+
+            if m_elem.is_empty() {
+                panic!("Ran out of items before finding end.");
+            }
+
+            current = m_elem.remove(0);
+            node_path.push(current);
+
+            panic!("TODO");
+        }
+
+        node_path
     }
 
 }
