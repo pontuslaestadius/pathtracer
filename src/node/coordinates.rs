@@ -41,7 +41,7 @@ pub fn diff(c1: &Coordinate, c2: &Coordinate) -> (i16, i16) {
 /// ```
 pub fn distance(a: &Coordinate, b: &Coordinate) -> u32 {
     let diff = diff(a, b);
-    pythagoras::equation(diff.0, diff.1) as u32
+    pythagoras::theorem(diff.0, diff.1) as u32
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within a radius.
