@@ -87,6 +87,7 @@ pub trait Draw {
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
     fn get_coordinate(&self) -> &Coordinate;
+    fn get_links(&self) -> &Vec<Link>;
 }
 
 impl<'a, T: Shape> Draw for Node<'a, T> {
@@ -117,6 +118,10 @@ impl<'a, T: Shape> Draw for Node<'a, T> {
     fn get_coordinate(&self) -> &Coordinate {
         &self.geo
     }
+
+    fn get_links(&self) -> &Vec<Link> {
+        &self.connections
+    }
 }
 
 impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
@@ -145,6 +150,10 @@ impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
     }
     fn get_coordinate(&self) -> &Coordinate {
         self.settings.get_coordinate()
+    }
+
+    fn get_links(&self) -> &Vec<Link> {
+        &self.settings.connections
     }
 }
 
@@ -481,7 +490,7 @@ impl Map {
     }
 }
 
-impl<'a, T: Hash + Draw + Clone> Network<T> {
+impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
     /// Calculates the path from node A to node B.
     /// ```
@@ -493,12 +502,14 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
     /// let path = network.path("A", "B", Network::path_shortest_leg);
     /// assert_eq!(path, vec!(a));
     /// ```
-    pub fn path<'b>(&self, a: &str, b: &str, algorithm: &Fn(&Network<T>, &str, &str) -> Vec<Node<'b, Square>>) -> Vec<Node<'b, Square>> {
-        let mut start: Node<Square> = Node::new(a, Coordinate::new(0,0));
-        let goal: Node<Square> = Node::new(b, Coordinate::new(0,0));
+    pub fn path(&'a self, a: &str, b: &str, algorithm: &Fn(&'a Network<T>, &str, &str) -> Vec<(usize, &'a T)>) -> Vec<(usize, &'a T)> {
+        let goal: &T = self.get_element(b)
+            .expect("goal does not exist in network");
+        let start: &T = self.get_element(a)
+            .expect("start does not exist in network");
 
-        if !self.contains(&start) {
-            panic!("starting node '{}' not in the network", a);
+        if start.get_links().is_empty() {
+            return Vec::new();
         }
 
         algorithm(&self, a, b)
@@ -525,18 +536,14 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
     }
 
     /// Retrieves an element given a &str.
-    pub fn get_element(&self, id: &str) -> Option<T> {
+    pub fn get_element(&self, id: &str) -> Option<&T> {
         let mut tmp: Node<Square> = Node::new(id, Coordinate::new(0,0));
         let goal_index_opt = self.contains_index(&tmp);
         if goal_index_opt.is_none() {
             return None;
         }
         let goal_index = goal_index_opt.unwrap();
-        let goal_opt: &T = self.elem.get(goal_index);
-        if goal_opt.is_none() {
-            return None;
-        }
-        goal_opt.unwrap()
+        self.elements.get(goal_index)
     }
 
     /*
@@ -547,39 +554,36 @@ impl<'a, T: Hash + Draw + Clone> Network<T> {
         Efficiently do it.
         Simplify and remove dead code.
     */
-    pub fn path_shortest_leg(network: &Network<T>, a: &str, b: &str) -> Vec<Node<'a, Square>> {
-        let mut node_path: Vec<Node<Square>> = Vec::new();
-        let mut m_elem: Vec<T>= network.elements.clone();
+    pub fn path_shortest_leg(network: &'a Network<T>, a: &str, b: &str) -> Vec<(usize, &'a T)> {
+        let mut node_path: Vec<(usize, &T)> = Vec::new();
 
-        let current: Node<Square> = network.get_element(a)
+        let goal: &T = network.get_element(b)
             .expect("goal does not exist in network");
+        let mut current: &T = network.get_element(a)
+            .expect("start does not exist in network");
 
-        let goal: Node<Square> = network.get_element(b)
-            .expect("goal does not exist in network");
+        let mut max_loop = 100;
 
-        // TODO borrow might complain.
-        node_path.push(current);
-        // TODO remove current from m_elem.
+        while node_path.last().unwrap().1 != goal {
 
-        while current != goal {
+            if max_loop <= 0 {
+                panic!("path exceeds maximum iterations");
+            }
+            max_loop -= 1;
 
-            /* Sort the distance between the current node and all the other nodes it is connected too. */
-            m_elem.sort_unstable_by(
-                |a, b|
-                    node::coordinates::distance(
-                        a.get_coordinate(),
-                        b.get_coordinate())
-                        .cmp(&0) // TODO for djikstras, replace with stacked value.
-            );
 
-            if m_elem.is_empty() {
-                panic!("Ran out of items before finding end.");
+            let mut links = current.get_links();
+
+            let index = 0;
+
+            if current.get_links().len() == 0 {
+                panic!("dead end path"); // FIXME go back one layer of steps.
             }
 
-            current = m_elem.remove(0);
-            node_path.push(current);
+            println!("Going to: {:?}", current.get_links().get(index).unwrap().to);
 
-            panic!("TODO");
+            node_path.push((index, current));
+            current = current.get_links().get(index).unwrap().to;
         }
 
         node_path

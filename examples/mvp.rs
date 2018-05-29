@@ -1,6 +1,6 @@
 extern crate pathfinder;
 
-use pathfinder::{Coordinate, Square, Node, Network};
+use pathfinder::{Coordinate, Square, Node, Network, Draw};
 
 fn main() {
 
@@ -21,5 +21,19 @@ fn main() {
 
     let nodes: Vec<Node<Square>> = [d.clone(), c.clone(), b.clone(), a.clone()].to_vec();
     let net = Network::new(nodes);
-    let path = net.path("A", "D", &Network::path_shortest_leg);
+    let path = net.path("D", "A", &Network::path_shortest_leg);
+    print_path(&path);
+}
+
+fn print_path<T: Draw>(path: &Vec<(usize, &T)>) {
+    let mut distance = 0;
+    let mut prev = Coordinate::new(0,0);
+    for &(link_i, leg) in path.iter() {
+        let dis = pathfinder::node::coordinates::distance(&prev, &leg.get_coordinate());
+        distance += dis;
+        prev = leg.get_coordinate().clone();
+        println!("#{} ({:?}) - {}px", link_i, leg.get_coordinate(), dis);
+    }
+
+    println!("Total distance: {}", distance);
 }
