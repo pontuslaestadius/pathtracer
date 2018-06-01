@@ -583,7 +583,8 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
             println!("Going to: {:?}", current.get_links().get(index).unwrap().to);
 
             node_path.push((index, current));
-            current = current.get_links().get(index).unwrap().to;
+            panic!("TODO Implement this behavior");
+            //current = current.get_links().get(index).unwrap().to;
         }
 
         node_path
