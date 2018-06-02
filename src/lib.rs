@@ -492,6 +492,8 @@ impl Map {
 
 impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
+    /*
+
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
@@ -514,6 +516,7 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
         algorithm(&self, a, b)
     }
+    */
 
     /// Returns if the given hash exists in the network.
     pub fn contains<H: Hash>(&self, element: &H) -> bool {
