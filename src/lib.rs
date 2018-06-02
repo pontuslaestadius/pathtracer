@@ -504,6 +504,7 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
     /// let path = network.path("A", "B", Network::path_shortest_leg);
     /// assert_eq!(path, vec!(a));
     /// ```
+    */
     pub fn path(&'a self, a: &str, b: &str, algorithm: &Fn(&'a Network<T>, &str, &str) -> Vec<(usize, &'a T)>) -> Vec<(usize, &'a T)> {
         let goal: &T = self.get_element(b)
             .expect("goal does not exist in network");
@@ -516,7 +517,6 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
         algorithm(&self, a, b)
     }
-    */
 
     /// Returns if the given hash exists in the network.
     pub fn contains<H: Hash>(&self, element: &H) -> bool {
@@ -573,7 +573,6 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
                 panic!("path exceeds maximum iterations");
             }
             max_loop -= 1;
-
 
             let mut links = current.get_links();
 
