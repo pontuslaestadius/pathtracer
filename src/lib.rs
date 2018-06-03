@@ -80,7 +80,7 @@ pub struct Circle {}
 pub struct Triangle {}
 
 #[derive(Debug, Clone)]
-pub struct NULL {}
+pub struct Null {}
 
 // ------------------------------------------------------------------
 
@@ -207,12 +207,11 @@ impl<'a> Link<'a> {
 
 // ------------------------------------------------------------------
 
-impl Shape for NULL{
-    fn new() -> NULL {
-        NULL {}
+impl Shape for Null {
+    fn new() -> Null {
+       Null {}
     }
 
-    /// Returns an empty vector.
     fn area(&self, size: u32) -> Vec<Coordinate> {
         Vec::new()
     }
@@ -519,7 +518,7 @@ impl Map {
 impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
     /*
-
+    // FIXME
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
@@ -546,8 +545,9 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
     /// Returns if the given hash exists in the network.
     pub fn contains<H: Hash>(&self, element: &H) -> bool {
+        let cmp = element.get_hash();
         for elem in self.elements.iter() {
-            if elem.get_hash() == element.get_hash() {
+            if elem.get_hash() == cmp {
                 return true;
             }
         }
@@ -566,7 +566,7 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
     /// Retrieves an element given a &str.
     pub fn get_element(&self, id: &str) -> Option<&T> {
-        let mut tmp: Node<Square> = Node::new(id, Coordinate::new(0,0));
+        let mut tmp: Node<Null> = Node::new(id, Coordinate::new(0,0));
         let goal_index_opt = self.contains_index(&tmp);
         if goal_index_opt.is_none() {
             return None;
@@ -577,7 +577,6 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
 
     /*
         TODO:
-        Use any shape.
         Remove panics.
         Implement leg functionality.
         Efficiently do it.
@@ -592,16 +591,19 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
             .expect("start does not exist in network");
 
         let mut max_loop = 100;
+        node_path.push((0, current));
 
         while node_path.last().unwrap().1 != goal {
+
+
 
             if max_loop <= 0 {
                 panic!("path exceeds maximum iterations");
             }
+            
             max_loop -= 1;
 
             let mut links = current.get_links();
-
             let index = 0;
 
             if current.get_links().len() == 0 {
@@ -611,8 +613,7 @@ impl<'a, T: Hash + Draw + Clone + PartialEq> Network<T> {
             println!("Going to: {:?}", current.get_links().get(index).unwrap().to);
 
             node_path.push((index, current));
-            panic!("TODO Implement this behavior");
-            //current = current.get_links().get(index).unwrap().to;
+            current = current.get_links().get(index).unwrap().to;
         }
 
         node_path
