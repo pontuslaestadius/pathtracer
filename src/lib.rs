@@ -50,7 +50,7 @@ pub struct Map {
 /// Connects two Coordinate points.
 #[derive(Clone, Debug)]
 pub struct Link<'a> {
-    pub to: &'a Coordinate,
+    pub to: &'a Node<'a, Square>,
     pub color: image::Rgba<u8>,
 }
 
@@ -79,6 +79,28 @@ pub struct Circle {}
 #[derive(Debug, Clone)]
 pub struct Triangle {}
 
+#[derive(Debug, Clone)]
+pub struct NULL {}
+
+// ------------------------------------------------------------------
+
+
+pub trait Location {
+    fn get_coordinate(&self) -> &Coordinate;
+}
+
+impl<'a, T: Shape> Location for Node<'a, T> {
+    fn get_coordinate(&self) -> &Coordinate {
+        &self.geo
+    }
+}
+
+impl<'a, 'b, T: Shape> Location for Group<'a, 'b, T> {
+    fn get_coordinate(&self) -> &Coordinate {
+        self.settings.get_coordinate()
+    }
+}
+
 // ------------------------------------------------------------------
 
 
@@ -86,7 +108,6 @@ pub trait Draw {
     fn draw(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
-    fn get_coordinate(&self) -> &Coordinate;
     fn get_links(&self) -> &Vec<Link>;
 }
 
@@ -114,9 +135,6 @@ impl<'a, T: Shape> Draw for Node<'a, T> {
             true => 4,
             false => self.radius.unwrap(),
         }
-    }
-    fn get_coordinate(&self) -> &Coordinate {
-        &self.geo
     }
 
     fn get_links(&self) -> &Vec<Link> {
@@ -148,9 +166,6 @@ impl<'a, 'b, T: Shape> Draw for Group<'a, 'b, T> {
             None => max,
         }
     }
-    fn get_coordinate(&self) -> &Coordinate {
-        self.settings.get_coordinate()
-    }
 
     fn get_links(&self) -> &Vec<Link> {
         &self.settings.connections
@@ -173,9 +188,11 @@ impl<'a> Link<'a> {
             from.x +x_offset,
             from.y +y_offset
         );
+        let to = self.to.get_coordinate();
+
         let b = Coordinate::new(
-            self.to.x +x_offset,
-            self.to.y +y_offset
+            to.x +x_offset,
+            to.y +y_offset
         );
 
         tools::plot(&a, &b).iter().map(|c|
@@ -186,12 +203,21 @@ impl<'a> Link<'a> {
     fn get_size(&self) -> u32 {
         1
     }
-    fn get_coordinate(&self) -> &Coordinate {
-        &self.to
-    }
 }
 
 // ------------------------------------------------------------------
+
+impl Shape for NULL{
+    fn new() -> NULL {
+        NULL {}
+    }
+
+    /// Returns an empty vector.
+    fn area(&self, size: u32) -> Vec<Coordinate> {
+        Vec::new()
+    }
+}
+
 
 impl Shape for Square {
     fn new() -> Square {
@@ -351,7 +377,7 @@ impl<'a, 'b, T: Shape> Group<'a, 'b, T> {
 
 impl<'a> Link<'a> {
     /// Creates a new Link and binds two nodes together.
-    pub fn new(to: &'a Coordinate) -> Link<'a> {
+    pub fn new<L: Location>(to: &'a L) -> Link<'a> {
         Link {
             to,
             color: image::Rgba {data: [0,0,0,255]},
