@@ -37,7 +37,7 @@ pub fn sequentially_link_nodes<'a, T: Shape + Draw>(nodes: &'a mut [Node<'a, T>]
 */
 
 /// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
-pub fn min_max<T: Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
+pub fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
     let mut size: i16 = 6; // TODO
     let mut elem = Vec::new();
 
