@@ -22,7 +22,7 @@ fn main() {
     let nodes: Vec<Node<Square>> = [d.clone(), c.clone(), b.clone(), a.clone()].to_vec();
     let net = Network::new(nodes);
     let path = net.path("D", "A", &Network::path_shortest_leg);
-    //print_path(&path);
+    print_path(&path);
 }
 
 fn print_path<T: Draw>(path: &Vec<(usize, &T)>) {
