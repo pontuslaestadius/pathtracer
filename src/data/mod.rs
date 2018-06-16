@@ -8,7 +8,7 @@ use std::io;
 use super::{Group, Coordinate, Shape};
 
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a, 'b, T: Shape>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group<'a, 'b, T>>, io::Error> {
+pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group<'a, 'b>>, io::Error> {
     let content = get_content(path)?;
     Ok(convert(content, &lambda))
 }
@@ -25,7 +25,7 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
-pub fn convert<'a, 'b, T: Shape>(content: String, lambda: &Fn(&str) -> bool) -> Vec<Group<'a, 'b, T>> {
+pub fn convert<'a, 'b>(content: String, lambda: &Fn(&str) -> bool) -> Vec<Group<'a, 'b>> {
     let cct = CustomConverter::new('\n', 100, 50, 1000, &lambda);
     convert_inner(content, cct)
 }
@@ -63,8 +63,8 @@ impl<'a> CustomConverter<'a> {
 }
 
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
-pub fn convert_inner<'a, 'b, T: Shape>(content: String, cct: CustomConverter) -> Vec<Group<'a,'b, T>> {
-    let mut groups: Vec<Group<T>> = Vec::new();
+pub fn convert_inner<'a, 'b>(content: String, cct: CustomConverter) -> Vec<Group<'a,'b>> {
+    let mut groups: Vec<Group> = Vec::new();
 
     let lines = content.split(cct.split);
 
