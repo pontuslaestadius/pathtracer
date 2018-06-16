@@ -30,7 +30,7 @@ fn main() {
 
 
 
-    let mut group2: Group<Square> = Group::new(
+    let mut group2: Group = Group::new(
         &group2_name,
         group2_coordinates,
     );

@@ -44,7 +44,7 @@ fn main() {
         group3.settings.radius = Some(i/2 +1);
 
         // List of groups.
-        let mut groups: Vec<Group<Square>> = vec!(group1, group2, group3);
+        let mut groups: Vec<Group> = vec!(group1, group2, group3);
 
         let children = i*10;
 

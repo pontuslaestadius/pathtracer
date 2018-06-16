@@ -24,7 +24,7 @@ fn main() {
         (ls*8, 0), (ls*8 -hs, -hs), (ls*8 -ls, 0), (ls*8 -hs, ls), (ls*8 +hs, ls),
         (ls*9 -hs, -hs/3), (ls*9 -hs, 0), (ls*9, 0), (ls*9, hs/3)
     );
-    let mut node_vec: Vec<Node<Square>> = Vec::new();
+    let mut node_vec: Vec<Node> = Vec::new();
 
     // Add each position as a node.
     for pos in node_pos.iter() {
