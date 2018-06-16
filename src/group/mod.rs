@@ -1,4 +1,4 @@
-use super::{Group, Shape};
+use super::Group;
 use std::cmp::{min, max};
 
 /// Counts the amount of Groups and child Nodes.

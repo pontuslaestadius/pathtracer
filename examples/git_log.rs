@@ -38,7 +38,7 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let groups:Vec<Group<Circle>> = data::convert_file(log, &lambda).unwrap();
+    let groups:Vec<Group> = data::convert_file(log, &lambda).unwrap();
 
     // Count the groups and nodes.
     let (g, n) = group::count(&groups);

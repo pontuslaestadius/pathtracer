@@ -99,7 +99,6 @@ impl<'a, 'b> Location for Group<'a, 'b> {
 
 // ------------------------------------------------------------------
 
-
 pub trait Draw {
     fn draw<S: Shape>(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
