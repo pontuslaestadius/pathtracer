@@ -6,8 +6,8 @@ use super::{Node, Shape, Coordinate};
 
 pub mod coordinates;
 
-impl<'a, T: Shape> PartialEq for Node<'a, T> {
-    fn eq(&self, other: &Node<T>) -> bool {
+impl<'a> PartialEq for Node<'a> {
+    fn eq(&self, other: &Node) -> bool {
         self.hash == other.hash
     }
 }
@@ -35,7 +35,7 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
 /// assert_eq!(node.geo.x, 100);
 /// assert_eq!(node.geo.y, 50);
 /// ```
-pub fn parse<T: Shape>(str: &str) -> Node<T> {
+pub fn parse<T: Shape>(str: &str) -> Node {
 
     let string: String = str.to_string();
 

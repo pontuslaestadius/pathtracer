@@ -78,9 +78,6 @@ pub struct Circle {}
 #[derive(Debug, Clone)]
 pub struct Triangle {}
 
-#[derive(Debug, Clone)]
-pub struct NULL {}
-
 // ------------------------------------------------------------------
 
 
@@ -100,24 +97,18 @@ impl<'a, 'b> Location for Group<'a, 'b> {
     }
 }
 
-impl Location for Null {
-    fn get_coordinate(&self) -> &Coordinate {
-        Coordinate::new(0,0)
-    }
-}
-
 // ------------------------------------------------------------------
 
 
 pub trait Draw {
-    fn draw<S: Shape>(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
+    fn draw<S: Shape>(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
-    fn get_links<L: Location>(&self) -> &Vec<Link<L>>;
+    fn get_links(&self) -> &Vec<Link<Node>>;
 }
 
 impl<'a> Draw for Node<'a> {
-    fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
+    fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let x = self.geo.x +x_offset as i16;
         let y = self.geo.y +y_offset as i16;
@@ -130,7 +121,7 @@ impl<'a> Draw for Node<'a> {
             image = link.draw(image, x_offset, y_offset, size, self.geo.clone());
         }
 
-        for offset in self.shape.area(size) {
+        for offset in shape.area(size) {
             image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, self.color);
         }
         image
@@ -142,17 +133,17 @@ impl<'a> Draw for Node<'a> {
         }
     }
 
-    fn get_links<L: Location>(&self) -> &Vec<Link<L>> {
+    fn get_links(&self) -> &Vec<Link<Node>> {
         &self.connections
     }
 }
 
-impl<'a, 'b, T: Shape, L: Location> Draw for Group<'a, 'b> {
+impl<'a, 'b> Draw for Group<'a, 'b> {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
-    fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
+    fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         for node in self.nodes.iter() {
-            image = node.draw(image, x_offset, y_offset, size);
+            image = node.draw(image, x_offset, y_offset, size, shape);
         }
         image
     }
@@ -172,7 +163,7 @@ impl<'a, 'b, T: Shape, L: Location> Draw for Group<'a, 'b> {
         }
     }
 
-    fn get_links<L: Location>(&self) -> &Vec<Link<L>> {
+    fn get_links(&self) -> &Vec<Link<Node>> {
         &self.settings.connections
     }
 }
@@ -211,18 +202,6 @@ impl<'a, L: Location> Link<'a, L> {
 }
 
 // ------------------------------------------------------------------
-
-impl Shape for NULL{
-    fn new() -> NULL {
-        NULL {}
-    }
-
-    /// Returns an empty vector.
-    fn area(&self, size: u32) -> Vec<Coordinate> {
-        Vec::new()
-    }
-}
-
 
 impl Shape for Square {
     fn new() -> Square {
@@ -302,13 +281,13 @@ impl Shape for Triangle {
 
 // ------------------------------------------------------------------
 
-impl<'a, T: Shape, L: Location> Hash for Node<'a, T, L> {
+impl<'a> Hash for Node<'a> {
     fn get_hash(&self) -> u64 {
         self.hash
     }
 }
 
-impl<'a, 'b, T: Shape, L: Location> Hash for Group<'a, 'b, T, L> {
+impl<'a, 'b> Hash for Group<'a, 'b> {
     fn get_hash(&self) -> u64 {
         self.settings.get_hash()
     }
@@ -327,16 +306,15 @@ impl Coordinate {
     }
 }
 
-impl<'a, T: Shape, L: Location> Node<'a, T, L> {
+impl<'a> Node<'a> {
     /// Constructs a Node struct.
-    pub fn new(name: &str, geo: Coordinate) -> Node<'a, T, L> {
+    pub fn new(name: &str, geo: Coordinate) -> Node<'a> {
         Node {
             hash: data::calculate_hash(&name),
             geo,
             color: image::Rgba {data: [0,0,0,255]},
             radius: None,
             connections: Vec::new(),
-            shape: T::new(),
         }
     }
 
@@ -350,15 +328,15 @@ impl<'a, T: Shape, L: Location> Node<'a, T, L> {
     ///     nodeA.connections.get(0).unwrap().to,
     ///     &nodeB.geo);
     /// ```
-    pub fn link(&mut self, other: &'a Node<T, L>) {
+    pub fn link(&mut self, other: &'a Node<'a>) {
         self.connections.push(Link::new(other));
     }
 
 }
 
-impl<'a, 'b, T: Shape, L: Location> Group<'a, 'b, T, L> {
+impl<'a, 'b> Group<'a, 'b> {
     /// Constructs a new Group
-    pub fn new(name: &str, coordinates: Coordinate) -> Group<'a, 'b, T, L> {
+    pub fn new(name: &str, coordinates: Coordinate) -> Group<'a, 'b> {
         Group {
             settings: Node::new(name, coordinates),
             nodes: Vec::new(),
@@ -375,7 +353,7 @@ impl<'a, 'b, T: Shape, L: Location> Group<'a, 'b, T, L> {
     ///     groupA.settings.connections.get(0).unwrap().to,
     ///     &groupB.settings.geo);
     /// ```
-    pub fn link(&mut self, other: &'b L) {
+    pub fn link<L: Location>(&mut self, other: &'b Group) {
         self.settings.link(&other.settings);
     }
 }
@@ -407,10 +385,10 @@ impl Coordinate {
     }
 }
 
-impl<'a, 'b, T: Shape> Group<'a, 'b, T, L> {
+impl<'a, 'b> Group<'a, 'b> {
 
     /// Returns the nodes that exists inside the Group.
-    pub fn get_nodes(&self) -> &Vec<Node<T, L>> {
+    pub fn get_nodes(&self) -> &Vec<Node> {
         &self.nodes
     }
 
@@ -421,19 +399,19 @@ impl<'a, 'b, T: Shape> Group<'a, 'b, T, L> {
     }
 
     /// Adds a Node with a static distance from the center of the Group.
-    pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node<T, L> {
+    pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node {
         let geo = node::coordinates::gen_radius(&self.settings.geo, 0, min+5);
         self.new_node_inner(geo, name)
     }
 
     /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
-    pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node<T, L> {
+    pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node {
         let geo = node::coordinates::gen_radius(&self.settings.geo, min, max);
         self.new_node_inner(geo, name)
     }
 
     /// Constructs a new node for the Group and mirrors the properties to it.
-    pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node<T, L> {
+    pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node {
         let mut node = Node::new(name,geo.clone());
         node.color = self.gen_color(geo);
         node.radius = self.settings.radius;
@@ -442,12 +420,12 @@ impl<'a, 'b, T: Shape> Group<'a, 'b, T, L> {
     }
 
     /// Removes all non-essentials from the standard implementation.
-    pub fn new_simple(x: i16, y: i16) -> Group<'a, 'b, T, L> {
+    pub fn new_simple(x: i16, y: i16) -> Group<'a, 'b> {
         Group::new("", Coordinate::new(x, y))
     }
 
     /// Pushes a Node to the Group.
-    pub fn push(&mut self, node: Node<'a, T, L>) {
+    pub fn push(&mut self, node: Node<'a>) {
         self.nodes.push(node);
     }
 
@@ -509,12 +487,16 @@ impl Map {
             println!("{}x{} | {}x{} | {}", res.0, res.1, self.add.0, self.add.1, self.size);
         }
 
+        // FIXME use any shape.
+        let sq = Square::new();
+
         for e in element {
             self.image = Some(e.draw(
                 self.image.unwrap(),
                 self.add.0,
                 self.add.1,
                 self.size,
+                &sq
             ));
         }
         self
@@ -571,7 +553,7 @@ impl<'a, T: Hash + Draw + Clone + PartialEq + Location> Network<T> {
 
     /// Retrieves an element given a &str.
     pub fn get_element(&self, id: &str) -> Option<&T> {
-        let mut tmp: Node<Null> = Node::new(id, Coordinate::new(0,0));
+        let mut tmp: Node = Node::new(id, Coordinate::new(0,0));
 
         let goal_index_opt = self.contains_index(&tmp);
         if goal_index_opt.is_none() {
@@ -583,7 +565,6 @@ impl<'a, T: Hash + Draw + Clone + PartialEq + Location> Network<T> {
 
     /*
         TODO:
-        Use any shape.
         Remove panics.
         Implement leg functionality.
         Efficiently do it.
