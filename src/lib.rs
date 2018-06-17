@@ -325,7 +325,7 @@ impl<'a> Node<'a> {
     /// nodeA.link(&nodeB);
     /// assert_eq!(
     ///     nodeA.connections.get(0).unwrap().to.get_coordinate(),
-    ///     &nodeB.get_coordinate());
+    ///     nodeB.get_coordinate());
     /// ```
     pub fn link(&mut self, other: &'a Node<'a>) {
         self.connections.push(Link::new(other));
@@ -349,8 +349,8 @@ impl<'a, 'b> Group<'a, 'b> {
     /// let mut groupA: Group = Group::new("A", Coordinate::new(0,0));
     /// groupA.link(&groupB);
     /// assert_eq!(
-    ///     groupA.settings.connections.get(0).unwrap().get_coordinate(),
-    ///     &groupB.settings.get_coordinate());
+    ///     groupA.settings.connections.get(0).unwrap().to.get_coordinate(),
+    ///     groupB.settings.get_coordinate());
     /// ```
     pub fn link<L: Location>(&mut self, other: &'b Group) {
         self.settings.link(&other.settings);
