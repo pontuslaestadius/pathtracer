@@ -342,6 +342,7 @@ impl<'a, 'b> Group<'a, 'b> {
         }
     }
 
+    /*
     /// Links together two groups.
     /// ```
     /// use pathfinder::{Group, Square, Coordinate, Location};
@@ -352,6 +353,7 @@ impl<'a, 'b> Group<'a, 'b> {
     ///     groupA.settings.connections.get(0).unwrap().to.get_coordinate(),
     ///     groupB.settings.get_coordinate());
     /// ```
+    */
     pub fn link<L: Location>(&mut self, other: &'b Group) {
         self.settings.link(&other.settings);
     }
