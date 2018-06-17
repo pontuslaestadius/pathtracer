@@ -27,8 +27,8 @@ They are instantiated simply and are used drawing on a canvas.
 ```
 use pathfinder::{Coordinate, Node};
 
-let a: Node<Square> = Node::new("A", Coordinate::new(0,0));
-let mut b: Node<Square> = Node::new("B", Coordinate::new(100,100));
+let a: Node = Node::new("A", Coordinate::new(0,0));
+let mut b: Node = Node::new("B", Coordinate::new(100,100));
 
 b.link(&a);
 ```
@@ -46,5 +46,5 @@ map.image.unwrap().save(&path);
 # Planned activities
 - Better abstraction for groups of nodes.
 - More predictable node layout.
-- Integrate with piston for live-view.
-- Implement pathfinding on a linked network.
+- Integrate with piston graphical layout.
+- Add more algorithms for pathfinding on a linked network.
