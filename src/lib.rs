@@ -324,8 +324,8 @@ impl<'a> Node<'a> {
     /// let mut nodeA: Node = Node::new("A", Coordinate::new(0,0));
     /// nodeA.link(&nodeB);
     /// assert_eq!(
-    ///     nodeA.connections.get(0).unwrap().to,
-    ///     &nodeB.geo);
+    ///     nodeA.connections.get(0).unwrap().to.get_coordinate(),
+    ///     &nodeB.get_coordinate());
     /// ```
     pub fn link(&mut self, other: &'a Node<'a>) {
         self.connections.push(Link::new(other));
@@ -349,8 +349,8 @@ impl<'a, 'b> Group<'a, 'b> {
     /// let mut groupA: Group = Group::new("A", Coordinate::new(0,0));
     /// groupA.link(&groupB);
     /// assert_eq!(
-    ///     groupA.settings.connections.get(0).unwrap().to,
-    ///     &groupB.settings.geo);
+    ///     groupA.settings.connections.get(0).unwrap().get_coordinate(),
+    ///     &groupB.settings.get_coordinate());
     /// ```
     pub fn link<L: Location>(&mut self, other: &'b Group) {
         self.settings.link(&other.settings);
@@ -593,7 +593,7 @@ impl<'a> Network<Node<'a>> {
             let index = 0;
             let links = current.get_links();
             let next = links.get(index).unwrap().to;
-            
+
             if current.get_links().len() == 0 {
                 panic!("dead end path"); // FIXME go back one layer of steps.
             }
