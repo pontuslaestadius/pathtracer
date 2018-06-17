@@ -319,7 +319,7 @@ impl<'a> Node<'a> {
 
     /// Links Node self to the provided node's coordinate.
     /// ```
-    /// use pathfinder::{Node, Square, Coordinate};
+    /// use pathfinder::{Node, Square, Coordinate, Location};
     /// let nodeB: Node = Node::new("B", Coordinate::new(100,100));
     /// let mut nodeA: Node = Node::new("A", Coordinate::new(0,0));
     /// nodeA.link(&nodeB);
@@ -344,7 +344,7 @@ impl<'a, 'b> Group<'a, 'b> {
 
     /// Links together two groups.
     /// ```
-    /// use pathfinder::{Group, Square, Coordinate};
+    /// use pathfinder::{Group, Square, Coordinate, Location};
     /// let groupB: Group = Group::new("B", Coordinate::new(100,100));
     /// let mut groupA: Group = Group::new("A", Coordinate::new(0,0));
     /// groupA.link(&groupB);
