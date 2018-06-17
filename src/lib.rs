@@ -320,8 +320,8 @@ impl<'a> Node<'a> {
     /// Links Node self to the provided node's coordinate.
     /// ```
     /// use pathfinder::{Node, Square, Coordinate};
-    /// let nodeB: Node<Square> = Node::new("B", Coordinate::new(100,100));
-    /// let mut nodeA: Node<Square> = Node::new("A", Coordinate::new(0,0));
+    /// let nodeB: Node = Node::new("B", Coordinate::new(100,100));
+    /// let mut nodeA: Node = Node::new("A", Coordinate::new(0,0));
     /// nodeA.link(&nodeB);
     /// assert_eq!(
     ///     nodeA.connections.get(0).unwrap().to,
@@ -345,8 +345,8 @@ impl<'a, 'b> Group<'a, 'b> {
     /// Links together two groups.
     /// ```
     /// use pathfinder::{Group, Square, Coordinate};
-    /// let groupB: Group<Square> = Group::new("B", Coordinate::new(100,100));
-    /// let mut groupA: Group<Square> = Group::new("A", Coordinate::new(0,0));
+    /// let groupB: Group = Group::new("B", Coordinate::new(100,100));
+    /// let mut groupA: Group = Group::new("A", Coordinate::new(0,0));
     /// groupA.link(&groupB);
     /// assert_eq!(
     ///     groupA.settings.connections.get(0).unwrap().to,
@@ -466,7 +466,7 @@ impl Map {
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
     /// ```
     /// use pathfinder::*;
-    /// let nodes: Vec<Node<Square>> = vec!(
+    /// let nodes: Vec<Node> = vec!(
     ///     Node::new("1", Coordinate::new(0,0)),
     ///     Node::new("2", Coordinate::new(100,100))
     /// );
@@ -509,8 +509,8 @@ impl<'a> Network<Node<'a>> {
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
-    /// let b = Node<Square>::new("B", Coordinate::new(20,20));
-    /// let mut a = Node::<Square>new("A", Coordinate::new(0,0));
+    /// let b = Node::new("B", Coordinate::new(20,20));
+    /// let mut a = Node::new("A", Coordinate::new(0,0));
     /// a.link(&b);
     /// let network = Network::new(vec!(a, b));
     /// let path = network.path("A", "B", Network::path_shortest_leg);
@@ -518,7 +518,7 @@ impl<'a> Network<Node<'a>> {
     /// ```
     */
     pub fn path(&'a self, a: &str, b: &str, algorithm: &Fn(&'a Network<Node<'a>>, &str, &str) -> Vec<(usize, &'a Node<'a>)>) -> Vec<(usize, &'a Node<'a>)> {
-        let goal = self.get_element(b)
+        let _goal = self.get_element(b)
             .expect("goal does not exist in network");
         let start = self.get_element(a)
             .expect("start does not exist in network");
@@ -552,7 +552,7 @@ impl<'a> Network<Node<'a>> {
 
     /// Retrieves an element given a &str.
     pub fn get_element(&self, id: &str) -> Option<&Node<'a>> {
-        let mut tmp: Node = Node::new(id, Coordinate::new(0,0));
+        let tmp: Node = Node::new(id, Coordinate::new(0,0));
 
         let goal_index_opt = self.contains_index(&tmp);
         if goal_index_opt.is_none() {
@@ -575,7 +575,7 @@ impl<'a> Network<Node<'a>> {
 
         let goal = network.get_element(b)
             .expect("goal does not exist in network");
-        let mut first = network.get_element(a)
+        let first = network.get_element(a)
             .expect("start does not exist in network");
 
         let mut max_loop = 100;
@@ -583,21 +583,21 @@ impl<'a> Network<Node<'a>> {
 
         while node_path.last().unwrap().1.get_coordinate() != goal.get_coordinate() {
 
-            let mut current: &Node = node_path.last().unwrap().1;
+            let current: &Node = node_path.last().unwrap().1;
 
             if max_loop <= 0 {
                 panic!("path exceeds maximum iterations");
             }
             max_loop -= 1;
 
-            let mut links = current.get_links();
             let index = 0;
-
+            let links = current.get_links();
+            let next = links.get(index).unwrap().to;
+            
             if current.get_links().len() == 0 {
                 panic!("dead end path"); // FIXME go back one layer of steps.
             }
 
-            let next = current.get_links().get(index).unwrap().to;
             println!("Going to: {:?}", next);
 
             node_path.push((index, next));
