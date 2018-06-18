@@ -58,6 +58,11 @@ pub struct Network<T: Draw + Hash> {
     pub elements: Vec<T>,
 }
 
+#[derive(Clone, Debug)]
+pub struct NetworkPath<L: Location> {
+    pub legs: Vec<L>,
+}
+
 // ------------------------------------------------------------------
 
 pub trait Shape {
@@ -342,7 +347,7 @@ impl<'a, 'b> Group<'a, 'b> {
         }
     }
 
-    /*
+    /* FIXME
     /// Links together two groups.
     /// ```
     /// use pathfinder::{Group, Square, Coordinate, Location};
@@ -516,10 +521,10 @@ impl<'a> Network<Node<'a>> {
     /// a.link(&b);
     /// let network = Network::new(vec!(a, b));
     /// let path = network.path("A", "B", Network::path_shortest_leg);
-    /// assert_eq!(path, vec!(a));
+    /// assert_eq!(path, vec!(&a));
     /// ```
     */
-    pub fn path(&'a self, a: &str, b: &str, algorithm: &Fn(&'a Network<Node<'a>>, &str, &str) -> Vec<(usize, &'a Node<'a>)>) -> Vec<(usize, &'a Node<'a>)> {
+    pub fn path(&'a self, a: &str, b: &str, algorithm: &Fn(&'a Network<Node<'a>>, &str, &str) -> NetworkPath<&'a Node<'a>>) -> NetworkPath<&'a Node<'a>> {
         let _goal = self.get_element(b)
             .expect("goal does not exist in network");
         let start = self.get_element(a)
@@ -571,7 +576,7 @@ impl<'a> Network<Node<'a>> {
         Efficiently do it.
         Simplify and remove dead code.
     */
-    pub fn path_shortest_leg(network: &'a Network<Node<'a>>, a: &str, b: &str) -> Vec<(usize, &'a Node<'a>)> {
+    pub fn path_shortest_leg(network: &'a Network<Node<'a>>, a: &str, b: &str) -> NetworkPath<&'a Node<'a>> {
 
         let mut node_path: Vec<(usize, &Node)> = Vec::new();
 
@@ -607,6 +612,7 @@ impl<'a> Network<Node<'a>> {
 
         node_path
     }
+
 
 }
 

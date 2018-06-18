@@ -2,7 +2,6 @@
 
 extern crate pathfinder;
 
-use pathfinder::map::*;
 use pathfinder::*;
 use std::path::Path;
 
@@ -24,6 +23,7 @@ fn main() {
         (ls*8, 0), (ls*8 -hs, -hs), (ls*8 -ls, 0), (ls*8 -hs, ls), (ls*8 +hs, ls),
         (ls*9 -hs, -hs/3), (ls*9 -hs, 0), (ls*9, 0), (ls*9, hs/3)
     );
+
     let mut node_vec: Vec<Node> = Vec::new();
 
     // Add each position as a node.
@@ -34,15 +34,11 @@ fn main() {
         node_vec.push(node);
     }
 
-    // Link them sequentially in order.
-    //let link_vec = sequentially_link_nodes(&node_vec);
-
     let path = Path::new("hello_world.png");
 
     let mut map = Map::new();
     map = map
         .map(&node_vec);
-       // .map(&link_vec);
 
     let _ = map.image.unwrap().save(&path);
 }
