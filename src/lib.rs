@@ -317,6 +317,28 @@ impl<'a> Node<'a> {
         }
     }
 
+
+    /// Converts a list of tuples (x,y) to a Vector of Nodes. 
+    /// Names are assigned from "A" and upwards automatically.
+    /// ```
+    /// use pathfinder::Node;
+    /// let list = [(0,0), (10, 10), (15, 15)];
+    /// let nodes = Node::from_list(&list);
+    /// assert_eq!(nodes.len(), 3);
+    /// ```
+    pub fn from_list<'z>(list: &[(i16, i16)]) -> Vec<Node<'z>> { 
+        let mut nodes: Vec<Node> = Vec::new();
+        for (i, &(x,y)) in list.iter().enumerate() {
+            nodes.push(
+                Node::new(
+                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
+                    Coordinate::new(x,y)
+                    )
+                );
+        }
+        return nodes;
+    }
+
     /// Links Node self to the provided node's coordinate.
     /// ```
     /// use pathfinder::{Node, Square, Coordinate, Location};
