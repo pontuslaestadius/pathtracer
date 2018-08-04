@@ -88,7 +88,6 @@ mod tests {
             let co2: Coordinate = Coordinate::new(9999, 9999);
             assert_eq!(co1 == co1.clone(), true);
             assert_eq!(co2 == co2.clone(), true);
-
         }
     }
 
@@ -104,7 +103,6 @@ mod tests {
             assert_eq!(border(0, 255), 255);
 
             assert_eq!(border(255, 0), 255);
-            assert_eq!(border(255, -255), 0);
             assert_eq!(border(255, -255), 0);
             assert_eq!(border(100, 100), 200);
         }
