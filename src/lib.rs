@@ -320,6 +320,7 @@ impl<'a> Node<'a> {
 
     /// Converts a list of tuples (x,y) to a Vector of Nodes. 
     /// Names are assigned from "A" and upwards automatically.
+    ///
     /// ```
     /// use pathfinder::Node;
     /// let list = [(0,0), (10, 10), (15, 15)];
@@ -339,15 +340,52 @@ impl<'a> Node<'a> {
         return nodes;
     }
 
-    /// Links Node self to the provided node's coordinate.
+    /// Looks through all connected Nodes and returns if they are connected. 
+    pub fn is_connected(&self, other: &Node) -> bool {
+        for ref link in &self.connections {
+            if  link.to == other ||
+                link.to.is_connected(other) 
+                {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+    /// Links a list of nodes together in the order they are indexed.
+    /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    ///
     /// ```
-    /// use pathfinder::{Node, Square, Coordinate, Location};
-    /// let nodeB: Node = Node::new("B", Coordinate::new(100,100));
-    /// let mut nodeA: Node = Node::new("A", Coordinate::new(0,0));
-    /// nodeA.link(&nodeB);
-    /// assert_eq!(
-    ///     nodeA.connections.get(0).unwrap().to.get_coordinate(),
-    ///     nodeB.get_coordinate());
+    /// use pathfinder::Node;
+    /// let nodes = Node::from_list(&[(0,0), (20, 20)]);
+    /// let linked_list = Node::linked_list(nodes);
+    /// assert_eq!(linked_list.len(), 3);
+    /// let result = linked_list..get(0).unwrap()
+    ///     .is_connected(linked_list..get(2).unwrap()), true);
+    /// assert_eq!(result, true);
+    /// ```
+    pub fn linked_list(mut list: Vec<Node>) -> Vec<Node> {
+        let mut listc = Vec::new();
+        while !list.is_empty() {
+            let mut tmp = list.remove(0);
+            if !listc.is_empty() {
+                tmp.link(list.get(list.len() -1).unwrap());
+            }
+            listc.push(tmp);
+        }
+        return listc;
+    }
+    */
+
+    /// Links Node self to the provided node's coordinate.
+    ///
+    /// ```
+    /// use pathfinder::{Node, Coordinate, Location};
+    /// let b: Node = Node::new("B", Coordinate::new(100,100));
+    /// let mut a: Node = Node::new("A", Coordinate::new(0,0));
+    /// a.link(&b);
+    /// assert_eq!(a.is_connected(&b), true);
     /// ```
     pub fn link(&mut self, other: &'a Node<'a>) {
         self.connections.push(Link::new(other));
@@ -364,6 +402,26 @@ impl<'a, 'b> Group<'a, 'b> {
         }
     }
 
+    /// Converts a list of tuples (x,y) to a Vector of Groups. 
+    /// Names are assigned from "A" and upwards automatically.
+    ///
+    /// ```
+    /// use pathfinder::Group;
+    /// let list = [(0,0), (10, 10), (15, 15)];
+    /// let groups = Group::from_list(&list);
+    /// assert_eq!(groups.len(), 3);
+    /// ```
+    pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group<'z, 'k>> { 
+        let mut result: Vec<Group> = Vec::new();
+        for (i, &(x,y)) in list.iter().enumerate() {
+            result.push(
+                Group::new(
+                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
+                    Coordinate::new(x,y))
+                );
+        }
+        return result;
+    }
     /*
     /// Links together two groups.
     /// ```
@@ -488,6 +546,7 @@ impl Map {
     }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
+    ///
     /// ```
     /// use pathfinder::*;
     /// let nodes: Vec<Node> = vec!(

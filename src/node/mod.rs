@@ -27,6 +27,7 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
 }
 
 /// Parses a static str to a Node.
+///
 /// ```
 /// use pathfinder::node;
 /// use pathfinder::Square;
