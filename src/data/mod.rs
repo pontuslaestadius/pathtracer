@@ -103,7 +103,6 @@ pub fn convert_inner<'a, 'b>(content: String, cct: CustomConverter) -> Vec<Group
                     gen_radius(&coordinates, 0, cct.radius),
                 );
 
-                let len = group.nodes.len() as u32;
                 group.new_node_min_auto("", cct.node_range); // TODO don't use empty str.
                 group.settings.color = gen_rgba();
                 groups.push(group);
