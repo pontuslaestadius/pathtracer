@@ -2,7 +2,6 @@
 
 extern crate pathfinder;
 
-use pathfinder::map::*;
 use pathfinder::*;
 use std::path::Path;
 
@@ -11,7 +10,8 @@ fn main() {
     let hs = ls/2; // Letter spacing half.
 
     // TODO improve, by using a SVG or something.
-    // This is a "small" list of positions required to make a figure!
+    // Each line represents one character, spelling out:
+    // P A T H F I N D E R
     let node_pos: Vec<(i16, i16)> = vec!(
         (0,0), (hs, -hs), (0, -ls), (0, ls),
         (ls, -hs), (ls+hs, ls), (hs, 0), (ls*2 +hs, 0),
@@ -24,25 +24,13 @@ fn main() {
         (ls*8, 0), (ls*8 -hs, -hs), (ls*8 -ls, 0), (ls*8 -hs, ls), (ls*8 +hs, ls),
         (ls*9 -hs, -hs/3), (ls*9 -hs, 0), (ls*9, 0), (ls*9, hs/3)
     );
-    let mut node_vec: Vec<Node> = Vec::new();
-
-    // Add each position as a node.
-    for pos in node_pos.iter() {
-        let mut node = Node::new("", Coordinate::new(pos.0,pos.1));
-        node.radius = Some(10);
+    let mut nodes = Node::from_list(&node_pos);
+    for node in nodes.iter_mut() {
         node.color = tools::gen_rgba();
-        node_vec.push(node);
     }
 
-    // Link them sequentially in order.
-    //let link_vec = sequentially_link_nodes(&node_vec);
-
-    let path = Path::new("hello_world.png");
-
+    let path = Path::new("out.png");
     let mut map = Map::new();
-    map = map
-        .map(&node_vec);
-       // .map(&link_vec);
-
+    map = map.map(&nodes);
     let _ = map.image.unwrap().save(&path);
 }

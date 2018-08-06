@@ -83,17 +83,42 @@ pub struct Triangle {}
 
 pub trait Location {
     fn get_coordinate(&self) -> &Coordinate;
+    fn get_parameters(&self) -> (Coordinate, Coordinate);
 }
 
 impl<'a> Location for Node<'a> {
     fn get_coordinate(&self) -> &Coordinate {
         &self.geo
     }
+
+    fn get_parameters(&self) -> (Coordinate, Coordinate) {
+        (self.geo.clone(), self.geo.clone())
+    }
 }
 
 impl<'a, 'b> Location for Group<'a, 'b> {
     fn get_coordinate(&self) -> &Coordinate {
         self.settings.get_coordinate()
+    }
+
+    fn get_parameters(&self) -> (Coordinate, Coordinate) { 
+        let mut min_x: i16 = 0;
+        let mut min_y: i16 = 0;
+        let mut max_x: i16 = 0;
+        let mut max_y: i16 = 0;
+            
+        for node in self.nodes.iter() {
+
+            let (min,max) = node.get_parameters();
+
+            max_x = std::cmp::max(max_x, max.x);
+            min_x = std::cmp::min(min_x, min.x);
+            max_y = std::cmp::max(max_y, max.y);
+            min_y = std::cmp::min(min_y, min.y);
+    }
+
+        (Coordinate::new(min_x, min_y), 
+         Coordinate::new(max_x, max_y))
     }
 }
 
@@ -121,7 +146,9 @@ impl<'a> Draw for Node<'a> {
         }
 
         for offset in shape.area(size) {
-            image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, self.color);
+            let xo = (x +offset.x) as u32; 
+            let yo = (y +offset.y) as u32;
+            image.put_pixel(xo,yo, self.color);
         }
         image
     }
@@ -317,15 +344,75 @@ impl<'a> Node<'a> {
         }
     }
 
-    /// Links Node self to the provided node's coordinate.
+
+    /// Converts a list of tuples (x,y) to a Vector of Nodes. 
+    /// Names are assigned from "A" and upwards automatically.
+    ///
     /// ```
-    /// use pathfinder::{Node, Square, Coordinate, Location};
-    /// let nodeB: Node = Node::new("B", Coordinate::new(100,100));
-    /// let mut nodeA: Node = Node::new("A", Coordinate::new(0,0));
-    /// nodeA.link(&nodeB);
-    /// assert_eq!(
-    ///     nodeA.connections.get(0).unwrap().to.get_coordinate(),
-    ///     nodeB.get_coordinate());
+    /// use pathfinder::Node;
+    /// let list = [(0,0), (10, 10), (15, 15)];
+    /// let nodes = Node::from_list(&list);
+    /// assert_eq!(nodes.len(), 3);
+    /// ```
+    pub fn from_list<'z>(list: &[(i16, i16)]) -> Vec<Node<'z>> { 
+        let mut nodes: Vec<Node> = Vec::new();
+        for (i, &(x,y)) in list.iter().enumerate() {
+            nodes.push(
+                Node::new(
+                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
+                    Coordinate::new(x,y)
+                    )
+                );
+        }
+        return nodes;
+    }
+
+    /// Looks through all connected Nodes and returns if they are connected. 
+    pub fn is_connected(&self, other: &Node) -> bool {
+        for ref link in &self.connections {
+            if  link.to == other ||
+                link.to.is_connected(other) 
+                {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+    /// Links a list of nodes together in the order they are indexed.
+    /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    ///
+    /// ```
+    /// use pathfinder::Node;
+    /// let nodes = Node::from_list(&[(0,0), (20, 20)]);
+    /// let linked_list = Node::linked_list(nodes);
+    /// assert_eq!(linked_list.len(), 3);
+    /// let result = linked_list..get(0).unwrap()
+    ///     .is_connected(linked_list..get(2).unwrap()), true);
+    /// assert_eq!(result, true);
+    /// ```
+    pub fn linked_list(mut list: Vec<Node>) -> Vec<Node> {
+        let mut listc = Vec::new();
+        while !list.is_empty() {
+            let mut tmp = list.remove(0);
+            if !listc.is_empty() {
+                tmp.link(list.get(list.len() -1).unwrap());
+            }
+            listc.push(tmp);
+        }
+        return listc;
+    }
+    */
+
+    /// Links Node self to the provided node's coordinate.
+    ///
+    /// ```
+    /// use pathfinder::{Node, Coordinate, Location};
+    /// let b: Node = Node::new("B", Coordinate::new(100,100));
+    /// let mut a: Node = Node::new("A", Coordinate::new(0,0));
+    /// a.link(&b);
+    /// assert_eq!(a.is_connected(&b), true);
     /// ```
     pub fn link(&mut self, other: &'a Node<'a>) {
         self.connections.push(Link::new(other));
@@ -342,6 +429,26 @@ impl<'a, 'b> Group<'a, 'b> {
         }
     }
 
+    /// Converts a list of tuples (x,y) to a Vector of Groups. 
+    /// Names are assigned from "A" and upwards automatically.
+    ///
+    /// ```
+    /// use pathfinder::Group;
+    /// let list = [(0,0), (10, 10), (15, 15)];
+    /// let groups = Group::from_list(&list);
+    /// assert_eq!(groups.len(), 3);
+    /// ```
+    pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group<'z, 'k>> { 
+        let mut result: Vec<Group> = Vec::new();
+        for (i, &(x,y)) in list.iter().enumerate() {
+            result.push(
+                Group::new(
+                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
+                    Coordinate::new(x,y))
+                );
+        }
+        return result;
+    }
     /*
     /// Links together two groups.
     /// ```
@@ -383,6 +490,14 @@ impl Coordinate {
     // Calculates the different in x and y of two Coordinates.
     pub fn diff(&self, other: &Coordinate) -> (i16, i16) {
         node::coordinates::diff(&self, other)
+    }
+
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> { 
+        let mut result: Vec<Coordinate> = Vec::new();
+        for &(x,y) in list.iter() {
+            result.push(Coordinate::new(x,y));
+        }
+        return result;
     }
 }
 
@@ -466,6 +581,7 @@ impl Map {
     }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
+    ///
     /// ```
     /// use pathfinder::*;
     /// let nodes: Vec<Node> = vec!(
@@ -485,7 +601,7 @@ impl Map {
             let res = map::gen_map_dimensions(min_max);
             // Generates an image buffer.
             self.image = Some(map::gen_canvas(res.0, res.1));
-            println!("{}x{} | {}x{} | {}", res.0, res.1, self.add.0, self.add.1, self.size);
+            println!("Dimensions: {}x{} | Min/Max: {:?} | Offset: {}x{} | Size: {}", res.0, res.1, min_max, self.add.0, self.add.1, self.size);
         }
 
         // FIXME use any shape.

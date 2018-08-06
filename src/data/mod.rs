@@ -1,5 +1,6 @@
 
 use node::coordinates::*;
+use tools::gen_rgba;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
 use std::hash::{Hash, Hasher};
@@ -26,7 +27,7 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
 pub fn convert<'a, 'b>(content: String, lambda: &Fn(&str) -> bool) -> Vec<Group<'a, 'b>> {
-    let cct = CustomConverter::new('\n', 100, 50, 1000, &lambda);
+    let cct = CustomConverter::new('\n', 50, 50, &lambda);
     convert_inner(content, cct)
 }
 
@@ -47,7 +48,6 @@ impl<'a> CustomConverter<'a> {
         split: char,
         node_range: u32,
         radius: u32,
-        size: u64,
         lambda_tag: &'a Fn(&str) -> bool)
         -> CustomConverter
     {
@@ -55,7 +55,7 @@ impl<'a> CustomConverter<'a> {
             split,
             node_range,
             radius,
-            size,
+            size: 1000,
             lambda_tag,
             ignore_empty_lines: true,
         }
@@ -75,9 +75,7 @@ pub fn convert_inner<'a, 'b>(content: String, cct: CustomConverter) -> Vec<Group
 
     for line in lines {
         // Ignore empty lines.
-        if cct.ignore_empty_lines {
-            if line == "" {continue};
-        }
+        if cct.ignore_empty_lines && line == "" {continue};
 
         // Pick up tagged lines.
         if (cct.lambda_tag)(line) {
@@ -104,10 +102,9 @@ pub fn convert_inner<'a, 'b>(content: String, cct: CustomConverter) -> Vec<Group
                     &line,
                     gen_radius(&coordinates, 0, cct.radius),
                 );
-                group.settings.radius = Some(cct.radius/4);
 
-                let len = group.nodes.len() as u32;
-                group.new_node_min_auto("", len); // TODO don't use empty str.
+                group.new_node_min_auto("", cct.node_range); // TODO don't use empty str.
+                group.settings.color = gen_rgba();
                 groups.push(group);
             }
 
