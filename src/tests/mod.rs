@@ -5,6 +5,48 @@ mod tests {
     // Each nested module represents one file that is being tested.
     // ------------------------------------------------------------
 
+    // Seperate from other tests, since it tests from_list for all 
+    // classes that have it.
+    mod from_list {
+
+        use Coordinate;
+        use Node;
+        use Group;
+
+        // List used for calling from_list tests.
+        fn get_list<'a>() -> &'a [(i16,i16); 8] {
+        &[
+            (0, 0), // Default test,
+            (100, 100), // Two positive values test,
+            (50, -50), // One positive one negative test.
+            (-9999, 9999), // Larger values test.
+            (0, 1), // Close to zero test.
+            (-1, -1), // Close to zero double negative test.
+            (0, 0), // Duplicate of default test.
+            (-9990, -9999) // Two large negative numbers test.
+        ]
+        }
+
+        #[test]
+        fn coordinate() {
+            let result = Coordinate::from_list(get_list());
+            assert_eq!(result.len(), 8);
+        }
+
+        #[test]
+        fn node() {
+            let result = Node::from_list(get_list());
+            assert_eq!(result.len(), 8);
+        }
+
+        #[test]
+        fn group() {
+            let result = Group::from_list(get_list());
+            assert_eq!(result.len(), 8);
+        }
+        
+    }
+
     mod coordinates {
         use Coordinate;
         use node::coordinates::{gen_radius, gen_within_radius};
@@ -88,7 +130,6 @@ mod tests {
             let co2: Coordinate = Coordinate::new(9999, 9999);
             assert_eq!(co1 == co1.clone(), true);
             assert_eq!(co2 == co2.clone(), true);
-
         }
     }
 
@@ -104,7 +145,6 @@ mod tests {
             assert_eq!(border(0, 255), 255);
 
             assert_eq!(border(255, 0), 255);
-            assert_eq!(border(255, -255), 0);
             assert_eq!(border(255, -255), 0);
             assert_eq!(border(100, 100), 200);
         }
