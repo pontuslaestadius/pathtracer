@@ -83,17 +83,42 @@ pub struct Triangle {}
 
 pub trait Location {
     fn get_coordinate(&self) -> &Coordinate;
+    fn get_parameters(&self) -> (Coordinate, Coordinate);
 }
 
 impl<'a> Location for Node<'a> {
     fn get_coordinate(&self) -> &Coordinate {
         &self.geo
     }
+
+    fn get_parameters(&self) -> (Coordinate, Coordinate) {
+        (self.geo.clone(), self.geo.clone())
+    }
 }
 
 impl<'a, 'b> Location for Group<'a, 'b> {
     fn get_coordinate(&self) -> &Coordinate {
         self.settings.get_coordinate()
+    }
+
+    fn get_parameters(&self) -> (Coordinate, Coordinate) { 
+        let mut min_x: i16 = 0;
+        let mut min_y: i16 = 0;
+        let mut max_x: i16 = 0;
+        let mut max_y: i16 = 0;
+            
+        for node in self.nodes.iter() {
+
+            let (min,max) = node.get_parameters();
+
+            max_x = std::cmp::max(max_x, max.x);
+            min_x = std::cmp::min(min_x, min.x);
+            max_y = std::cmp::max(max_y, max.y);
+            min_y = std::cmp::min(min_y, min.y);
+    }
+
+        (Coordinate::new(min_x, min_y), 
+         Coordinate::new(max_x, max_y))
     }
 }
 
@@ -121,7 +146,9 @@ impl<'a> Draw for Node<'a> {
         }
 
         for offset in shape.area(size) {
-            image.put_pixel((x +offset.x) as u32, (y +offset.y) as u32, self.color);
+            let xo = (x +offset.x) as u32; 
+            let yo = (y +offset.y) as u32;
+            image.put_pixel(xo,yo, self.color);
         }
         image
     }
@@ -566,7 +593,7 @@ impl Map {
             let res = map::gen_map_dimensions(min_max);
             // Generates an image buffer.
             self.image = Some(map::gen_canvas(res.0, res.1));
-            println!("{}x{} | {}x{} | {}", res.0, res.1, self.add.0, self.add.1, self.size);
+            println!("Dimensions: {}x{} | Min/Max: {:?} | Offset: {}x{} | Size: {}", res.0, res.1, min_max, self.add.0, self.add.1, self.size);
         }
 
         // FIXME use any shape.

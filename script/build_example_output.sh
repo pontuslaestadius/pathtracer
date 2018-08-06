@@ -1,5 +1,6 @@
 REPOROOT="$(git rev-parse --show-toplevel)"
 cd "$REPOROOT/examples"
+rm out/*
 
 for file in *.rs
 do
@@ -13,7 +14,7 @@ do
     for out in $PWD/out.*
     do
         ext="${out##*.}"
-        mv "$out" "$file.$ext"
+        mv "$out" "out/$file.$ext"
     done
 done
 

@@ -2,6 +2,7 @@ extern crate image;
 
 use image::Rgba;
 use super::*;
+use std::cmp;
 
 pub mod network;
 pub mod gif;
@@ -38,27 +39,25 @@ pub fn sequentially_link_nodes<'a, T: Shape + Draw>(nodes: &'a mut [Node<'a, T>]
 
 /// Finds the min and max Nodes and returns ((minX, minY),(maxX, maxY))
 pub fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
-    let mut size: i16 = 6; // TODO
-    let mut elem = Vec::new();
-
-    for item in list {
-        let tmp = item.get_size();
-        if tmp as i16 > size {size = tmp as i16;}
-        elem.push(item.get_coordinate())
-    }
+    let mut size: i16 = 4;
 
     let mut min_x: i16 = 0;
     let mut min_y: i16 = 0;
     let mut max_x: i16 = 0;
     let mut max_y: i16 = 0;
-    // Iterates over the nodes and finds the minimum and maximum x and y values.
-    for c in elem.iter() {
-        if c.x > max_x { max_x = c.x; }
-        if min_x > c.x { min_x = c.x; }
-        if c.y > max_y { max_y = c.y; }
-        if min_y > c.y { min_y = c.y; }
+
+    for item in list {
+        size = cmp::max(size, item.get_size() as i16);
+
+        let (min,max) = item.get_parameters();
+
+        max_x = cmp::max(max_x, max.x);
+        min_x = cmp::min(min_x, min.x);
+        max_y = cmp::max(max_y, max.y);
+        min_y = cmp::min(min_y, min.y);
     }
 
+    // We add a safety border using size.
     ((min_x -size, max_x +size), (min_y -size, max_y +size))
 }
 
