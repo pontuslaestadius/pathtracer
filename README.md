@@ -9,13 +9,13 @@ It handles text interpretation and data visualisation based on input files.
 # Examples
 Inside the examples directory you can find example implementations of common functions. Along with some output examples. The following are constructed from /examples.
 
-![Pathfinder Logotype](out/examples/hello_world.png "Logo")
+![Pathfinder Logotype](examples/out/hello_world.png "Logo")
 
-![Pathfinder Logotype_gif](out/examples/hello_world_gif.gif "Gif")
+![Pathfinder Logotype_gif](examples/out/hello_world_gif.gif "Gif")
 
-![Groups example](out/examples/random.png "Groups")
+![Groups example](examples/out/random.png "Groups")
 
-![Data Visualization](out/examples/git_log.png "Data")
+![Data Visualization](examples/out/git_log.png "Data")
 
 A Node is the primary focus. As it's properties are reflected for Groups of nodes as well.
 They are instantiated simply and are used drawing on a canvas.
