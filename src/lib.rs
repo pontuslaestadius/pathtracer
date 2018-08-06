@@ -491,6 +491,14 @@ impl Coordinate {
     pub fn diff(&self, other: &Coordinate) -> (i16, i16) {
         node::coordinates::diff(&self, other)
     }
+
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> { 
+        let mut result: Vec<Coordinate> = Vec::new();
+        for &(x,y) in list.iter() {
+            result.push(Coordinate::new(x,y));
+        }
+        return result;
+    }
 }
 
 impl<'a, 'b> Group<'a, 'b> {
