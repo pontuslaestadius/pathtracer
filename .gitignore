@@ -2,4 +2,3 @@ target/
 .idea/
 push.config
 resources/*
-*.png
