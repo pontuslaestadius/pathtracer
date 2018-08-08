@@ -6,7 +6,10 @@ It handles text interpretation and data visualisation based on input files.
  
 [Documentation](https://docs.rs/pathfinder/0.3.8/pathfinder/)
 
-# Examples
+Test coverage: 21%
+
+# Preview
+
 Inside the examples directory you can find example implementations of common functions. Along with some output examples. The following are constructed from /examples.
 
 ![Pathfinder Logotype](examples/out/hello_world.png "Logo")
@@ -17,31 +20,22 @@ Inside the examples directory you can find example implementations of common fun
 
 ![Data Visualization](examples/out/git_log.png "Data")
 
-A Node is the primary focus. As it's properties are reflected for Groups of nodes as well.
-They are instantiated simply and are used drawing on a canvas.
+# Example
+
+Each struct has access to the Map wrapper, which can be used to easily draw up Nodes, Groups and Links. Groups can be generated simply using add_children.
 
 ```
-use pathfinder::{Coordinate, Node};
+extern crate pathfinder;
+use pathfinder::Group;
+use pathfinder::map::network;
+use std::path::Path;
 
-let a: Node = Node::new("A", Coordinate::new(0,0));
-let mut b: Node = Node::new("B", Coordinate::new(100,100));
-
-b.link(&a);
-```
-
-This library contains a wrapper for image and gif encoding. Which can be used to easily draw up node, groups and links.
-
-```
+let mut groups = Group::from_list([(0, 0), (100, 100)]);
+for group in groups.iter_mut() {
+    network::add_children(&mut group, 100);
+}
 let mut map = Map::new();
-map = map
-    .map(&groups)
-    .map(&nodes);
-
-map.image.unwrap().save(&path);
+map.map(&groups)
+   .image.unwrap().save(&Path::new("out.png"));
 ```
 
-# Planned activities
-- Functioning pathing algorithms.
-- Linking nodes more easier.
-- More predictable node layout.
-- Add more algorithms for pathfinding on a linked network.
