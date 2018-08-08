@@ -23,7 +23,7 @@ fn print_path<T: Draw + Location>(path: &Vec<(usize, &T)>) {
     let mut distance = 0;
     let mut prev = Coordinate::new(0,0);
     for &(link_i, leg) in path.iter() {
-        let dis = pathfinder::node::coordinates::distance(&prev, &leg.get_coordinate());
+        let dis = pathfinder::node::coordinates::distance(prev, leg.get_coordinate());
         distance += dis;
         prev = leg.get_coordinate().clone();
         println!("#{} ({:?}) - {}px", link_i, leg.get_coordinate(), dis);

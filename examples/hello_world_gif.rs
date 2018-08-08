@@ -47,6 +47,6 @@ fn main() {
         }
 
         let mapped_struct = map_struct.map(&groups);
-        gif_struct.push_frame(mapped_struct.image.unwrap()).unwrap();
+        gif_struct.push_frame(&mapped_struct.image.unwrap()).unwrap();
     }
 }
