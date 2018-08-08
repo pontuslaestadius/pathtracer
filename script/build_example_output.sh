@@ -1,6 +1,8 @@
-REPOROOT="$(git rev-parse --show-toplevel)"
-cd "$REPOROOT/examples"
-rm out/*
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+echo $DIR
+sh $DIR/setup.sh
+
+r out/*
 
 for file in *.rs
 do
