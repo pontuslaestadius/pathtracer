@@ -6,17 +6,17 @@ It handles text interpretation and data visualisation based on input files.
  
 [Documentation](https://docs.rs/pathfinder/0.3.8/pathfinder/)
 
-Test coverage: 21%
+Test coverage: [58%](https://github.com/xd009642/tarpaulin)
 
-# Preview
+# Examples
 
-Inside the examples directory you can find example implementations of common functions. Along with some output examples. The following are constructed from /examples.
+ the examples directory contains implementations of common functionality, Along with some output examples.
 
 ![Pathfinder Logotype](examples/out/hello_world.png "Logo")
 
 ![Pathfinder Logotype_gif](examples/out/hello_world_gif.gif "Gif")
 
-![Groups example](examples/out/random.png "Groups")
+![Groups](examples/out/random.png "Groups")
 
 ![Data Visualization](examples/out/git_log.png "Data")
 

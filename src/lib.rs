@@ -15,7 +15,7 @@ pub mod data;
 mod tests;
 
 /// Holds a position used for Nodes and Groups.
-#[derive(Debug, Eq, Copy, Clone)]
+#[derive(Debug, Eq, Copy, Clone, Default)]
 pub struct Coordinate {
     pub x: i16,
     pub y: i16,
@@ -39,14 +39,13 @@ pub struct Group<'a, 'b> {
     pub nodes: Vec<Node<'a>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
     pub add: (i16, i16),
     pub size: u32,
 }
 
-/// Connects two Coordinate points.
 #[derive(Clone, Debug)]
 pub struct Link<'a, L: 'a + Location> {
     pub to: &'a L,
@@ -82,22 +81,22 @@ pub struct Triangle {}
 
 
 pub trait Location {
-    fn get_coordinate(&self) -> &Coordinate;
+    fn get_coordinate(&self) -> Coordinate;
     fn get_parameters(&self) -> (Coordinate, Coordinate);
 }
 
 impl<'a> Location for Node<'a> {
-    fn get_coordinate(&self) -> &Coordinate {
-        &self.geo
+    fn get_coordinate(&self) -> Coordinate {
+        self.geo
     }
 
     fn get_parameters(&self) -> (Coordinate, Coordinate) {
-        (self.geo.clone(), self.geo.clone())
+        (self.geo, self.geo)
     }
 }
 
 impl<'a, 'b> Location for Group<'a, 'b> {
-    fn get_coordinate(&self) -> &Coordinate {
+    fn get_coordinate(&self) -> Coordinate {
         self.settings.get_coordinate()
     }
 
@@ -107,16 +106,13 @@ impl<'a, 'b> Location for Group<'a, 'b> {
         let mut max_x: i16 = 0;
         let mut max_y: i16 = 0;
             
-        for node in self.nodes.iter() {
-
+        for node in &self.nodes {
             let (min,max) = node.get_parameters();
-
             max_x = std::cmp::max(max_x, max.x);
             min_x = std::cmp::min(min_x, min.x);
             max_y = std::cmp::max(max_y, max.y);
             min_y = std::cmp::min(min_y, min.y);
-    }
-
+        }
         (Coordinate::new(min_x, min_y), 
          Coordinate::new(max_x, max_y))
     }
@@ -141,8 +137,8 @@ impl<'a> Draw for Node<'a> {
             None => size
         };
 
-        for link in self.connections.iter() {
-            image = link.draw(image, x_offset, y_offset, size, self.geo.clone());
+        for link in &self.connections {
+            image = link.draw(image, x_offset, y_offset, size, self.geo);
         }
 
         for offset in shape.area(size) {
@@ -153,9 +149,10 @@ impl<'a> Draw for Node<'a> {
         image
     }
     fn get_size(&self) -> u32 {
-        match self.radius.is_none() {
-            true => 4,
-            false => self.radius.unwrap(),
+        if self.radius.is_none() {
+            4
+        } else {
+            self.radius.unwrap()
         }
     }
 
@@ -168,7 +165,7 @@ impl<'a, 'b> Draw for Group<'a, 'b> {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
     fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        for node in self.nodes.iter() {
+        for node in &self.nodes {
             image = node.draw(image, x_offset, y_offset, size, shape);
         }
         image
@@ -177,7 +174,7 @@ impl<'a, 'b> Draw for Group<'a, 'b> {
     // Returns the largest node that exists within the group.
     fn get_size(&self) -> u32 {
         let mut max = 0;
-        for node in self.nodes.iter() {
+        for node in &self.nodes {
             let tmp = node.get_size();
             if tmp > max {
                 max = tmp;
@@ -217,14 +214,12 @@ impl<'a, L: Location> Link<'a, L> {
             to.y +y_offset
         );
 
-        tools::plot(&a, &b).iter().map(|c|
+        let _ = tools::plot(a, b).iter().map(|c|
             image.put_pixel( c.x  as u32, c.y as u32, self.color)
         ).collect::<Vec<_>>();
         image
     }
-    fn get_size(&self) -> u32 {
-        1 // FIXME I wonder if this should be modified.
-    }
+
 }
 
 // ------------------------------------------------------------------
@@ -265,11 +260,13 @@ impl Shape for Circle {
         let y0: i16 = 0;
         let mut err: i16 = dx - (size << 1) as i16;
 
+        let q_plot = | x1, y1, x2, y2 | tools::plot(Coordinate::new(x1, y1), Coordinate::new(x2, y2));
+
         while x >= y {
-            vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 + y), &Coordinate::new(x0 - x, y0 + y)));
-            vec.append(&mut tools::plot(&Coordinate::new(x0 + x, y0 - y), &Coordinate::new(x0 - x, y0 - y)));
-            vec.append(&mut tools::plot(&Coordinate::new(x0 - y, y0 - x), &Coordinate::new(x0 - y, y0 + x)));
-            vec.append(&mut tools::plot(&Coordinate::new(x0 + y, y0 - x), &Coordinate::new(x0 + y, y0 + x)));
+            vec.append(&mut q_plot(x0 + x, y0 + y, x0 - x, y0 + y));
+            vec.append(&mut q_plot(x0 + x, y0 - y, x0 - x, y0 - y));
+            vec.append(&mut q_plot(x0 - y, y0 - x, x0 - y, y0 + x));
+            vec.append(&mut q_plot(x0 + y, y0 - x, x0 + y, y0 + x));
 
             if err <= 0 {
                 y += 1;
@@ -299,7 +296,7 @@ impl Shape for Triangle {
         let start_x = size/2;
 
         for i in 0..size {
-            vec.append(&mut tools::plot(&Coordinate::new(start_x,0), &Coordinate::new(i, size)));
+            vec.append(&mut tools::plot(Coordinate::new(start_x,0), Coordinate::new(i, size)));
         }
         vec
     }
@@ -355,28 +352,19 @@ impl<'a> Node<'a> {
     /// assert_eq!(nodes.len(), 3);
     /// ```
     pub fn from_list<'z>(list: &[(i16, i16)]) -> Vec<Node<'z>> { 
-        let mut nodes: Vec<Node> = Vec::new();
-        for (i, &(x,y)) in list.iter().enumerate() {
-            nodes.push(
-                Node::new(
-                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
-                    Coordinate::new(x,y)
-                    )
-                );
-        }
-        return nodes;
+        node::coordinates::from_list(&list, &|c, i| Node::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
 
     /// Looks through all connected Nodes and returns if they are connected. 
     pub fn is_connected(&self, other: &Node) -> bool {
-        for ref link in &self.connections {
+        for link in &self.connections {
             if  link.to == other ||
                 link.to.is_connected(other) 
                 {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     /*
@@ -439,15 +427,7 @@ impl<'a, 'b> Group<'a, 'b> {
     /// assert_eq!(groups.len(), 3);
     /// ```
     pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group<'z, 'k>> { 
-        let mut result: Vec<Group> = Vec::new();
-        for (i, &(x,y)) in list.iter().enumerate() {
-            result.push(
-                Group::new(
-                    &std::char::from_u32(65+ i as u32).unwrap().to_string(), 
-                    Coordinate::new(x,y))
-                );
-        }
-        return result;
+        node::coordinates::from_list(&list, &|c, i| Group::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
     /*
     /// Links together two groups.
@@ -488,16 +468,12 @@ impl<T: Draw + Hash> Network<T> {
 
 impl Coordinate {
     // Calculates the different in x and y of two Coordinates.
-    pub fn diff(&self, other: &Coordinate) -> (i16, i16) {
-        node::coordinates::diff(&self, other)
+    pub fn diff(self, other: Coordinate) -> (i16, i16) {
+        node::coordinates::diff(self, other)
     }
 
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> { 
-        let mut result: Vec<Coordinate> = Vec::new();
-        for &(x,y) in list.iter() {
-            result.push(Coordinate::new(x,y));
-        }
-        return result;
+        node::coordinates::from_list(&list, &|c, _i| c)
     }
 }
 
@@ -510,29 +486,29 @@ impl<'a, 'b> Group<'a, 'b> {
 
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self, name: &str) {
-        let geo = node::coordinates::gen_radius(&self.settings.geo, 0, self.get_dynamic_radius());
+        let geo = node::coordinates::gen_radius(self.settings.geo, 0, self.get_dynamic_radius());
         self.new_node_inner(geo, name);
     }
 
     /// Adds a Node with a static distance from the center of the Group.
     pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node {
-        let geo = node::coordinates::gen_radius(&self.settings.geo, 0, min+5);
+        let geo = node::coordinates::gen_radius(self.settings.geo, 0, min+5);
         self.new_node_inner(geo, name)
     }
 
     /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
     pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node {
-        let geo = node::coordinates::gen_radius(&self.settings.geo, min, max);
+        let geo = node::coordinates::gen_radius(self.settings.geo, min, max);
         self.new_node_inner(geo, name)
     }
 
     /// Constructs a new node for the Group and mirrors the properties to it.
     pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node {
-        let mut node = Node::new(name,geo.clone());
+        let mut node = Node::new(name, geo);
         node.color = self.gen_color(geo);
         node.radius = self.settings.radius;
         self.push(node);
-        &self.nodes.get(self.nodes.len() -1).unwrap()
+        &self.nodes[self.nodes.len() -1]
     }
 
     /// Removes all non-essentials from the standard implementation.
@@ -553,14 +529,14 @@ impl<'a, 'b> Group<'a, 'b> {
         }
     }
 
-    // Generates an image::Rgba based on the color of the Group and the distance from center.
+    /// Generates an image::Rgba based on the color of the Group and the distance from center.
     pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
         let radius = self.get_dynamic_radius() as i16;
-        let (x_dif, y_dif) = self.settings.geo.diff(&coordinates);
-        let x_scale: f64 = (x_dif as f64/radius as f64) as f64;
-        let y_scale: f64 = (y_dif as f64/radius as f64) as f64;
+        let (x_dif, y_dif) = self.settings.geo.diff(coordinates);
+        let x_scale: f64 = f64::from(x_dif) / f64::from(radius);
+        let y_scale: f64 = f64::from(y_dif) / f64::from(radius);
         let c = self.settings.color.data;
-        let max_multi: f64 = ((c[0] as i32 + c[1] as i32 + c[2] as i32)/3) as f64;
+        let max_multi: f64 = f64::from(i32::from(c[0]) + i32::from(c[1]) + i32::from(c[2])/3);
         let modify = (-max_multi*(x_scale+y_scale)/2.0) as i32;
         image::Rgba {data: [
             tools::border(c[0], modify),
@@ -576,7 +552,7 @@ impl Map {
         Map {
             image: None,
             add: (0, 0),
-            size: 4, // TODO set dynamically.
+            size: 4,
         }
     }
 
@@ -595,11 +571,9 @@ impl Map {
     pub fn map<T: Draw + Location>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let min_max = map::min_max(&element);
-            // Stabilizes the picture to have the action in the center of the image.
-            // This functionality doesn't work that well for gif encoding.
+            // TODO This functionality doesn't work that well for gif encoding.
             self.add = map::gen_stuff(min_max);
             let res = map::gen_map_dimensions(min_max);
-            // Generates an image buffer.
             self.image = Some(map::gen_canvas(res.0, res.1));
             println!("Dimensions: {}x{} | Min/Max: {:?} | Offset: {}x{} | Size: {}", res.0, res.1, min_max, self.add.0, self.add.1, self.size);
         }
@@ -623,7 +597,6 @@ impl Map {
 impl<'a> Network<Node<'a>> {
 
     /*
-
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
@@ -650,7 +623,7 @@ impl<'a> Network<Node<'a>> {
 
     /// Returns if the given hash exists in the network.
     pub fn contains<H: Hash>(&self, element: &H) -> bool {
-        for elem in self.elements.iter() {
+        for elem in &self.elements {
             if elem.get_hash() == element.get_hash() {
                 return true;
             }
@@ -671,12 +644,7 @@ impl<'a> Network<Node<'a>> {
     /// Retrieves an element given a &str.
     pub fn get_element(&self, id: &str) -> Option<&Node<'a>> {
         let tmp: Node = Node::new(id, Coordinate::new(0,0));
-
-        let goal_index_opt = self.contains_index(&tmp);
-        if goal_index_opt.is_none() {
-            return None;
-        }
-        let goal_index = goal_index_opt.unwrap();
+        let goal_index = self.contains_index(&tmp)?;
         self.elements.get(goal_index)
     }
 
@@ -710,9 +678,9 @@ impl<'a> Network<Node<'a>> {
 
             let index = 0;
             let links = current.get_links();
-            let next = links.get(index).unwrap().to;
+            let next = links[index].to;
 
-            if current.get_links().len() == 0 {
+            if current.get_links().is_empty() {
                 panic!("dead end path"); // FIXME go back one layer of steps.
             }
 
