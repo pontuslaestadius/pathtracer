@@ -41,10 +41,10 @@ fn main() {
     let groups:Vec<Group> = data::convert_file(log, &lambda).unwrap();
 
     // Count the groups and nodes.
-    let (g, n) = group::count(&groups);
+    let n = group::count(&groups);
 
     // Print them.
-    println!("{:?} groups with {} nodes", g, n);
+    println!("{:?} groups with {} nodes", groups.len(), n);
 
     // Save path for the final result.
     let path = std::path::Path::new(&args[2]);

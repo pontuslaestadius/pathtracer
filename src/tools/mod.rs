@@ -40,7 +40,7 @@ pub fn get_random_item(list: &[String]) -> &String {
 /// assert_eq!(zero, 0);
 /// ```
 pub fn border(a: u8, b: i32) -> u8 {
-    let a = a as i32;
+    let a = i32::from(a);
 
     // If it's too big.
     if a+b > 255 {
@@ -62,7 +62,7 @@ pub fn gen_rgba() -> Rgba<u8> {
 
     // Color of the node.
     for i in 0..4 {
-        let v = primary.data[i] as u32 + roll(0,255);
+        let v = u32::from(primary.data[i]) + roll(0,255);
 
         // If v goes above what a u8 can take. Set it to max.
         let v2 = if v > 255 {
@@ -90,12 +90,16 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     if min > max {
         swap(&mut min, &mut max);
     } else if min == max {
-        min -=1;
+        if min == 0 {
+            max += 1;
+        } else {
+            min -=1;
+        }
     }
 
     // Color of the node.
     for i in 0..4 {
-        let v = primary.data[i] as u32 + roll(min, max);
+        let v = u32::from(primary.data[i]) + roll(min, max);
 
         // If v goes above what a u8 can take. Set it to max.
         let v2 = if v > 255 {
@@ -119,11 +123,11 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 /// use pathfinder::Coordinate;
 /// let a = Coordinate::new(0,0);
 /// let b = Coordinate::new(1,1);
-/// let path = tools::plot(&a, &b);
+/// let path = tools::plot(a, b);
 /// let correct_path = vec!(Coordinate::new(0,0), Coordinate::new(1,0), Coordinate::new(1,1));
 /// assert_eq!(path, correct_path);
 /// ```
-pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordinate> {
+pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinate> {
 
     // If any of the coordinates are negative, interally add to make them positive.
     if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
@@ -142,11 +146,11 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
         let new_coordinate1 = Coordinate::new(coordinates1.x+ add_x, coordinates1.y +add_y);
         let new_coordinate2 = Coordinate::new(coordinates2.x+ add_x, coordinates2.y +add_y);
         
-        let new_coordinates = plot(&new_coordinate1, &new_coordinate2);
+        let new_coordinates = plot(new_coordinate1, new_coordinate2);
 
         let mut vec_final = Vec::new();
 
-        for c in new_coordinates.iter() {
+        for c in &new_coordinates {
             vec_final.push(
                 Coordinate::new(c.x -add_x, c.y -add_y)
             );
@@ -180,9 +184,8 @@ pub fn plot(coordinates1: &Coordinate, coordinates2: &Coordinate) -> Vec<Coordin
 ///
 /// delta_x == 0.00
 fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
-
     // This case is handles reversed plotting, meaning going from a larger node to a smaller one.
-    if (y0 < y1 && x0 > x1) || (y0 > y1 && x0 > x1) {
+    if y0 != y1 && x0 > x1 {
         swap(&mut x0, &mut x1);
         swap(&mut y0, &mut y1);
     }
@@ -216,3 +219,93 @@ fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) ->
     }
     plot
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+        #[test]
+        fn test_border_zero() {
+            assert_eq!(border(0, 0), 0);
+        } 
+        
+        #[test]
+        fn test_border_negative_adjust() {
+            assert_eq!(border(0, -55), 0);
+        }
+
+        #[test]
+        fn test_border_sub_max_add() {
+            assert_eq!(border(100, 100), 200);
+        }
+
+        #[test]
+        fn test_border_set_max() {
+            assert_eq!(border(0, 255), 255);
+        }
+
+        #[test]
+        fn test_border_too_high() {
+            assert_eq!(border(255,255), 255);
+        }
+
+        #[test]
+        fn test_border_no_add() {
+            assert_eq!(border(255, 0), 255);
+        }
+
+        #[test]
+        fn test_border_eq() {
+            assert_eq!(border(255, -255), 0);
+        }
+
+        #[test]
+        fn test_roll() {
+            let res = roll(0, 5);
+            assert_eq!(res >= 0 && res <= 5, true);
+        }
+
+        #[test]
+        fn test_get_random_item() {
+            let strings = ["a".to_string(), "b".to_string()];
+            let res = get_random_item(&strings);
+            let res = res == &strings[0] || res == &strings[1];
+            assert_eq!(res, true);
+        }
+
+        #[test]
+        fn test_gen_rgba() {
+            for _ in 0..5 {
+                let _ = gen_rgba();
+            }
+        }
+
+        #[test]
+        fn test_seed_rgba() {
+            let seed = 9611;
+            for i in 0..30 {
+                let _ = seed_rgba(seed*i);
+            }
+        }
+
+        #[test]
+        fn test_plot_start_and_end() {
+            let c1 = Coordinate::new(0,0);
+            let c2 = Coordinate::new(10,10);
+            let plot = plot(c1, c2);
+            let res = c1 == plot[0] && c2 == plot[plot.len() -1];
+            assert_eq!(res, true);
+        }
+
+        #[test]
+        fn test_plot_straight_line() {
+            let c1 = Coordinate::new(0,0);
+            let c2 = Coordinate::new(0,10);
+            let plot = plot(c1, c2);
+            for i in 0..10 {
+                assert_eq!(plot[i].y, i as i16);
+            }
+        }
+
+}
+
