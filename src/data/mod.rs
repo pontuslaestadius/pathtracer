@@ -3,6 +3,7 @@ use node::coordinates::*;
 use tools::gen_rgba;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
+use std::io::prelude::*;
 use std::hash::{Hash, Hasher};
 use std::io;
 use super::{Group, Coordinate};
@@ -18,7 +19,7 @@ pub struct CustomConverter<'a> {
 }
 
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group<'a, 'b>>, io::Error> {
+pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = get_content(path)?;
     Ok(convert(&content, &lambda))
 }
@@ -35,7 +36,7 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
-pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group<'a, 'b>> {
+pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 50, 50, &lambda);
     convert_inner(&content, &cct)
 }
@@ -62,7 +63,7 @@ impl<'a> CustomConverter<'a> {
 }
 
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
-pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group<'a,'b>> {
+pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
 
     let lines = content.split(cct.split);
