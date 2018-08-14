@@ -33,6 +33,6 @@ fn main() {
     let path = std::path::Path::new("out.png");
     let mut map = Map::new();
     map = map.map(&groups);
-    let _ = map.image.unwrap().save(&path);
+    let _ = map.save(&path).unwrap();
 }
 
