@@ -3,6 +3,7 @@ use gif;
 use gif::*;
 use image::{Rgba, ImageBuffer};
 use std::fs::File;
+use super::super::Map;
 
 pub struct Gif  {
     pub encoder: gif::Encoder<File>,
@@ -24,6 +25,11 @@ impl Gif {
         })
     }
 
+    /// Pushes a frame using a map struct.
+    pub fn push_map(&mut self, map: Map) -> Result<(), io::Error> {
+        self.push_frame(&map.image.unwrap())
+    }
+
     /// Pushes a frame to the Gif structure, This also immediately saves it to disk.
     pub fn push_frame(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
@@ -37,7 +43,7 @@ impl Gif {
 
         // Create frame from data
         let mut frame = gif::Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
-        //let mut frame = image::Frame::new(image); // this would be nice. Damn piston devs!!!
+        //let mut frame = image::Frame::new(image); // FIXME this would be nice. Damn piston devs!!!
         frame.dispose = DisposalMethod::Background;
         self.encoder.write_frame(&frame)?;
         Ok(())
