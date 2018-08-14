@@ -175,13 +175,10 @@ impl<'a, 'b> Draw for Group<'a, 'b> {
     fn get_size(&self) -> u32 {
         let mut max = 0;
         for node in &self.nodes {
-            let tmp = node.get_size();
-            if tmp > max {
-                max = tmp;
-            }
+            max = std::cmp::max(max, node.get_size());
         }
         match self.settings.radius {
-            Some(e) => max + e,
+            Some(e) => max + e/10,
             None => max,
         }
     }
@@ -429,7 +426,7 @@ impl<'a, 'b> Group<'a, 'b> {
     pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group<'z, 'k>> { 
         node::coordinates::from_list(&list, &|c, i| Group::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
-    /*
+
     /// Links together two groups.
     /// ```
     /// use pathfinder::{Group, Square, Coordinate, Location};
@@ -440,8 +437,7 @@ impl<'a, 'b> Group<'a, 'b> {
     ///     groupA.settings.connections.get(0).unwrap().to.get_coordinate(),
     ///     groupB.settings.get_coordinate());
     /// ```
-    */
-    pub fn link<L: Location>(&mut self, other: &'b Group) {
+    pub fn link(&mut self, other: &'b Group) {
         self.settings.link(&other.settings);
     }
 }
