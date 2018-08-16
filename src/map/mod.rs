@@ -71,8 +71,8 @@ mod tests {
     #[test]
     fn test_min_max() {
         let nodes = Node::from_list(&[
-            (-50, 50), (50, -50), 
-            (0, 25), (25, 0) 
+            (-50, 50), (50, -50),
+            (0, 25), (25, 0)
             ]);
         let res = min_max(&nodes);
         assert_eq!(res, ((-54, 54), (-54, 54)));
