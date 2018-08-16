@@ -2,17 +2,30 @@ REPOROOT="$(git rev-parse --show-toplevel)"
 cd $REPOROOT
 
 listen() {
+    cd $REPOROOT
+    EXIT=$1
+    shift
+    start=`date +%s`
     RESULT="$( $@ )"
-    [ $? -ne 0 ] && echo "\e[91mSTRICT BUILD FAILED '$@' \e[0m" && exit 1
+
+    if [ $? -ne $EXIT ]; then
+        STAT="\e[91mFAILED"
+    else
+        STAT="\e[92mok"
+    fi
+    end=`date +%s`
+    runtime=$((end-start))
+    echo "$STAT\e[0m\t\t$runtime\t\t$@" >> out.build
 }
 
-listen rustdoc --test README.md
-listen cargo test
-listen cargo +nightly clippy
-listen cargo build --release
-listen cargo tarpaulin -v
+echo "RESULT\t\tTIME\t\tCOMMAND" >> out.build
 
-listen sh script/build_example_output.sh
+listen 1 grep "\s$" -r --include \*.rs
+listen 0 cargo build --release
+listen 0 cargo test
+listen 0 cargo +nightly clippy
+listen 0 cargo tarpaulin -v
+listen 0 sh script/build_example_output.sh
 
-echo "\e[92mSTRICT BUILD PASSED \e[0m"
-
+cat out.build
+rm out.build

@@ -3,13 +3,23 @@ use node::coordinates::*;
 use tools::gen_rgba;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
-use std::hash::{Hash, Hasher};
 use std::io::prelude::*;
+use std::hash::{Hash, Hasher};
 use std::io;
 use super::{Group, Coordinate};
 
+/// Holds configurations for converting a content String to a path network.
+pub struct CustomConverter<'a> {
+    pub split: char,
+    pub node_range: u32,
+    pub radius: u32,
+    pub size: u64,
+    pub lambda_tag: &'a Fn(&str) -> bool,
+    pub ignore_empty_lines: bool,
+}
+
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group<'a, 'b>>, io::Error> {
+pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = get_content(path)?;
     Ok(convert(&content, &lambda))
 }
@@ -26,19 +36,9 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
-pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group<'a, 'b>> {
+pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 50, 50, &lambda);
     convert_inner(&content, &cct)
-}
-
-/// Holds configurations for converting a content String to a path network.
-pub struct CustomConverter<'a> {
-    pub split: char,
-    pub node_range: u32,
-    pub radius: u32,
-    pub size: u64,
-    pub lambda_tag: &'a Fn(&str) -> bool,
-    pub ignore_empty_lines: bool,
 }
 
 impl<'a> CustomConverter<'a> {
@@ -63,7 +63,7 @@ impl<'a> CustomConverter<'a> {
 }
 
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
-pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group<'a,'b>> {
+pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
 
     let lines = content.split(cct.split);
@@ -74,10 +74,8 @@ pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group<
     let mut groups_boolean_array: [bool; 500] = [false; 500];
 
     for line in lines {
-        // Ignore empty lines.
-        if cct.ignore_empty_lines && line == "" {continue};
-        // Pick up tagged lines.
-        if !(cct.lambda_tag)(line) {continue};
+        // Ignore empty lines, if enabled. Or match the lambda tag to retrieve it.
+        if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {continue};
 
         // Hashes the input value for faster comparison.
         let hashed_line = calculate_hash(&line);
@@ -125,7 +123,7 @@ mod tests {
     use std::fs::File;
     use std::fs;
 
-    fn eval_result(res: Vec<Group>) { 
+    fn eval_result(res: Vec<Group>) {
         assert_eq!(res.len(), 3);
         assert_eq!(res[0].nodes.len(), 2);
         assert_eq!(res[1].nodes.len(), 5);

@@ -4,7 +4,7 @@ It handles text interpretation and data visualisation based on input files.
 
 [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
  
-[Documentation](https://docs.rs/pathfinder/0.3.8/pathfinder/)
+[Documentation](https://docs.rs/pathfinder/latest/pathfinder/)
 
 Test coverage: [58%](https://github.com/xd009642/tarpaulin)
 
@@ -36,6 +36,6 @@ for group in groups.iter_mut() {
 }
 let mut map = Map::new();
 map.map(&groups)
-   .image.unwrap().save(&Path::new("out.png"));
+   .save(&Path::new("out.png"));
 ```
 

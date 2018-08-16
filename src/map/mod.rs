@@ -17,25 +17,21 @@ pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
 /// Finds the min and max of a list and returns ((minX, minY),(maxX, maxY)).
 pub fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
     let mut size: i16 = 4;
-
-    let mut min_x: i16 = 0;
-    let mut min_y: i16 = 0;
-    let mut max_x: i16 = 0;
-    let mut max_y: i16 = 0;
+    let mut min = Coordinate::new(0, 0);
+    let mut max = Coordinate::new(0, 0);
 
     for item in list {
         size = cmp::max(size, item.get_size() as i16);
+        let (imin,imax) = item.get_parameters();
 
-        let (min,max) = item.get_parameters();
-
-        max_x = cmp::max(max_x, max.x);
-        min_x = cmp::min(min_x, min.x);
-        max_y = cmp::max(max_y, max.y);
-        min_y = cmp::min(min_y, min.y);
+        max.x = cmp::max(max.x, imax.x);
+        min.x = cmp::min(min.x, imin.x);
+        max.y = cmp::max(max.y, imax.y);
+        min.y = cmp::min(min.y, imin.y);
     }
 
     // We add a safety border using size.
-    ((min_x -size, max_x +size), (min_y -size, max_y +size))
+    ((min.x -size, max.x +size), (min.y -size, max.y +size))
 }
 
 /// Sets the additions required to center the pixels on the map.
@@ -75,8 +71,8 @@ mod tests {
     #[test]
     fn test_min_max() {
         let nodes = Node::from_list(&[
-            (-50, 50), (50, -50), 
-            (0, 25), (25, 0) 
+            (-50, 50), (50, -50),
+            (0, 25), (25, 0)
             ]);
         let res = min_max(&nodes);
         assert_eq!(res, ((-54, 54), (-54, 54)));

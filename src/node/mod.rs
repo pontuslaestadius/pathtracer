@@ -6,7 +6,7 @@ use super::Node;
 
 pub mod coordinates;
 
-impl<'a> PartialEq for Node<'a> {
+impl<'a> PartialEq for Node {
     fn eq(&self, other: &Node) -> bool {
         self.hash == other.hash
     }

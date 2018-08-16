@@ -145,7 +145,7 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
         };
         let new_coordinate1 = Coordinate::new(coordinates1.x+ add_x, coordinates1.y +add_y);
         let new_coordinate2 = Coordinate::new(coordinates2.x+ add_x, coordinates2.y +add_y);
-        
+
         let new_coordinates = plot(new_coordinate1, new_coordinate2);
 
         let mut vec_final = Vec::new();
@@ -178,7 +178,7 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
     }
 }
 
-/// Draws a line between two coordinate points. 
+/// Draws a line between two coordinate points.
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// # Panics
 ///
@@ -227,8 +227,8 @@ mod tests {
         #[test]
         fn test_border_zero() {
             assert_eq!(border(0, 0), 0);
-        } 
-        
+        }
+
         #[test]
         fn test_border_negative_adjust() {
             assert_eq!(border(0, -55), 0);

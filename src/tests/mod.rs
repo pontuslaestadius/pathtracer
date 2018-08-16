@@ -5,7 +5,7 @@ mod tests {
     // Each nested module represents one file that is being tested.
     // ------------------------------------------------------------
 
-    // Seperate from other tests, since it tests from_list for all 
+    // Seperate from other tests, since it tests from_list for all
     // classes that have it.
     mod from_list {
 
@@ -44,7 +44,7 @@ mod tests {
             let result = Group::from_list(get_list());
             assert_eq!(result.len(), 8);
         }
-        
+
     }
 
     mod coordinates {
