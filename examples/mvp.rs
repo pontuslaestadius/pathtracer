@@ -12,17 +12,16 @@ fn main() {
     ];
 
     let nodes = Node::from_list(&pos);
-    //let nodes = Node::linked_list(nodes);
-
+    let nodes = Node::linked_list(nodes);
     let net = Network::new(nodes);
     let path = net.path("D", "A", &Network::path_shortest_leg);
     print_path(&path);
 }
 
-fn print_path<T: Draw + Location>(path: &Vec<(usize, &T)>) {
+fn print_path(path: &Vec<Node>) {
     let mut distance = 0;
     let mut prev = Coordinate::new(0,0);
-    for &(link_i, leg) in path.iter() {
+    for (link_i, leg) in path.iter().enumerate() {
         let dis = pathfinder::node::coordinates::distance(prev, leg.get_coordinate());
         distance += dis;
         prev = leg.get_coordinate().clone();
