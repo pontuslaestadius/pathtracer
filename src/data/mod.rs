@@ -123,7 +123,7 @@ mod tests {
     use std::fs::File;
     use std::fs;
 
-    fn eval_result(res: Vec<Group>) { 
+    fn eval_result(res: Vec<Group>) {
         assert_eq!(res.len(), 3);
         assert_eq!(res[0].nodes.len(), 2);
         assert_eq!(res[1].nodes.len(), 5);

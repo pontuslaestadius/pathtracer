@@ -24,7 +24,8 @@ fn main() {
         (ls*8, 0), (ls*8 -hs, -hs), (ls*8 -ls, 0), (ls*8 -hs, ls), (ls*8 +hs, ls),
         (ls*9 -hs, -hs/3), (ls*9 -hs, 0), (ls*9, 0), (ls*9, hs/3)
     );
-    let mut nodes = Node::from_list(&node_pos);
+    let nodes = Node::from_list(&node_pos);
+    let mut nodes = Node::linked_list(nodes);
     for node in nodes.iter_mut() {
         node.color = tools::gen_rgba();
     }
