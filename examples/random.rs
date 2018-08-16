@@ -8,7 +8,7 @@ use image::Rgba;
     Creates three groups filled with children randomly position within it's radius.
 */
 
-fn main() { 
+fn main() {
     let children = 800;
     let color = [
         Rgba {data: [250, 20, 20, 255]},
