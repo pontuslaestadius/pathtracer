@@ -9,7 +9,11 @@ use image::Rgba;
 */
 
 fn main() {
+<<<<<<< HEAD
     let children = 600;
+=======
+    let children = 800;
+>>>>>>> c45c5a38a3ff893368e9366d01a3e941fca263d0
     let color = [
         Rgba {data: [250, 20, 20, 255]},
         Rgba {data: [20, 20, 250, 255]},
