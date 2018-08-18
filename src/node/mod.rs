@@ -4,8 +4,6 @@ use std::io;
 use std::io::prelude::*;
 use super::Node;
 
-pub mod coordinates;
-
 impl<'a> PartialEq for Node {
     fn eq(&self, other: &Node) -> bool {
         self.hash == other.hash

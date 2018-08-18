@@ -3,11 +3,11 @@ extern crate pythagoras;
 
 use std::cmp::Ordering;
 use std::f64;
-use super::super::tools::roll;
-use super::super::Coordinate;
+use super::tools::roll;
+use super::Coordinate;
 use std::ops::Add;
 
-// Constructs a vector of generic structs from a given list convered to Coordinates.
+/// Constructs a vector of generic structs from a given list convered to Coordinates.
 pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Vec<T> {
         let mut result: Vec<T> = Vec::new();
         for (i, &(x,y)) in list.iter().enumerate() {
@@ -16,7 +16,7 @@ pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Ve
         result
 }
 
-// Constructs a randomly positioned coordinate.
+/// Constructs a randomly positioned coordinate.
 pub fn gen() -> Coordinate {
     Coordinate {
         x: rand::random::<i16>(),
@@ -28,7 +28,7 @@ pub fn gen() -> Coordinate {
 /// # Examples
 /// ```
 /// use pathfinder::Coordinate;
-/// use pathfinder::node::coordinates::*;
+/// use pathfinder::coordinate::*;
 /// let c1 = Coordinate::new(0,0);
 /// let c2 = Coordinate::new(100,100);
 /// let difference = c1.diff(c2);
@@ -42,7 +42,7 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 /// # Examples
 /// ```
 /// use pathfinder::Coordinate;
-/// use pathfinder::node::coordinates::distance;
+/// use pathfinder::coordinate::distance;
 /// let a = Coordinate::new(0, 0);
 /// let b = Coordinate::new(3,4);
 /// let distance = distance(a, b);
@@ -57,7 +57,7 @@ pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
 /// # Examples
 /// ```
 /// use pathfinder::Coordinate;
-/// use pathfinder::node::coordinates::*;
+/// use pathfinder::coordinate::*;
 /// let c1 = Coordinate::new(0,0);
 /// let c2 = gen_within_radius(c1, 100);
 /// ```
@@ -69,7 +69,7 @@ pub fn gen_within_radius(coord: Coordinate, radius: u32) -> Coordinate {
 /// # Examples
 /// ```
 /// use pathfinder::Coordinate;
-/// use pathfinder::node::coordinates::*;
+/// use pathfinder::coordinate::*;
 /// let c1 = Coordinate::new(0,0);
 /// let c2 = gen_radius(c1, 50, 100);
 /// ```
@@ -119,3 +119,4 @@ impl Add for Coordinate {
         Coordinate::new(self.x + other.x, self.y + other.y)
     }
 }
+

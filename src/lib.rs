@@ -11,6 +11,7 @@ pub mod map;
 pub mod tools;
 pub mod group;
 pub mod data;
+pub mod coordinate;
 
 mod tests;
 
@@ -353,7 +354,6 @@ impl Node {
         }
     }
 
-
     /// Converts a list of tuples (x,y) to a Vector of Nodes.
     /// Names are assigned from "A" and upwards automatically.
     ///
@@ -364,7 +364,7 @@ impl Node {
     /// assert_eq!(nodes.len(), 3);
     /// ```
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Node> {
-        node::coordinates::from_list(&list, &|c, i| Node::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
+        coordinate::from_list(&list, &|c, i| Node::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
 
     /// Looks through all connected Nodes and returns if they are connected.
@@ -472,7 +472,7 @@ impl Group {
     /// assert_eq!(groups.len(), 3);
     /// ```
     pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group> {
-        node::coordinates::from_list(&list, &|c, i| Group::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
+        coordinate::from_list(&list, &|c, i| Group::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
 
     /// Links together two groups.
@@ -506,11 +506,11 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 impl Coordinate {
     // Calculates the different in x and y of two Coordinates.
     pub fn diff(self, other: Coordinate) -> (i16, i16) {
-        node::coordinates::diff(self, other)
+        coordinate::diff(self, other)
     }
 
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
-        node::coordinates::from_list(&list, &|c, _i| c)
+        coordinate::from_list(&list, &|c, _i| c)
     }
 }
 
@@ -523,19 +523,19 @@ impl<'a, 'b> Group {
 
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self, name: &str) {
-        let geo = node::coordinates::gen_radius(self.settings.geo, 0, self.get_dynamic_radius());
+        let geo = coordinate::gen_radius(self.settings.geo, 0, self.get_dynamic_radius());
         self.new_node_inner(geo, name);
     }
 
     /// Adds a Node with a static distance from the center of the Group.
     pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node {
-        let geo = node::coordinates::gen_radius(self.settings.geo, 0, min+5);
+        let geo = coordinate::gen_radius(self.settings.geo, 0, min+5);
         self.new_node_inner(geo, name)
     }
 
     /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
     pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node {
-        let geo = node::coordinates::gen_radius(self.settings.geo, min, max);
+        let geo = coordinate::gen_radius(self.settings.geo, min, max);
         self.new_node_inner(geo, name)
     }
 
@@ -688,7 +688,7 @@ impl Network<Node> {
                 continue;
             }
             let node = node_opt.unwrap();
-            let dis = node::coordinates::distance(first.geo, node.geo);
+            let dis = coordinate::distance(first.geo, node.geo);
             weighted_path.push((dis, vec![first, node]));
         }
 

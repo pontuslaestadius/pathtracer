@@ -49,7 +49,7 @@ mod tests {
 
     mod coordinates {
         use Coordinate;
-        use node::coordinates::{gen_radius, gen_within_radius};
+        use coordinate::{gen_radius, gen_within_radius};
 
         // Tests coordinates equality.
         #[test]

@@ -1,5 +1,5 @@
 use super::*;
-use super::super::node::coordinates::*;
+use super::super::coordinate::*;
 
 /// Adds the number of children supplied, positioned randomly to a group.
 ///
