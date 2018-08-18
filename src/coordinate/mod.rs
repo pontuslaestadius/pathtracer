@@ -120,3 +120,71 @@ impl Add for Coordinate {
     }
 }
 
+#[cfg(test)]
+mod tests {
+   use super::*;
+
+    #[test]
+    fn test_eq() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co2: Coordinate = co1.clone();
+        let co3: Coordinate = Coordinate::new(2, 2);
+        assert_eq!(co1 == co2, true);
+        assert_ne!(co1 == co3, true);
+        assert_eq!(co1 < co3, true);
+    }
+
+    #[test]
+    fn test_gen_within_radius() {
+
+        // Default
+        let co1: Coordinate = Coordinate::new(1, 1);
+        // Get min and max points. Which the radius can't exceed.
+        let co4: Coordinate = Coordinate::new(102, 102);
+        let co5: Coordinate = Coordinate::new(-102, -102);
+
+        // Since randomness is applied. It's effect is lowered by using many iterations.
+        for _ in 0..20 {
+            let co6: Coordinate = gen_within_radius(co1, 100);
+            assert_eq!(co4 > co6, true);
+            assert_eq!(co5 < co6, true);
+        }
+
+    }
+
+    #[test]
+    fn test_gen_radius() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co4: Coordinate = Coordinate::new(102, 102);
+        let co5: Coordinate = Coordinate::new(-102, -102);
+
+        // Since randomness is applied. It's effect is lowered by using many iterations.
+        for _ in 0..20 {
+            let co6: Coordinate = gen_radius(co1, 0, 100);
+            assert_eq!(co4 > co6, true);
+            assert_eq!(co5 < co6, true);
+        }
+    }
+
+    #[test]
+    fn test_diff() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co2: Coordinate = Coordinate::new(102, 102);
+        let co3: Coordinate = Coordinate::new(-102, -102);
+
+        assert_eq!(co1.diff(co2) == (101, 101), true);
+        assert_eq!(co1.diff(co3) == (103, 103), true);
+        assert_eq!(co2.diff(co3) == (204, 204), true);
+        assert_eq!(co1.diff(co1) == (0, 0), true);
+    }
+
+    #[test]
+    fn test_clone() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co2: Coordinate = Coordinate::new(9999, 9999);
+        assert_eq!(co1 == co1.clone(), true);
+        assert_eq!(co2 == co2.clone(), true);
+    }
+
+}
+
