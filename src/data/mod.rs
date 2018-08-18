@@ -1,5 +1,5 @@
 
-use node::coordinates::*;
+use coordinate::*;
 use tools::gen_rgba;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::OpenOptions;
