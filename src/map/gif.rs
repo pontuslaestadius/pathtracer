@@ -43,7 +43,6 @@ impl Gif {
 
         // Create frame from data
         let mut frame = gif::Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
-        //let mut frame = image::Frame::new(image); // FIXME this would be nice. Damn piston devs!!!
         frame.dispose = DisposalMethod::Background;
         self.encoder.write_frame(&frame)?;
         Ok(())

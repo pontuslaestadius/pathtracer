@@ -15,6 +15,7 @@ pub struct CustomConverter<'a> {
     pub radius: u32,
     pub size: u64,
     pub lambda_tag: &'a Fn(&str) -> bool,
+    pub link_groups: bool,
     pub ignore_empty_lines: bool,
 }
 
@@ -37,7 +38,7 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
 pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
-    let cct = CustomConverter::new('\n', 50, 50, &lambda);
+    let cct = CustomConverter::new('\n', 120, 120, &lambda);
     convert_inner(&content, &cct)
 }
 
@@ -58,6 +59,7 @@ impl<'a> CustomConverter<'a> {
             size: 500,
             lambda_tag,
             ignore_empty_lines: true,
+            link_groups: true,
         }
     }
 }
@@ -65,11 +67,7 @@ impl<'a> CustomConverter<'a> {
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
 pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
-
     let lines = content.split(cct.split);
-
-    // Check if a group matches the same.
-    // Stores the hashed array position rem.
     let coordinates = Coordinate::new(0, 0);
     let mut groups_boolean_array: [bool; 500] = [false; 500];
 
@@ -77,31 +75,28 @@ pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group>
         // Ignore empty lines, if enabled. Or match the lambda tag to retrieve it.
         if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {continue};
 
-        // Hashes the input value for faster comparison.
         let hashed_line = calculate_hash(&line);
-
         // Checks the boolean array position for the groups existence.
         if groups_boolean_array[(hashed_line % cct.size) as usize] {
-
-            for old in &mut groups.iter_mut() {
-                // If it does not match existing tag.
-                if old.settings.hash != hashed_line {continue};
-                let _ = old.new_node_min_auto("", cct.node_range);
-                break;
-            }
+            
+            // Add a new node to the existing group.
+            let index = groups.iter().position(|ref g| g.settings.hash == hashed_line).unwrap();
+            let _ = groups[index].new_node_min_auto("", cct.node_range);
 
             // Creates a new group because one did not exist.
         } else {
             // Sets the group to exists in the boolean array.
             groups_boolean_array[(hashed_line % cct.size) as usize] = true;
-            // Produce a new group.
-            let mut group = Group::new(
-                &line,
-                gen_radius(coordinates, 0, cct.radius),
-            );
-
+            let mut group = Group::new(&line, gen_radius(coordinates, 0, cct.radius));
             group.new_node_min_auto("", cct.node_range);
             group.settings.color = gen_rgba();
+
+            if cct.link_groups && !groups.is_empty() {
+                let tmp = groups.get(groups.len() -1).unwrap();
+                let n = tmp.nodes.get(tmp.nodes.len() -1).unwrap();
+                group.settings.link(n);
+            }
+
             groups.push(group);
         }
     }
@@ -118,6 +113,7 @@ pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::Draw;
     use std::path::Path;
     use std::io::prelude::*;
     use std::fs::File;
@@ -139,6 +135,7 @@ mod tests {
             size: 50,
             lambda_tag: &|_x| true,
             ignore_empty_lines: true,
+            link_groups: true,
         };
 
         let content = "a b c a b c b b b c";
@@ -164,5 +161,22 @@ mod tests {
         eval_result(res);
         let _ = fs::remove_file("test.txt").unwrap();
     }
+
+    #[test]
+    fn test_link_groups() { 
+        let content = "a\nb\nc\na\nb\nc\nb\nb\nb\nc";
+        let res = convert(content, &|_x| true);
+
+        for (i, g) in res.iter().enumerate().rev() {
+            if i == 0 { break; }
+            let left = g.get_links()[0].to_hash;
+
+            if left == 0 {
+                panic!("Result did not link forward. ({:?})", g.get_links());
+            }
+        }
+
+    }
+
 }
 
