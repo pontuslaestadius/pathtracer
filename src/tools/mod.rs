@@ -7,9 +7,13 @@ use std::cmp::{max, min};
 use std::f64;
 use std::mem::swap;
 
-
-
-pub fn find<T: Hash + Location>(element: u64, list: &[T]) -> Option<Coordinate> {
+/// Finds an element using their hashes.
+pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
+    for l in list {
+        if element == l.get_hash() {
+            return Some(l);
+        }
+    }
     None
 }
 
