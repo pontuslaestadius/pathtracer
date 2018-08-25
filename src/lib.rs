@@ -337,9 +337,15 @@ impl Node {
     /// assert_eq!(a.is_directly_connected(&b), true);
     /// ```
     pub fn link(&mut self, other: &Node) {
-        self.links[0] = HashLink::new(self.hash, other.hash); // FIXME
-        self.links[0].from = Some(self.geo);
-        self.links[0].to = Some(other.geo);
+        for (i, link) in self.links.iter_mut().enumerate() {
+            if link.to_hash == 0 {
+                link.from_hash = self.hash;
+                link.to_hash = other.hash;
+                link.from = Some(self.geo);
+                link.to = Some(other.geo);
+                return;
+            }
+        }
     }
 
 }
