@@ -162,7 +162,7 @@ impl<'a, 'b> Location for Group {
 pub trait Draw {
     fn draw<S: Shape>(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
-    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool>;
+    // fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool>; // TODO
     fn get_size(&self) -> u32;
     fn get_links(&self) -> &[HashLink];
 }
@@ -189,10 +189,6 @@ impl Draw for Node {
         image
     }
 
-    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool> {
-        None // FIXME
-    }
-
     fn get_size(&self) -> u32 {
         if self.radius.is_none() {
             4
@@ -217,10 +213,6 @@ impl<'a, 'b> Draw for Group {
             image = node.draw(image, x_offset, y_offset, size, shape);
         }
         image
-    }
-
-    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool> {
-        None // FIXME
     }
 
     // Returns the largest node that exists within the group.
@@ -313,7 +305,7 @@ impl Node {
     pub fn linked_list(mut list: Vec<Node>) -> Vec<Node> {
         let mut prev = Coordinate::new(0,0);
         let mut prev_h = 0;
-        for node in list.iter_mut() {
+        for node in &mut list {
             if prev_h != 0 {
                 let mut link = HashLink::new(node.hash, prev_h);
                 link.to = Some(prev);
@@ -337,7 +329,7 @@ impl Node {
     /// assert_eq!(a.is_directly_connected(&b), true);
     /// ```
     pub fn link(&mut self, other: &Node) {
-        for (i, link) in self.links.iter_mut().enumerate() {
+        for link in &mut self.links {
             if link.to_hash == 0 {
                 link.from_hash = self.hash;
                 link.to_hash = other.hash;
@@ -407,7 +399,7 @@ impl Group {
     /// let groups = Group::from_list(&list);
     /// assert_eq!(groups.len(), 3);
     /// ```
-    pub fn from_list<'z, 'k>(list: &[(i16, i16)]) -> Vec<Group> {
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Group> {
         coordinate::from_list(&list, &|c, i| Group::new(&std::char::from_u32(65+ i as u32).unwrap().to_string(), c))
     }
 
@@ -571,7 +563,7 @@ impl Map {
     // Maps the elements without stabalizing the positions on the canvas.
     pub fn map_absolute<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
-            let (image, add) = map::gen_map(&element);
+            let (image, _) = map::gen_map(&element);
             self.image = Some(image);
         }
         self.map(element)
@@ -618,7 +610,7 @@ impl Network<Node> {
 
     pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
 
-        let goal = network.get(b)
+        let _goal = network.get(b)
             .expect("goal does not exist in network");
         let first = network.get(a)
             .expect("start does not exist in network");
@@ -639,7 +631,7 @@ impl Network<Node> {
         }
 
         let (_dis, path) = weighted_path.remove(0);
-        return path;
+        path
 
         /*
          *

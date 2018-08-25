@@ -12,7 +12,7 @@ pub fn gen_map<T: Location + Draw>(list: &[T]) ->
 
     let min_max = min_max(&list);
     let res = gen_map_dimensions(min_max);
-    return (gen_canvas(res.0, res.1), gen_stuff(min_max))
+    (gen_canvas(res.0, res.1), gen_stuff(min_max))
 }
 
 /// Returns the difference between the lowest and highest x and y values, respectively.
