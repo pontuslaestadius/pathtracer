@@ -549,14 +549,14 @@ impl Map {
     /// ```
     pub fn map<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
-            let (image, add) = map::gen_map(&element); 
+            let (image, add) = map::gen_map(&element);
             self.image = Some(image);
             self.add = add;
         }
 
         // FIXME use any shape.
         let sq = shape::Square::new();
-        for e in element {    
+        for e in element {
             self.image = Some(e.draw(
                 self.image.unwrap(),
                 self.add.0,
@@ -567,6 +567,16 @@ impl Map {
         }
         self
     }
+
+    // Maps the elements without stabalizing the positions on the canvas.
+    pub fn map_absolute<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
+        if self.image.is_none() {
+            let (image, add) = map::gen_map(&element);
+            self.image = Some(image);
+        }
+        self.map(element)
+    }
+
 }
 
 impl Network<Node> {

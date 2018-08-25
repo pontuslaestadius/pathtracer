@@ -7,16 +7,14 @@ use std::cmp;
 pub mod network;
 pub mod gif;
 
-
-
-pub fn gen_map<T: Location + Draw>(list: &[T]) -> 
+pub fn gen_map<T: Location + Draw>(list: &[T]) ->
     (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (i16, i16)) {
 
     let min_max = min_max(&list);
     let res = gen_map_dimensions(min_max);
     return (gen_canvas(res.0, res.1), gen_stuff(min_max))
 }
-    
+
 /// Returns the difference between the lowest and highest x and y values, respectively.
 fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     let x = min_max.0;
