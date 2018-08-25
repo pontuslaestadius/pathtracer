@@ -20,7 +20,7 @@ pub struct CustomConverter<'a> {
 }
 
 /// Reads from the provided file, and converts to a path network using default settings.
-pub fn convert_file<'a, 'b>(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
+pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = get_content(path)?;
     Ok(convert(&content, &lambda))
 }
@@ -37,7 +37,7 @@ fn get_content(path: &str) -> Result<String, io::Error> {
 }
 
 /// Initializes a CustomConverter a converts the content to a vector of groups and links.
-pub fn convert<'a, 'b>(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
+pub fn convert(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 120, 120, &lambda);
     convert_inner(&content, &cct)
 }
@@ -65,7 +65,7 @@ impl<'a> CustomConverter<'a> {
 }
 
 /// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
-pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group> {
+pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
     let lines = content.split(cct.split);
     let coordinates = Coordinate::new(0, 0);
@@ -92,8 +92,8 @@ pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group>
             group.settings.color = gen_rgba();
 
             if cct.link_groups && !groups.is_empty() {
-                let tmp = groups.get(groups.len() -1).unwrap();
-                let n = tmp.nodes.get(tmp.nodes.len() -1).unwrap();
+                let tmp = &groups[groups.len() -1];
+                let n = &tmp.nodes[tmp.nodes.len() -1];
                 group.settings.link(n);
             }
 

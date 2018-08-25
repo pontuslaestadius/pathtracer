@@ -1,7 +1,7 @@
 extern crate rand;
 
 use image::Rgba;
-use super::{Node, Hash, Coordinate, Location};
+use super::{Hash, Coordinate};
 use rand::distributions::{IndependentSample, Range};
 use std::cmp::{max, min};
 use std::f64;
