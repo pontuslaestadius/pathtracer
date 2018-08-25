@@ -7,15 +7,25 @@ use std::cmp;
 pub mod network;
 pub mod gif;
 
+
+
+pub fn gen_map<T: Location + Draw>(list: &[T]) -> 
+    (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (i16, i16)) {
+
+    let min_max = min_max(&list);
+    let res = gen_map_dimensions(min_max);
+    return (gen_canvas(res.0, res.1), gen_stuff(min_max))
+}
+    
 /// Returns the difference between the lowest and highest x and y values, respectively.
-pub fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
+fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
     let x = min_max.0;
     let y = min_max.1;
     ((x.1 - x.0) as u32, (y.1 - y.0) as u32)
 }
 
 /// Finds the min and max of a list and returns ((minX, minY),(maxX, maxY)).
-pub fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
+fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
     let mut size: i16 = 4;
     let mut min = Coordinate::new(0, 0);
     let mut max = Coordinate::new(0, 0);
@@ -36,15 +46,14 @@ pub fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
 
 /// Sets the additions required to center the pixels on the map.
 /// This allows for negative placements of Coordinates, when adjusted with this function.
-pub fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
+fn gen_stuff(min_max: ((i16, i16), (i16, i16))) -> (i16, i16) {
     (-(min_max.0).0, -(min_max.1).0)
 }
 
 /// Generates a canvas from the image crate.
-pub fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
+fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
-
 
 #[cfg(test)]
 mod tests {

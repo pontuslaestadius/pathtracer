@@ -1,13 +1,17 @@
-pub mod generic;
-
 extern crate rand;
 
 use image::Rgba;
-use super::Coordinate;
+use super::{Node, Hash, Coordinate, Location};
 use rand::distributions::{IndependentSample, Range};
 use std::cmp::{max, min};
 use std::f64;
 use std::mem::swap;
+
+
+
+pub fn find<T: Hash + Location>(element: u64, list: &[T]) -> Option<Coordinate> {
+    None
+}
 
 /// Returns a random number between the min and maximum.
 /// # Example

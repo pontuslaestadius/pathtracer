@@ -23,7 +23,7 @@ pub struct Coordinate {
     pub y: i16,
 }
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HashLink {
     pub from_hash: u64,
     pub to_hash: u64,
@@ -162,6 +162,7 @@ impl<'a, 'b> Location for Group {
 pub trait Draw {
     fn draw<S: Shape>(&self, image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
+    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool>;
     fn get_size(&self) -> u32;
     fn get_links(&self) -> &[HashLink];
 }
@@ -187,6 +188,11 @@ impl Draw for Node {
         }
         image
     }
+
+    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool> {
+        None // FIXME
+    }
+
     fn get_size(&self) -> u32 {
         if self.radius.is_none() {
             4
@@ -204,10 +210,17 @@ impl<'a, 'b> Draw for Group {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
     fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+
+        image = self.settings.draw(image, x_offset, y_offset, size, shape);
+
         for node in &self.nodes {
             image = node.draw(image, x_offset, y_offset, size, shape);
         }
         image
+    }
+
+    fn sync_links<T: Draw + Location + Hash>(&mut self, list: &[T]) -> Option<bool> {
+        None // FIXME
     }
 
     // Returns the largest node that exists within the group.
@@ -226,8 +239,6 @@ impl<'a, 'b> Draw for Group {
         &self.settings.links
     }
 }
-
-// ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
 
@@ -327,6 +338,8 @@ impl Node {
     /// ```
     pub fn link(&mut self, other: &Node) {
         self.links[0] = HashLink::new(self.hash, other.hash); // FIXME
+        self.links[0].from = Some(self.geo);
+        self.links[0].to = Some(other.geo);
     }
 
 }
@@ -344,7 +357,10 @@ impl HashLink {
     fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
 
+        if self.from_hash == 0 || self.to_hash == 0 { return image }
+
         let (from, to) = self.get_parameters();
+        if from == to { return image }
 
         let x_offset = x_offset + (size/2) as i16;
         let y_offset = y_offset + (size/2) as i16;
@@ -525,20 +541,16 @@ impl Map {
     /// let mut map = Map::new();
     /// map = map.map(&nodes);
     /// ```
-    pub fn map<T: Draw + Location>(mut self, element: &[T]) -> Self {
+    pub fn map<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
-            let min_max = map::min_max(&element);
-            // TODO This functionality doesn't work that well for gif encoding.
-            self.add = map::gen_stuff(min_max);
-            let res = map::gen_map_dimensions(min_max);
-            self.image = Some(map::gen_canvas(res.0, res.1));
-            println!("Dimensions: {}x{} | Min/Max: {:?} | Offset: {}x{} | Size: {}", res.0, res.1, min_max, self.add.0, self.add.1, self.size);
+            let (image, add) = map::gen_map(&element); 
+            self.image = Some(image);
+            self.add = add;
         }
 
         // FIXME use any shape.
         let sq = shape::Square::new();
-
-        for e in element {
+        for e in element {    
             self.image = Some(e.draw(
                 self.image.unwrap(),
                 self.add.0,
