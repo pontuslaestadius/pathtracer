@@ -78,7 +78,7 @@ pub fn convert_inner<'a, 'b>(content: &str, cct: &CustomConverter) -> Vec<Group>
         let hashed_line = calculate_hash(&line);
         // Checks the boolean array position for the groups existence.
         if groups_boolean_array[(hashed_line % cct.size) as usize] {
-            
+
             // Add a new node to the existing group.
             let index = groups.iter().position(|ref g| g.settings.hash == hashed_line).unwrap();
             let _ = groups[index].new_node_min_auto("", cct.node_range);
@@ -163,7 +163,7 @@ mod tests {
     }
 
     #[test]
-    fn test_link_groups() { 
+    fn test_link_groups() {
         let content = "a\nb\nc\na\nb\nc\nb\nb\nb\nc";
         let res = convert(content, &|_x| true);
 

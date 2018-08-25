@@ -33,12 +33,10 @@ impl Gif {
     /// Pushes a frame to the Gif structure, This also immediately saves it to disk.
     pub fn push_frame(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
-
         for pix in image.pixels() {
-            pixels.push(pix.data[0]);
-            pixels.push(pix.data[1]);
-            pixels.push(pix.data[2]);
-            pixels.push(pix.data[3]);
+            for i in 0..4 {
+                pixels.push(pix.data[i]);
+            }
         }
 
         // Create frame from data
@@ -61,11 +59,6 @@ mod tests {
         let gif = gif.unwrap();
         assert_eq!(gif.width == 50 && gif.height == 50, true);
         let _ = fs::remove_file("test_gif_new.gif").unwrap();
-    }
-
-    #[test]
-    fn test_push_frame() {
-
     }
 
 }

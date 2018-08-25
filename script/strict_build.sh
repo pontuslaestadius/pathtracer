@@ -20,7 +20,7 @@ listen() {
 
 echo "RESULT\t\tTIME\t\tCOMMAND" >> out.build
 
-listen 1 grep "\s$" -r --include \*.rs
+listen 1 grep "\s$" -r -nr --include \*.rs
 listen 0 cargo build --release
 listen 0 cargo test
 listen 0 cargo +nightly clippy
