@@ -11,7 +11,7 @@ impl<'a> PartialEq for Node {
 }
 
 /// Returns a list of Strings split using \n in a Vec.
-fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
+pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     let mut names: Vec<String> = Vec::new();
