@@ -1,11 +1,13 @@
-use super::*;
-use super::super::coordinate::*;
+use super::{super::coordinate::*, *};
 
-pub fn path<'a>(network: &'a Network<Node>, a: &str, b: &str, algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>) -> Vec<Node> {
-    let _goal = network.get(b)
-        .expect("goal does not exist in network");
-    let start = network.get(a)
-        .expect("start does not exist in network");
+pub fn path<'a>(
+    network: &'a Network<Node>,
+    a: &str,
+    b: &str,
+    algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>,
+) -> Vec<Node> {
+    let _goal = network.get(b).expect("goal does not exist in network");
+    let start = network.get(a).expect("start does not exist in network");
 
     if start.get_links().is_empty() {
         return Vec::new();
@@ -17,7 +19,9 @@ pub fn path<'a>(network: &'a Network<Node>, a: &str, b: &str, algorithm: &Fn(&Ne
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     let tmp = Node::new(element, Coordinate::new(0, 0));
     for (i, elem) in network.hash_map.iter().enumerate() {
-        if elem.is_none() {continue;}
+        if elem.is_none() {
+            continue;
+        }
         if i == (tmp.hash % 666) as usize {
             return network.hash_map[i];
         }
@@ -26,11 +30,8 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
 }
 
 pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
-
-    let _goal = network.get(b)
-        .expect("goal does not exist in network");
-    let first = network.get(a)
-        .expect("start does not exist in network");
+    let _goal = network.get(b).expect("goal does not exist in network");
+    let first = network.get(a).expect("start does not exist in network");
 
     let mut weighted_path: Vec<(u32, Vec<Node>)> = Vec::new();
     for l in first.get_links().iter() {
@@ -64,9 +65,7 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
 /// #Examples
 ///
 /// ```
-/// use pathfinder::Group;
-/// use pathfinder::map::network;
-/// use pathfinder::group;
+/// use pathfinder::{group, map::network, Group};
 ///
 /// let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
 /// for group in groups.iter_mut() {
@@ -88,23 +87,22 @@ mod tests {
     use super::*;
     #[test]
     fn children_none() {
-        let mut group = Group::new_simple(0,0);
+        let mut group = Group::new_simple(0, 0);
         add_children(&mut group, 0);
         assert_eq!(group.nodes.len(), 0);
     }
 
     #[test]
     fn children_some() {
-        let mut group = Group::new_simple(0,0);
+        let mut group = Group::new_simple(0, 0);
         add_children(&mut group, 50);
         assert_eq!(group.nodes.len(), 50);
     }
 
     #[test]
     fn children_many() {
-        let mut group = Group::new_simple(0,0);
+        let mut group = Group::new_simple(0, 0);
         add_children(&mut group, 9999);
         assert_eq!(group.nodes.len(), 9999);
     }
 }
-

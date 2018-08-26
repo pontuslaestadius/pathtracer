@@ -1,6 +1,4 @@
-
-use super::{Shape, Coordinate};
-use super::tools::plot;
+use super::{tools::plot, Coordinate, Shape};
 
 #[derive(Debug, Clone)]
 pub struct Square {}
@@ -12,9 +10,7 @@ pub struct Circle {}
 pub struct Triangle {}
 
 impl Shape for Square {
-    fn new() -> Square {
-        Square {}
-    }
+    fn new() -> Square { Square {} }
 
     /// Returns all coordinates that the shape occupies.
     /// Assume that you start at coordinate x: 0, y: 0.
@@ -30,16 +26,14 @@ impl Shape for Square {
 }
 
 impl Shape for Circle {
-    fn new() -> Circle {
-        Circle {}
-    }
+    fn new() -> Circle { Circle {} }
 
     /// Returns all coordinates that the shape occupies.
     /// Algorithm is derived from: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
 
-        let mut x: i16 = (size-1) as i16;
+        let mut x: i16 = (size - 1) as i16;
         let mut y: i16 = 0;
         let mut dx: i16 = 1;
         let mut dy: i16 = 1;
@@ -47,7 +41,7 @@ impl Shape for Circle {
         let y0: i16 = 0;
         let mut err: i16 = dx - (size << 1) as i16;
 
-        let q_plot = | x1, y1, x2, y2 | plot(Coordinate::new(x1, y1), Coordinate::new(x2, y2));
+        let q_plot = |x1, y1, x2, y2| plot(Coordinate::new(x1, y1), Coordinate::new(x2, y2));
 
         while x >= y {
             vec.append(&mut q_plot(x0 + x, y0 + y, x0 - x, y0 + y));
@@ -71,21 +65,21 @@ impl Shape for Circle {
 }
 
 impl Shape for Triangle {
-    fn new() -> Triangle {
-        Triangle {}
-    }
+    fn new() -> Triangle { Triangle {} }
 
     /// Returns all coordinates that the shape occupies.
     /// Assume that you start at coordinate x: 0, y: 0.
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
         let size = size as i16;
-        let start_x = size/2;
+        let start_x = size / 2;
 
         for i in 0..size {
-            vec.append(&mut plot(Coordinate::new(start_x,0), Coordinate::new(i, size)));
+            vec.append(&mut plot(
+                Coordinate::new(start_x, 0),
+                Coordinate::new(i, size),
+            ));
         }
         vec
     }
 }
-
