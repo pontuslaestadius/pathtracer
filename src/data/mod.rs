@@ -1,12 +1,12 @@
-
+use super::{Coordinate, Group};
 use coordinate::*;
+use std::{
+    collections::hash_map::DefaultHasher,
+    fs::OpenOptions,
+    hash::{Hash, Hasher},
+    io::{self, prelude::*},
+};
 use tools::gen_rgba;
-use std::collections::hash_map::DefaultHasher;
-use std::fs::OpenOptions;
-use std::io::prelude::*;
-use std::hash::{Hash, Hasher};
-use std::io;
-use super::{Group, Coordinate};
 
 /// Holds configurations for converting a content String to a path network.
 pub struct CustomConverter<'a> {
@@ -19,7 +19,8 @@ pub struct CustomConverter<'a> {
     pub ignore_empty_lines: bool,
 }
 
-/// Reads from the provided file, and converts to a path network using default settings.
+/// Reads from the provided file, and converts to a path network using default
+/// settings.
 pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = get_content(path)?;
     Ok(convert(&content, &lambda))
@@ -27,31 +28,29 @@ pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>,
 
 /// Reads from the provided file, and returns content.
 fn get_content(path: &str) -> Result<String, io::Error> {
-    let mut file = OpenOptions::new()
-        .read(true)
-        .open(path)?;
+    let mut file = OpenOptions::new().read(true).open(path)?;
 
     let mut contents = String::new();
     let _ = file.read_to_string(&mut contents);
     Ok(contents)
 }
 
-/// Initializes a CustomConverter a converts the content to a vector of groups and links.
+/// Initializes a CustomConverter a converts the content to a vector of groups
+/// and links.
 pub fn convert(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 120, 120, &lambda);
     convert_inner(&content, &cct)
 }
 
 impl<'a> CustomConverter<'a> {
-
-    /// Constructs a new CustomConverter configuration for data interpretation for a path network.
+    /// Constructs a new CustomConverter configuration for data interpretation
+    /// for a path network.
     pub fn new(
         split: char,
         node_range: u32,
         radius: u32,
-        lambda_tag: &'a Fn(&str) -> bool)
-        -> CustomConverter
-    {
+        lambda_tag: &'a Fn(&str) -> bool,
+    ) -> CustomConverter {
         CustomConverter {
             split,
             node_range,
@@ -64,7 +63,8 @@ impl<'a> CustomConverter<'a> {
     }
 }
 
-/// Constructs a vector of groups and links using a CustomConverter and the string to analyze.
+/// Constructs a vector of groups and links using a CustomConverter and the
+/// string to analyze.
 pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
     let lines = content.split(cct.split);
@@ -73,17 +73,21 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
 
     for line in lines {
         // Ignore empty lines, if enabled. Or match the lambda tag to retrieve it.
-        if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {continue};
+        if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {
+            continue;
+        };
 
         let hashed_line = calculate_hash(&line);
         // Checks the boolean array position for the groups existence.
         if groups_boolean_array[(hashed_line % cct.size) as usize] {
-
             // Add a new node to the existing group.
-            let index = groups.iter().position(|ref g| g.settings.hash == hashed_line).unwrap();
+            let index = groups
+                .iter()
+                .position(|ref g| g.settings.hash == hashed_line)
+                .unwrap();
             groups[index].new_node_min_max(index as u32, cct.node_range);
 
-            // Creates a new group because one did not exist.
+        // Creates a new group because one did not exist.
         } else {
             // Sets the group to exists in the boolean array.
             groups_boolean_array[(hashed_line % cct.size) as usize] = true;
@@ -91,11 +95,11 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
             group.settings.color = gen_rgba();
 
             if cct.link_groups && !groups.is_empty() {
-                let tmp = &groups[groups.len() -1];
+                let tmp = &groups[groups.len() - 1];
                 let n = if tmp.nodes.is_empty() {
                     &tmp.settings
                 } else {
-                    &tmp.nodes[tmp.nodes.len() -1]
+                    &tmp.nodes[tmp.nodes.len() - 1]
                 };
 
                 group.settings.link(n);
@@ -116,12 +120,12 @@ pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use super::super::Draw;
-    use std::path::Path;
-    use std::io::prelude::*;
-    use std::fs::File;
-    use std::fs;
+    use super::{super::Draw, *};
+    use std::{
+        fs::{self, File},
+        io::prelude::*,
+        path::Path,
+    };
 
     fn eval_result(res: Vec<Group>) {
         assert_eq!(res.len(), 3);
@@ -172,15 +176,15 @@ mod tests {
         let res = convert(content, &|_x| true);
 
         for (i, g) in res.iter().enumerate().rev() {
-            if i == 0 { break; }
+            if i == 0 {
+                break;
+            }
             let left = g.get_links()[0].to_hash;
 
             if left == 0 {
                 panic!("Result did not link forward. ({:?})", g.get_links());
             }
         }
-
     }
 
 }
-

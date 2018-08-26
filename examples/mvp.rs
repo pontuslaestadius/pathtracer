@@ -1,16 +1,9 @@
 extern crate pathfinder;
 
-use pathfinder::*;
-use pathfinder::map::network;
+use pathfinder::{map::network, *};
 
 fn main() {
-
-    let pos = [
-        (0,0),
-        (100,100),
-        (150,50),
-        (100,0)
-    ];
+    let pos = [(0, 0), (100, 100), (150, 50), (100, 0)];
 
     let nodes = Node::from_list(&pos);
     let nodes = Node::linked_list(nodes);
@@ -21,7 +14,7 @@ fn main() {
 
 fn print_path(path: &Vec<Node>) {
     let mut distance = 0;
-    let mut prev = Coordinate::new(0,0);
+    let mut prev = Coordinate::new(0, 0);
     for (link_i, leg) in path.iter().enumerate() {
         let dis = pathfinder::coordinate::distance(prev, leg.get_coordinate());
         distance += dis;
