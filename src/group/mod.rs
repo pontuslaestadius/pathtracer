@@ -1,4 +1,7 @@
-use super::Group;
+use super::{Node, Group};
+use super::coordinate;
+
+use std::cmp;
 
 /// Counts the amount of child Nodes.
 ///
@@ -20,6 +23,34 @@ pub fn count(list: &[Group]) -> usize {
         n+=g.nodes.len();
     }
     n
+}
+
+/// Adds a node to a given group, All parameters are optional except the group.
+pub fn add_node(group: &mut Group, mut name: Option<&str>, mut min: Option<u32>, mut max: Option<u32>) {
+    if name.is_none() {
+        name = Some("");
+    }
+
+    if min.is_none() {
+        min = Some(0);
+    }
+
+    if max.is_none() {
+        max = Some(group.get_dynamic_radius());
+    }
+    let min = min.unwrap();
+    let max = max.unwrap();
+    let name = name.unwrap();
+
+    let tmp = min;
+    let min = cmp::min(min, max);
+    let max = cmp::max(tmp, max);
+
+    let geo = coordinate::gen_radius(group.settings.geo, min, max);
+    let mut node = Node::new(name, geo);
+    node.color = group.gen_color(geo);
+    node.radius = group.settings.radius;
+    group.push(node);
 }
 
 #[cfg(test)]

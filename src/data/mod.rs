@@ -81,19 +81,23 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
 
             // Add a new node to the existing group.
             let index = groups.iter().position(|ref g| g.settings.hash == hashed_line).unwrap();
-            let _ = groups[index].new_node_min_auto("", cct.node_range);
+            groups[index].new_node_min_max(index as u32, cct.node_range);
 
             // Creates a new group because one did not exist.
         } else {
             // Sets the group to exists in the boolean array.
             groups_boolean_array[(hashed_line % cct.size) as usize] = true;
             let mut group = Group::new(&line, gen_radius(coordinates, 0, cct.radius));
-            group.new_node_min_auto("", cct.node_range);
             group.settings.color = gen_rgba();
 
             if cct.link_groups && !groups.is_empty() {
                 let tmp = &groups[groups.len() -1];
-                let n = &tmp.nodes[tmp.nodes.len() -1];
+                let n = if tmp.nodes.is_empty() {
+                    &tmp.settings
+                } else {
+                    &tmp.nodes[tmp.nodes.len() -1]
+                };
+
                 group.settings.link(n);
             }
 
@@ -121,9 +125,9 @@ mod tests {
 
     fn eval_result(res: Vec<Group>) {
         assert_eq!(res.len(), 3);
-        assert_eq!(res[0].nodes.len(), 2);
-        assert_eq!(res[1].nodes.len(), 5);
-        assert_eq!(res[2].nodes.len(), 3);
+        assert_eq!(res[0].nodes.len(), 1);
+        assert_eq!(res[1].nodes.len(), 4);
+        assert_eq!(res[2].nodes.len(), 2);
     }
 
     #[test]
