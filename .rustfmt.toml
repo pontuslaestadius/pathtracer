@@ -1,0 +1,16 @@
+indent_style = "Block"
+binop_separator = "Front"
+wrap_comments = true
+condense_wildcard_suffixes = true
+fn_single_line = true
+format_strings = true
+merge_imports = true
+match_block_trailing_comma = true
+force_multiline_blocks = true
+newline_style = "Unix"
+reorder_impl_items = true
+report_todo = "Unnumbered"
+report_fixme = "Unnumbered"
+use_field_init_shorthand = true
+use_try_shorthand = true
+

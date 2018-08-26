@@ -1,8 +1,11 @@
 cache: cargo
 language: rust
 rust:
-  - stable
+  - nightly
+before_script:
+  - rustup component add rustfmt-preview
 script:
+  - cargo +nightly fmt --all -- --check
   - cargo build --verbose --all
   - cargo test --verbose --all
 
