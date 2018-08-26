@@ -1,13 +1,12 @@
-use std::cmp::PartialEq;
-use std::fs::File;
-use std::io;
-use std::io::prelude::*;
 use super::Node;
+use std::{
+    cmp::PartialEq,
+    fs::File,
+    io::{self, prelude::*},
+};
 
 impl<'a> PartialEq for Node {
-    fn eq(&self, other: &Node) -> bool {
-        self.hash == other.hash
-    }
+    fn eq(&self, other: &Node) -> bool { self.hash == other.hash }
 }
 
 /// Returns a list of Strings split using \n in a Vec.
@@ -35,4 +34,3 @@ mod tests {
     }
 
 }
-

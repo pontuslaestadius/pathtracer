@@ -1,19 +1,17 @@
-extern crate rand;
 extern crate pythagoras;
+extern crate rand;
 
-use std::cmp::Ordering;
-use std::f64;
-use super::tools::roll;
-use super::Coordinate;
-use std::ops::Add;
+use super::{tools::roll, Coordinate};
+use std::{cmp::Ordering, f64, ops::Add};
 
-/// Constructs a vector of generic structs from a given list convered to Coordinates.
+/// Constructs a vector of generic structs from a given list convered to
+/// Coordinates.
 pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Vec<T> {
-        let mut result: Vec<T> = Vec::new();
-        for (i, &(x,y)) in list.iter().enumerate() {
-            result.push(get(Coordinate::new(x, y), i));
-        }
-        result
+    let mut result: Vec<T> = Vec::new();
+    for (i, &(x, y)) in list.iter().enumerate() {
+        result.push(get(Coordinate::new(x, y), i));
+    }
+    result
 }
 
 /// Constructs a randomly positioned coordinate.
@@ -27,10 +25,9 @@ pub fn gen() -> Coordinate {
 /// Get difference in distance.
 /// # Examples
 /// ```
-/// use pathfinder::Coordinate;
-/// use pathfinder::coordinate::*;
-/// let c1 = Coordinate::new(0,0);
-/// let c2 = Coordinate::new(100,100);
+/// use pathfinder::{coordinate::*, Coordinate};
+/// let c1 = Coordinate::new(0, 0);
+/// let c2 = Coordinate::new(100, 100);
 /// let difference = c1.diff(c2);
 /// assert_eq!(difference, (100, 100));
 /// ```
@@ -41,10 +38,9 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 /// Get the distance between two Coordinates'.
 /// # Examples
 /// ```
-/// use pathfinder::Coordinate;
-/// use pathfinder::coordinate::distance;
+/// use pathfinder::{coordinate::distance, Coordinate};
 /// let a = Coordinate::new(0, 0);
-/// let b = Coordinate::new(3,4);
+/// let b = Coordinate::new(3, 4);
 /// let distance = distance(a, b);
 /// assert_eq!(distance, 5);
 /// ```
@@ -53,24 +49,22 @@ pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
     pythagoras::theorem(diff.0, diff.1) as u32
 }
 
-/// Generate a Coordinate from a given Coordinate and randomly places it within a radius.
-/// # Examples
+/// Generate a Coordinate from a given Coordinate and randomly places it within
+/// a radius. # Examples
 /// ```
-/// use pathfinder::Coordinate;
-/// use pathfinder::coordinate::*;
-/// let c1 = Coordinate::new(0,0);
+/// use pathfinder::{coordinate::*, Coordinate};
+/// let c1 = Coordinate::new(0, 0);
 /// let c2 = gen_within_radius(c1, 100);
 /// ```
 pub fn gen_within_radius(coord: Coordinate, radius: u32) -> Coordinate {
     gen_radius(coord, 0, radius)
 }
 
-/// Generate a Coordinate from a given Coordinate and randomly places it within a min and max radius.
-/// # Examples
+/// Generate a Coordinate from a given Coordinate and randomly places it within
+/// a min and max radius. # Examples
 /// ```
-/// use pathfinder::Coordinate;
-/// use pathfinder::coordinate::*;
-/// let c1 = Coordinate::new(0,0);
+/// use pathfinder::{coordinate::*, Coordinate};
+/// let c1 = Coordinate::new(0, 0);
 /// let c2 = gen_radius(c1, 50, 100);
 /// ```
 pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
@@ -89,32 +83,24 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     // y = cy + r * sin(a)
     let y = circle(f64::from(coord.y), a.sin()) as i16;
 
-    Coordinate {
-        x,
-        y
-    }
+    Coordinate { x, y }
 }
 
 impl Ord for Coordinate {
-    fn cmp(&self, other: &Coordinate) -> Ordering {
-        (self.x + self.y).cmp(&(other.x + other.y))
-    }
+    fn cmp(&self, other: &Coordinate) -> Ordering { (self.x + self.y).cmp(&(other.x + other.y)) }
 }
 
 impl PartialOrd for Coordinate {
-    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
+    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> { Some(self.cmp(other)) }
 }
 
 impl PartialEq for Coordinate {
-    fn eq(&self, other: &Coordinate) -> bool {
-        (self.x == other.x) && (self.y == other.y)
-    }
+    fn eq(&self, other: &Coordinate) -> bool { (self.x == other.x) && (self.y == other.y) }
 }
 
 impl Add for Coordinate {
     type Output = Coordinate;
+
     fn add(self, other: Coordinate) -> Coordinate {
         Coordinate::new(self.x + other.x, self.y + other.y)
     }
@@ -122,7 +108,7 @@ impl Add for Coordinate {
 
 #[cfg(test)]
 mod tests {
-   use super::*;
+    use super::*;
 
     #[test]
     fn test_eq() {
@@ -136,7 +122,6 @@ mod tests {
 
     #[test]
     fn test_gen_within_radius() {
-
         // Default
         let co1: Coordinate = Coordinate::new(1, 1);
         // Get min and max points. Which the radius can't exceed.
@@ -149,7 +134,6 @@ mod tests {
             assert_eq!(co4 > co6, true);
             assert_eq!(co5 < co6, true);
         }
-
     }
 
     #[test]
@@ -187,4 +171,3 @@ mod tests {
     }
 
 }
-
