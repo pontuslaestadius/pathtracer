@@ -1,6 +1,4 @@
-use super::{Node, Group};
-use super::coordinate;
-
+use super::*;
 use std::cmp;
 
 /// Counts the amount of child Nodes.
@@ -23,6 +21,23 @@ pub fn count(list: &[Group]) -> usize {
         n+=g.nodes.len();
     }
     n
+}
+
+pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
+    let mut min_x: i16 = 0;
+    let mut min_y: i16 = 0;
+    let mut max_x: i16 = 0;
+    let mut max_y: i16 = 0;
+
+    for node in &group.nodes {
+        let (min,max) = node.get_parameters();
+        max_x = std::cmp::max(max_x, max.x);
+        min_x = std::cmp::min(min_x, min.x);
+        max_y = std::cmp::max(max_y, max.y);
+        min_y = std::cmp::min(min_y, min.y);
+    }
+    (Coordinate::new(min_x, min_y),
+     Coordinate::new(max_x, max_y))
 }
 
 /// Adds a node to a given group, All parameters are optional except the group.
