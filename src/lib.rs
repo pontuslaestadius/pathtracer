@@ -124,36 +124,22 @@ impl Location for Node {
     }
 }
 
-impl<'a, 'b> Location for Group {
+impl Location for Group {
     fn get_coordinate(&self) -> Coordinate {
         self.settings.get_coordinate()
     }
 
     fn get_parameters(&self) -> (Coordinate, Coordinate) {
-        let mut min_x: i16 = 0;
-        let mut min_y: i16 = 0;
-        let mut max_x: i16 = 0;
-        let mut max_y: i16 = 0;
-
-        for node in &self.nodes {
-            let (min,max) = node.get_parameters();
-            max_x = std::cmp::max(max_x, max.x);
-            min_x = std::cmp::min(min_x, min.x);
-            max_y = std::cmp::max(max_y, max.y);
-            min_y = std::cmp::min(min_y, min.y);
-        }
-        (Coordinate::new(min_x, min_y),
-         Coordinate::new(max_x, max_y))
+        group::get_parameters(self)
     }
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
-        for node in &self.nodes {
-            let tmp = node.find(hash);
-            if tmp.is_some() {
-                return tmp;
-            }
+        let f = tools::find(hash, &self.nodes);
+        if f.is_some() {
+            Some(f.unwrap().get_coordinate())
+        } else {
+            None
         }
-        None
     }
 }
 
@@ -198,7 +184,7 @@ impl Draw for Node {
     }
 }
 
-impl<'a, 'b> Draw for Group {
+impl Draw for Group {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
     fn draw<S: Shape>(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32, shape: &S) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
@@ -230,13 +216,19 @@ impl<'a, 'b> Draw for Group {
 
 // ------------------------------------------------------------------
 
+impl Hash for HashLink {
+    fn get_hash(&self) -> u64 {
+        self.to_hash
+    }
+}
+
 impl Hash for Node {
     fn get_hash(&self) -> u64 {
         self.hash
     }
 }
 
-impl<'a, 'b> Hash for Group {
+impl Hash for Group {
     fn get_hash(&self) -> u64 {
         self.settings.get_hash()
     }
@@ -252,6 +244,16 @@ impl Coordinate {
             x,
             y
         }
+    }
+
+    /// Calculates the different in x and y of two Coordinates.
+    pub fn diff(self, other: Coordinate) -> (i16, i16) {
+        coordinate::diff(self, other)
+    }
+
+    /// Creates a list of coordinates from a list of tuples with x and y positions.
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
+        coordinate::from_list(&list, &|c, _i| c)
     }
 }
 
@@ -282,12 +284,7 @@ impl Node {
 
     /// Looks through all connected Nodes and returns if they are connected.
     pub fn is_directly_connected(&self, other: &Node) -> bool {
-        for link in &self.links {
-            if  link.to_hash == other.hash {
-                return true;
-            }
-        }
-        false
+        tools::find(other.hash, self.get_links()).is_some()
     }
 
     /// Links a list of nodes together in the order they are indexed.
@@ -350,24 +347,15 @@ impl HashLink {
 
     fn draw(&self, mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>, x_offset: i16, y_offset: i16, size: u32) ->
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-
         if self.from_hash == 0 || self.to_hash == 0 { return image }
-
         let (from, to) = self.get_parameters();
         if from == to { return image }
 
         let x_offset = x_offset + (size/2) as i16;
         let y_offset = y_offset + (size/2) as i16;
 
-        let a = Coordinate::new(
-            from.x +x_offset,
-            from.y +y_offset
-        );
-
-        let b = Coordinate::new(
-            to.x +x_offset,
-            to.y +y_offset
-        );
+        let a = Coordinate::new(from.x +x_offset, from.y +y_offset);
+        let b = Coordinate::new(to.x +x_offset, to.y +y_offset);
 
         let _ = tools::plot(a, b).iter().map(|c|
             image.put_pixel( c.x  as u32, c.y as u32, image::Rgba {data:[0,0,0,255]})
@@ -460,17 +448,6 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 
 // ------------------------------------------------------------------
 
-impl Coordinate {
-    // Calculates the different in x and y of two Coordinates.
-    pub fn diff(self, other: Coordinate) -> (i16, i16) {
-        coordinate::diff(self, other)
-    }
-
-    pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
-        coordinate::from_list(&list, &|c, _i| c)
-    }
-}
-
 impl Map {
     pub fn new() -> Map {
         Map {
@@ -483,7 +460,6 @@ impl Map {
     /// Saves the image to disk.
     pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
         self.image.unwrap().save(path)
-
     }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
@@ -535,71 +511,21 @@ impl Network<Node> {
     /// Calculates the path from node A to node B.
     /// ```
     /// use pathfinder::{Node, Coordinate, Network};
+    /// use pathfinder::map::network;
     /// let b = Node::new("B", Coordinate::new(20,20));
     /// let mut a = Node::new("A", Coordinate::new(0,0));
     /// a.link(&b);
     /// let network = Network::new(vec!(a, b));
-    /// let path = network.path("A", "B", &Network::path_shortest_leg);
+    /// let path = network.path("A", "B", &network::path_shortest_leg);
     /// assert_eq!(path, vec!(a, b));
     /// ```
     pub fn path<'a>(&'a self, a: &str, b: &str, algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>) -> Vec<Node> {
-        let _goal = self.get(b)
-            .expect("goal does not exist in network");
-        let start = self.get(a)
-            .expect("start does not exist in network");
-
-        if start.get_links().is_empty() {
-            return Vec::new();
-        }
-
-        algorithm(&self, a, b)
+        map::network::path(self, a, b, algorithm)
     }
 
     /// Returns if the given hash exists in the network.
     pub fn get(&self, element: &str) -> Option<Node> {
-        let tmp = Node::new(element, Coordinate::new(0, 0));
-        for (i, elem) in self.hash_map.iter().enumerate() {
-            if elem.is_none() {continue;}
-            if i == (tmp.hash % 666) as usize {
-                return self.hash_map[i];
-            }
-        }
-        None
+        map::network::get(self, element)
     }
-
-    pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
-
-        let _goal = network.get(b)
-            .expect("goal does not exist in network");
-        let first = network.get(a)
-            .expect("start does not exist in network");
-
-        let mut weighted_path: Vec<(u32, Vec<Node>)> = Vec::new();
-        for l in first.get_links().iter() {
-            let node_opt = network.hash_map[(l.to_hash % 666) as usize];
-            if node_opt.is_none() {
-                continue;
-            }
-            let node = node_opt.unwrap();
-            let dis = coordinate::distance(first.geo, node.geo);
-            weighted_path.push((dis, vec![first, node]));
-        }
-
-        if weighted_path.is_empty() {
-            panic!("No more paths!");
-        }
-
-        let (_dis, path) = weighted_path.remove(0);
-        path
-
-        /*
-         * For each link in starting node.
-         * Make a weighted list of sum_distance for each available path.
-         * Pick the lowest weighted path.
-         * Once the path is at the goal, we stop.
-         * Generate path from numbers.
-         */
-    }
-
 }
 
