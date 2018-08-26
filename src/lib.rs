@@ -172,10 +172,6 @@ impl Draw for Node {
     image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let x = self.geo.x +x_offset as i16;
         let y = self.geo.y +y_offset as i16;
-        let size = match self.radius {
-            Some(_) => self.radius.unwrap(),
-            None => size
-        };
 
         for link in &self.links {
             image = link.draw(image, x_offset, y_offset, size);
@@ -390,6 +386,39 @@ impl Group {
         }
     }
 
+    /// Adds a Node dynamically to the Group.
+    pub fn new_node(&mut self) {
+        group::add_node(self, None, None, None);
+    }
+
+    /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
+    pub fn new_node_min_max(&mut self, min: u32, max: u32) {
+        group::add_node(self, None, Some(min), Some(max));
+    }
+
+    /// Removes all non-essentials from the standard implementation.
+    pub fn new_simple(x: i16, y: i16) -> Group {
+        Group::new("", Coordinate::new(x, y))
+    }
+
+    /// Pushes a Node to the Group.
+    pub fn push(&mut self, node: Node) {
+        self.nodes.push(node);
+    }
+
+    /// Returns a dynamic radius based on the number of Nodes in the Group.
+    pub fn get_dynamic_radius(&self) -> u32 {
+        match self.settings.radius {
+            Some(x) => x,
+            None => 7 + self.nodes.len()as u32 /2,
+        }
+    }
+
+    /// Generates an image::Rgba based on the color of the Group and the distance from center.
+    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
+        tools::range_color(self.get_dynamic_radius() as i16, self.settings.color, self.settings.geo, coordinates)
+    }
+
     /// Converts a list of tuples (x,y) to a Vector of Groups.
     /// Names are assigned from "A" and upwards automatically.
     ///
@@ -439,76 +468,6 @@ impl Coordinate {
 
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
         coordinate::from_list(&list, &|c, _i| c)
-    }
-}
-
-impl<'a, 'b> Group {
-
-    /// Returns the nodes that exists inside the Group.
-    pub fn get_nodes(&self) -> &Vec<Node> {
-        &self.nodes
-    }
-
-    /// Adds a Node dynamically to the Group.
-    pub fn new_node(&mut self, name: &str) {
-        let geo = coordinate::gen_radius(self.settings.geo, 0, self.get_dynamic_radius());
-        self.new_node_inner(geo, name);
-    }
-
-    /// Adds a Node with a static distance from the center of the Group.
-    pub fn new_node_min_auto(&mut self, name: &str, min: u32) -> &Node {
-        let geo = coordinate::gen_radius(self.settings.geo, 0, min+5);
-        self.new_node_inner(geo, name)
-    }
-
-    /// Adds a Node with a specific minimum and maximum distance from the center of the Group.
-    pub fn new_node_min_max(&mut self, name: &str, min: u32, max: u32) -> &Node {
-        let geo = coordinate::gen_radius(self.settings.geo, min, max);
-        self.new_node_inner(geo, name)
-    }
-
-    /// Constructs a new node for the Group and mirrors the properties to it.
-    pub fn new_node_inner(&mut self, geo: Coordinate, name: &str) -> &Node {
-        let mut node = Node::new(name, geo);
-        node.color = self.gen_color(geo);
-        node.radius = self.settings.radius;
-        self.push(node);
-        &self.nodes[self.nodes.len() -1]
-    }
-
-    /// Removes all non-essentials from the standard implementation.
-    pub fn new_simple(x: i16, y: i16) -> Group {
-        Group::new("", Coordinate::new(x, y))
-    }
-
-    /// Pushes a Node to the Group.
-    pub fn push(&mut self, node: Node) {
-        self.nodes.push(node);
-    }
-
-    /// Returns a dynamic radius based on the number of Nodes in the Group.
-    pub fn get_dynamic_radius(&self) -> u32 {
-        match self.settings.radius {
-            Some(x) => x,
-            None => 7 + self.nodes.len()as u32 /2,
-        }
-    }
-
-    /// Generates an image::Rgba based on the color of the Group and the distance from center.
-    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
-        let radius = self.get_dynamic_radius() as i16;
-        let (x_dif, y_dif) = self.settings.geo.diff(coordinates);
-        let x_scale: f64 = f64::from(x_dif) / f64::from(radius);
-        let y_scale: f64 = f64::from(y_dif) / f64::from(radius);
-        let c = self.settings.color.data;
-        let max_multi: f64 = f64::from(i32::from(c[0]) + i32::from(c[1]) + i32::from(c[2])/3);
-        let modify = (-max_multi*(x_scale+y_scale)/2.0) as i32;
-        image::Rgba {data: [
-            tools::border(c[0], modify),
-            tools::border(c[1], modify),
-            tools::border(c[2], modify),
-            tools::border(c[3], 0)
-        ]}
     }
 }
 
@@ -634,17 +593,12 @@ impl Network<Node> {
         path
 
         /*
-         *
          * For each link in starting node.
          * Make a weighted list of sum_distance for each available path.
          * Pick the lowest weighted path.
          * Once the path is at the goal, we stop.
          * Generate path from numbers.
-         *
-         *
-         *
-         * */
-
+         */
     }
 
 }

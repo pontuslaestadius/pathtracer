@@ -1,4 +1,5 @@
 extern crate rand;
+extern crate image;
 
 use image::Rgba;
 use super::{Hash, Coordinate};
@@ -15,6 +16,20 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
         }
     }
     None
+}
+
+pub fn range_color(falloff: i16, base: image::Rgba<u8>, base_geo: Coordinate, to_geo: Coordinate) -> image::Rgba<u8> {
+    let (x_dif, y_dif) = base_geo.diff(to_geo);
+    let x_scale: f64 = f64::from(x_dif) / f64::from(falloff);
+    let y_scale: f64 = f64::from(y_dif) / f64::from(falloff);
+    let max_multi: f64 = f64::from(i32::from(base[0]) + i32::from(base[1]) + i32::from(base[2])/3);
+    let modify = (-max_multi*(x_scale+y_scale)/2.0) as i32;
+    image::Rgba {data: [
+        border(base[0], modify),
+        border(base[1], modify),
+        border(base[2], modify),
+        border(base[3], 0)
+    ]}
 }
 
 /// Returns a random number between the min and maximum.
