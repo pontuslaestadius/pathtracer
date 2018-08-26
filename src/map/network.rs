@@ -1,6 +1,64 @@
 use super::*;
 use super::super::coordinate::*;
 
+pub fn path<'a>(network: &'a Network<Node>, a: &str, b: &str, algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>) -> Vec<Node> {
+    let _goal = network.get(b)
+        .expect("goal does not exist in network");
+    let start = network.get(a)
+        .expect("start does not exist in network");
+
+    if start.get_links().is_empty() {
+        return Vec::new();
+    }
+
+    algorithm(&network, a, b)
+}
+
+pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
+    let tmp = Node::new(element, Coordinate::new(0, 0));
+    for (i, elem) in network.hash_map.iter().enumerate() {
+        if elem.is_none() {continue;}
+        if i == (tmp.hash % 666) as usize {
+            return network.hash_map[i];
+        }
+    }
+    None
+}
+
+pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
+
+    let _goal = network.get(b)
+        .expect("goal does not exist in network");
+    let first = network.get(a)
+        .expect("start does not exist in network");
+
+    let mut weighted_path: Vec<(u32, Vec<Node>)> = Vec::new();
+    for l in first.get_links().iter() {
+        let node_opt = network.hash_map[(l.to_hash % 666) as usize];
+        if node_opt.is_none() {
+            continue;
+        }
+        let node = node_opt.unwrap();
+        let dis = coordinate::distance(first.geo, node.geo);
+        weighted_path.push((dis, vec![first, node]));
+    }
+
+    if weighted_path.is_empty() {
+        panic!("No more paths!");
+    }
+
+    let (_dis, path) = weighted_path.remove(0);
+    path
+
+    /*
+     * For each link in starting node.
+     * Make a weighted list of sum_distance for each available path.
+     * Pick the lowest weighted path.
+     * Once the path is at the goal, we stop.
+     * Generate path from numbers.
+     */
+}
+
 /// Adds the number of children supplied, positioned randomly to a group.
 ///
 /// #Examples
