@@ -1,7 +1,7 @@
 use super::*;
 use std::cmp;
 
-/// Counts the amount of child Nodes.
+/// Counts the amount of child Nodes in a list of Groups.
 ///
 /// #Examples
 ///

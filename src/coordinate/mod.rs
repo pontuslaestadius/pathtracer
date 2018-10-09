@@ -169,5 +169,4 @@ mod tests {
         assert_eq!(co1 == co1.clone(), true);
         assert_eq!(co2 == co2.clone(), true);
     }
-
 }

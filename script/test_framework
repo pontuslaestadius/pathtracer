@@ -1,5 +1,7 @@
+#!/bin/bash
+
 REPOROOT="$(git rev-parse --show-toplevel)"
-cd $REPOROOT
+OUT="out.build"
 
 listen() {
     cd $REPOROOT
@@ -15,7 +17,7 @@ listen() {
     fi
     end=`date +%s`
     runtime=$((end-start))
-    echo "$STAT\e[0m\t\t$runtime\t\t$@" >> out.build
+    echo "$STAT\e[0m\t\t$runtime\t\t$@" >> $OUT
 }
 
 echo "RESULT\t\tTIME\t\tCOMMAND" >> out.build
@@ -25,7 +27,7 @@ listen 0 cargo build --release
 listen 0 cargo test
 listen 0 cargo +nightly clippy
 listen 0 cargo tarpaulin -v
-listen 0 sh script/build_example_output.sh
+listen 0 sh ${REPOROOT}/script/build_example_output.sh
 
-cat out.build
-rm out.build
+cat $OUT
+rm $OUT

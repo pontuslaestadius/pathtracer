@@ -2,3 +2,4 @@ target/
 .idea/
 push.config
 resources/*
+out.build

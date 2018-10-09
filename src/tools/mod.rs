@@ -20,6 +20,25 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
     None
 }
 
+
+/// Returns a Rgba with a modified value depending on how close it is to it's falloff.
+///
+/// # Examples
+/// ```
+/// extern crate image;
+/// extern crate pathfinder;
+/// use pathfinder::{Coordinate, tools};
+///
+/// let falloff = 100;
+/// let color = image::Rgba { data: [100, 100, 100, 255] };
+/// let base = Coordinate::new(0, 0);
+/// let to = Coordinate::new(10, 10);
+///
+/// assert_eq!(
+///     tools::range_color(falloff, color, base, to),
+///     image::Rgba{ data: [77, 77, 77, 255] }
+/// );
+/// ```
 pub fn range_color(
     falloff: i16,
     base: image::Rgba<u8>,
@@ -43,7 +62,7 @@ pub fn range_color(
 }
 
 /// Returns a random number between the min and maximum.
-/// # Example
+/// # Examples
 /// ```
 /// use pathfinder::tools;
 /// let nr = tools::roll(50, 100);
@@ -62,7 +81,7 @@ pub fn get_random_item(list: &[String]) -> &String {
 }
 
 /// Checks so that the applied adjustments stay within a u8.
-/// # Example
+/// # Examples
 /// ```
 /// use pathfinder::tools;
 /// let a = 50;
@@ -141,10 +160,13 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     primary
 }
 
+/// Implemented according to:
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+///
 /// Plots the pixels between two coordinate points.
 /// Checks so that the applied adjustments stay within a u8.
-/// # Example
+///
+/// # Examples
 /// ```
 /// use pathfinder::{tools, Coordinate};
 /// let a = Coordinate::new(0, 0);
@@ -307,6 +329,7 @@ mod tests {
     }
 
     #[test]
+    // FIXME this test performs no assert.
     fn test_seed_rgba() {
         let seed = 9611;
         for i in 0..30 {
