@@ -1,0 +1,11 @@
+#!/bin/bash
+
+RESULT=$(cargo +nightly tarpaulin)
+EXIT=$?
+
+if [ $EXIT -eq 101 ]; then
+    echo "tarpaulin not installed. run the following commands:"
+    echo "apt-get update && apt-get install libssl-dev pkg-config cmake zlib1g-dev"
+    echo "RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin"
+fi
+

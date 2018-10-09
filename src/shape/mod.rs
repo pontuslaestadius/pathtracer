@@ -29,7 +29,8 @@ impl Shape for Circle {
     fn new() -> Circle { Circle {} }
 
     /// Returns all coordinates that the shape occupies.
-    /// Algorithm is derived from: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+    /// Algorithm is derived from:
+    /// https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
 
