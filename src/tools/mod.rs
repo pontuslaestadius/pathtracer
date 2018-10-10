@@ -329,7 +329,6 @@ mod tests {
     }
 
     #[test]
-    // FIXME this test performs no assert.
     fn test_seed_rgba() {
         let seed = 9611;
         for i in 0..30 {
