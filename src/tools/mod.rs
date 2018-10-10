@@ -20,23 +20,27 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
     None
 }
 
-
-/// Returns a Rgba with a modified value depending on how close it is to it's falloff.
+/// Returns a Rgba with a modified value depending on how close it is to it's
+/// falloff.
 ///
 /// # Examples
 /// ```
 /// extern crate image;
 /// extern crate pathfinder;
-/// use pathfinder::{Coordinate, tools};
+/// use pathfinder::{tools, Coordinate};
 ///
 /// let falloff = 100;
-/// let color = image::Rgba { data: [100, 100, 100, 255] };
+/// let color = image::Rgba {
+///     data: [100, 100, 100, 255],
+/// };
 /// let base = Coordinate::new(0, 0);
 /// let to = Coordinate::new(10, 10);
 ///
 /// assert_eq!(
 ///     tools::range_color(falloff, color, base, to),
-///     image::Rgba{ data: [77, 77, 77, 255] }
+///     image::Rgba {
+///         data: [77, 77, 77, 255]
+///     }
 /// );
 /// ```
 pub fn range_color(

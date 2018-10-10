@@ -370,7 +370,8 @@ impl HashLink {
                         data: [0, 0, 0, 255],
                     },
                 )
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
         image
     }
 }

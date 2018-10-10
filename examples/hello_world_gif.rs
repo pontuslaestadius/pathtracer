@@ -3,7 +3,6 @@
 //! Since: 2017-04-06
 //!
 //! Visualizes a moving gif.
-//!
 
 extern crate gif;
 extern crate image;
