@@ -3,7 +3,6 @@
 //! Since: 2017-12-02
 //!
 //! Visualizes a provided log with the marked tags.
-//!
 
 extern crate pathfinder;
 extern crate rand;
