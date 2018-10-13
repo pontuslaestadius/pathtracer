@@ -1,34 +1,27 @@
 #!/bin/bash
+set -e
 
-REPOROOT="$(git rev-parse --show-toplevel)"
-OUT="out.build"
+EXIT_CODE=0
 
-listen() {
-    cd $REPOROOT
-    EXIT=$1
-    shift
-    start=`date +%s`
-    RESULT="$( $@ )"
+if [ -z "$REPOROOT" ]; then
+    echo "Sourcing Pathfinder Setup..."
+    source $(git rev-parse --show-toplevel)/script/utils/setup
+fi
 
-    if [ $? -ne $EXIT ]; then
-        STAT="\e[91mFAILED"
-    else
-        STAT="\e[92mok"
-    fi
-    end=`date +%s`
-    runtime=$((end-start))
-    echo "$STAT\e[0m\t\t$runtime\t\t$@" >> $OUT
-}
+for file in $REPOROOT/tests/*; do
+    while read line; do
+	[ -z "$line" ] && continue
+	echo -e -n "tests/$(basename $file) - ${line} ... "
+	eval "${line}" >/dev/null
+	E=$?
+	if [ "$E" != "0" ]; then
+	   echo -e "\e[91mFAILED\e[0m"
+	   EXIT_CODE=1;
+	else
+	   echo -e "\e[92mok\e[0m"
+	fi
+    done <$file
+done
 
-echo "RESULT\t\tTIME\t\tCOMMAND" > out.build
+exit $EXIT_CODE
 
-listen 0 grep -oE "cargo.+$" ${REPOROOT}/.travis.yml | bash
-listen 1 grep "\s$" -r -nr --include \*.rs
-listen 0 cargo build --release
-listen 0 cargo test
-listen 0 cargo +nightly clippy
-listen 0 cargo tarpaulin -v
-listen 0 .${REPOROOT}/script/build_example
-
-cat $OUT
-rm $OUT

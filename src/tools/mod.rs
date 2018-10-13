@@ -257,8 +257,8 @@ fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) ->
 
     let mut plot: Vec<Coordinate> = Vec::new();
     let mut last_y = y;
-    for x in min(x0, x1)..max(x0, x1) + 1 {
-        for i in min(last_y, y)..max(last_y, y) + 1 {
+    for x in min(x0, x1)..=max(x0, x1) {
+        for i in min(last_y, y)..=max(last_y, y) {
             plot.push(Coordinate::new(x as i16, i));
         }
         last_y = y;

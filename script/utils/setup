@@ -1,0 +1,5 @@
+#!/bin/bash
+
+REPOROOT="$(git rev-parse --show-toplevel)"
+FILE="${REPOROOT}/out.build"
+PSS=true

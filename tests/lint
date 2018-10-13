@@ -1,0 +1,2 @@
+cd $REPOROOT && cargo tarpaulin -v
+cargo +nightly clippy
