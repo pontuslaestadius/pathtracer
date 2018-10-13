@@ -1,0 +1,1 @@
+cd $REPOROOT && grep "\s$" -r -nr --include \*.rs
