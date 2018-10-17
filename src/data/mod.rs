@@ -123,7 +123,6 @@ mod tests {
     use super::{super::Draw, *};
     use std::{
         fs::{self, File},
-        io::prelude::*,
         path::Path,
     };
 
@@ -186,5 +185,4 @@ mod tests {
             }
         }
     }
-
 }

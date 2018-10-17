@@ -95,36 +95,17 @@ pub fn get_random_item(list: &[String]) -> &String {
 /// assert_eq!(max, 255);
 /// assert_eq!(zero, 0);
 /// ```
-pub fn border(a: u8, b: i32) -> u8 {
-    let a = i32::from(a);
-
-    // If it's too big.
-    if a + b > 255 {
-        255 as u8
-    // If it's too small.
-    } else if a + b < 0 {
-        0 as u8
-    // If it's alright.
-    } else {
-        (a + b) as u8
-    }
-}
+pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) as u8 }
 
 /// Returns a random Rgb color. the opacity is always 255.
 pub fn gen_rgba() -> Rgba<u8> {
-    // Node
     let mut primary: Rgba<u8> = Rgba {
         data: [0, 0, 0, 255],
     };
 
-    // Color of the node.
     for i in 0..4 {
         let v = u32::from(primary.data[i]) + roll(0, 255);
-
-        // If v goes above what a u8 can take. Set it to max.
-        let v2 = if v > 255 { 255 } else { v };
-
-        primary.data[i] = v2 as u8;
+        primary.data[i] = min(v, 255) as u8;
     }
 
     primary
@@ -132,33 +113,26 @@ pub fn gen_rgba() -> Rgba<u8> {
 
 /// Returns a Rgb color based on a seed value. the opacity is always 255.
 pub fn seed_rgba(seed: u64) -> Rgba<u8> {
-    // Node
+    let rem: u64 = 255;
+    let mut mi: u32 = ((seed / 2) % rem) as u32;
+    let mut max: u32 = (seed % rem) as u32;
+
+    if mi > max {
+        swap(&mut mi, &mut max);
+    } else if mi == max && mi == 0 {
+        max += 1;
+    } else {
+        mi -= 1;
+    }
+
     let mut primary: Rgba<u8> = Rgba {
         data: [0, 0, 0, 255],
     };
 
-    let rem: u64 = 255;
-    let mut min: u32 = ((seed / 2) % rem) as u32;
-    let mut max: u32 = (seed % rem) as u32;
-
-    if min > max {
-        swap(&mut min, &mut max);
-    } else if min == max {
-        if min == 0 {
-            max += 1;
-        } else {
-            min -= 1;
-        }
-    }
-
     // Color of the node.
     for i in 0..4 {
-        let v = u32::from(primary.data[i]) + roll(min, max);
-
-        // If v goes above what a u8 can take. Set it to max.
-        let v2 = if v > 255 { 255 } else { v };
-
-        primary.data[i] = v2 as u8;
+        let v = u32::from(primary.data[i]) + roll(mi, max);
+        primary.data[i] = min(v, 255) as u8;
     }
 
     primary
@@ -186,21 +160,13 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
     if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
-        let add_x = if coordinates1.x < coordinates2.x {
-            -coordinates1.x
-        } else {
-            -coordinates2.x
-        };
+        let add_x = max(-coordinates1.x, -coordinates2.x);
+        let add_y = max(-coordinates1.y, -coordinates2.y);
 
-        let add_y = if coordinates1.y < coordinates2.y {
-            -coordinates1.y
-        } else {
-            -coordinates2.y
-        };
-        let new_coordinate1 = Coordinate::new(coordinates1.x + add_x, coordinates1.y + add_y);
-        let new_coordinate2 = Coordinate::new(coordinates2.x + add_x, coordinates2.y + add_y);
-
-        let new_coordinates = plot(new_coordinate1, new_coordinate2);
+        let new_coordinates = plot(
+            Coordinate::new(coordinates1.x + add_x, coordinates1.y + add_y),
+            Coordinate::new(coordinates2.x + add_x, coordinates2.y + add_y),
+        );
 
         let mut vec_final = Vec::new();
 
@@ -209,12 +175,6 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
         }
         return vec_final;
     }
-
-    let x0 = (coordinates1.x) as usize;
-    let x1 = (coordinates2.x) as usize;
-
-    let y0 = (coordinates1.y) as usize;
-    let y1 = (coordinates2.y) as usize;
 
     // If it's a vertical line
     if coordinates1.x == coordinates2.x {
@@ -225,6 +185,10 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
         vec
     // If it's not a vertical line
     } else {
+        let x0 = (coordinates1.x) as usize;
+        let x1 = (coordinates2.x) as usize;
+        let y0 = (coordinates1.y) as usize;
+        let y1 = (coordinates2.y) as usize;
         plot_bresenham(x0, y0, x1, y1)
     }
 }
@@ -314,7 +278,7 @@ mod tests {
     #[test]
     fn test_roll() {
         let res = roll(0, 5);
-        assert_eq!(res >= 0 && res <= 5, true);
+        assert_eq!(res <= 5, true);
     }
 
     #[test]
@@ -358,5 +322,4 @@ mod tests {
             assert_eq!(plot[i].y, i as i16);
         }
     }
-
 }

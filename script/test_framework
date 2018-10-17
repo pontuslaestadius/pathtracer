@@ -1,27 +1,30 @@
 #!/bin/bash
 set -e
 
-EXIT_CODE=0
-
 if [ -z "$REPOROOT" ]; then
-    echo "Sourcing Pathfinder Setup..."
     source $(git rev-parse --show-toplevel)/script/utils/setup
 fi
+
+EXECUTED=""
 
 for file in $REPOROOT/tests/*; do
     while read line; do
 	[ -z "$line" ] && continue
-	echo -e -n "tests/$(basename $file) - ${line} ... "
-	eval "${line}" >/dev/null
-	E=$?
-	if [ "$E" != "0" ]; then
-	   echo -e "\e[91mFAILED\e[0m"
-	   EXIT_CODE=1;
-	else
-	   echo -e "\e[92mok\e[0m"
-	fi
+        line_nospaces="$(echo -e "${line}" | tr -d '[:space:]')"
+        for prev in $EXECUTED; do
+            if [ "$line_nospaces" == "$prev" ]; then
+                echo -e "\n\e[94mCommand '$prev' already executed, and will be skipped.\e[0m\n"
+                unset line
+                break
+            fi
+        done
+
+	[ -z "$line" ] && continue
+	echo -e "\n\e[94mFILE: tests/$(basename $file) - COMMAND: ${line} \e[0m\n"
+	eval "${line}"
+        EXECUTED="$line_nospaces $EXECUTED"
     done <$file
 done
 
-exit $EXIT_CODE
+echo -e "\e[92mSUCCESS\e[0m"
 

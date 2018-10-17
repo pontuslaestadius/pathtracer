@@ -167,9 +167,7 @@ impl Draw for Node {
         }
 
         for offset in shape.area(size) {
-            let xo = (x + offset.x) as u32;
-            let yo = (y + offset.y) as u32;
-            image.put_pixel(xo, yo, self.color);
+            image.put_pixel((x + offset.x) as u32, (y + offset.y) as u32, self.color);
         }
         image
     }
@@ -357,21 +355,21 @@ impl HashLink {
         let x_offset = x_offset + (size / 2) as i16;
         let y_offset = y_offset + (size / 2) as i16;
 
-        let a = Coordinate::new(from.x + x_offset, from.y + y_offset);
-        let b = Coordinate::new(to.x + x_offset, to.y + y_offset);
-
-        let _ = tools::plot(a, b)
-            .iter()
-            .map(|c| {
-                image.put_pixel(
-                    c.x as u32,
-                    c.y as u32,
-                    image::Rgba {
-                        data: [0, 0, 0, 255],
-                    },
-                )
-            })
-            .collect::<Vec<_>>();
+        let _ = tools::plot(
+            Coordinate::new(from.x + x_offset, from.y + y_offset),
+            Coordinate::new(to.x + x_offset, to.y + y_offset),
+        )
+        .iter()
+        .map(|c| {
+            image.put_pixel(
+                c.x as u32,
+                c.y as u32,
+                image::Rgba {
+                    data: [0, 0, 0, 255],
+                },
+            )
+        })
+        .collect::<Vec<_>>();
         image
     }
 }
