@@ -1,1 +1,2 @@
+grep -oE "rustup.+$" ${REPOROOT}/.travis.yml | bash
 grep -oE "cargo.+$" ${REPOROOT}/.travis.yml | bash

@@ -4,7 +4,6 @@ use std::cmp;
 /// Counts the amount of child Nodes in a list of Groups.
 ///
 /// #Examples
-///
 /// ```
 /// use pathfinder::{group, map::network, Group};
 /// let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
@@ -21,6 +20,17 @@ pub fn count(list: &[Group]) -> usize {
     n
 }
 
+/// Returns the the largest and smallest x and y position.
+///
+/// #Examples
+/// ```
+/// use pathfinder::{group, Coordinate, Group, Node};
+/// let mut group = Group::new_simple(0, 0);
+/// group.push(Node::new("", Coordinate::new(100, 100)));
+/// let (min, max) = group::get_parameters(&group);
+/// assert_eq!(min.x, 0); // y values are identical
+/// assert_eq!(max.x, 100);
+/// ```
 pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
     let mut min_x: i16 = 0;
     let mut min_y: i16 = 0;
@@ -38,6 +48,7 @@ pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
 }
 
 /// Adds a node to a given group, All parameters are optional except the group.
+/// This is the underlying function used in Group::push(..).
 pub fn add_node(
     group: &mut Group,
     mut name: Option<&str>,

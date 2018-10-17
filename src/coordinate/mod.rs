@@ -23,6 +23,7 @@ pub fn gen() -> Coordinate {
 }
 
 /// Get difference in distance.
+///
 /// # Examples
 /// ```
 /// use pathfinder::{coordinate::*, Coordinate};
@@ -36,6 +37,7 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 }
 
 /// Get the distance between two Coordinates'.
+///
 /// # Examples
 /// ```
 /// use pathfinder::{coordinate::distance, Coordinate};
@@ -50,7 +52,9 @@ pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within
-/// a radius. # Examples
+/// a radius.
+///
+/// # Examples
 /// ```
 /// use pathfinder::{coordinate::*, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
@@ -61,7 +65,9 @@ pub fn gen_within_radius(coord: Coordinate, radius: u32) -> Coordinate {
 }
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within
-/// a min and max radius. # Examples
+/// a min and max radius.
+///
+/// # Examples
 /// ```
 /// use pathfinder::{coordinate::*, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
