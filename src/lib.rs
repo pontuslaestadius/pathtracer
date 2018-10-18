@@ -234,7 +234,7 @@ impl Hash for Group {
 
 impl Coordinate {
     /// Constructs a Coordinate struct.
-    pub fn new(x: i16, y: i16) -> Coordinate { Coordinate { x, y } }
+    pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
 
     /// Calculates the different in x and y of two Coordinates.
     pub fn diff(self, other: Coordinate) -> (i16, i16) { coordinate::diff(self, other) }
@@ -248,7 +248,7 @@ impl Coordinate {
 
 impl Node {
     /// Constructs a Node struct.
-    pub fn new(name: &str, geo: Coordinate) -> Node {
+    pub fn new(name: &str, geo: Coordinate) -> Self {
         Node {
             hash: data::calculate_hash(&name),
             geo,
@@ -328,7 +328,7 @@ impl Node {
 }
 
 impl HashLink {
-    pub fn new(from_hash: u64, to_hash: u64) -> HashLink {
+    pub fn new(from_hash: u64, to_hash: u64) -> Self {
         HashLink {
             from_hash,
             to_hash,
@@ -376,7 +376,7 @@ impl HashLink {
 
 impl Group {
     /// Constructs a new Group
-    pub fn new(name: &str, coordinates: Coordinate) -> Group {
+    pub fn new(name: &str, coordinates: Coordinate) -> Self {
         Group {
             settings: Node::new(name, coordinates),
             nodes: Vec::new(),
@@ -386,6 +386,13 @@ impl Group {
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
 
+    /// Sets the color of the Group.
+    pub fn set_color<T: Into<u8>>(&mut self, r: T, g: T, b: T) {
+        self.settings.color = image::Rgba {
+            data: [r.into(), g.into(), b.into(), 255],
+        }
+    }
+
     /// Adds a Node with a specific minimum and maximum distance from the
     /// center of the Group.
     pub fn new_node_min_max(&mut self, min: u32, max: u32) {
@@ -393,7 +400,7 @@ impl Group {
     }
 
     /// Removes all non-essentials from the standard implementation.
-    pub fn new_simple(x: i16, y: i16) -> Group { Group::new("", Coordinate::new(x, y)) }
+    pub fn new_simple(x: i16, y: i16) -> Self { Group::new("", Coordinate::new(x, y)) }
 
     /// Pushes a Node to the Group.
     pub fn push(&mut self, node: Node) { self.nodes.push(node); }
@@ -443,7 +450,7 @@ impl Group {
 }
 
 impl<T: Draw + Hash + std::marker::Copy> Network<T> {
-    pub fn new(mut elements: Vec<T>) -> Network<T> {
+    pub fn new(mut elements: Vec<T>) -> Self {
         let mut hash_map: [Option<T>; 666] = [None; 666];
         while !elements.is_empty() {
             let e = elements.remove(0);
@@ -457,7 +464,7 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 // ------------------------------------------------------------------
 
 impl Map {
-    pub fn new() -> Map {
+    pub fn new() -> Self {
         Map {
             image: None,
             add: (0, 0),

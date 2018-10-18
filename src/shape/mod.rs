@@ -73,11 +73,9 @@ impl Shape for Triangle {
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
         let size = size as i16;
-        let start_x = size / 2;
-
         for i in 0..size {
             vec.append(&mut plot(
-                Coordinate::new(start_x, 0),
+                Coordinate::new(size / 2, 0),
                 Coordinate::new(i, size),
             ));
         }

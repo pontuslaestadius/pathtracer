@@ -16,7 +16,7 @@ fn main() {
     // If no arguments provided. Notify user and exit.
     if args.len() < 3 {
         println!("Invalid arguments, application requires: <input> <output> [tag]");
-        return ();
+        std::process::exit(1);
     }
 
     // The tag to find to group them by.
