@@ -136,7 +136,7 @@ mod tests {
     #[test]
     fn test_convert_inner() {
         let cct = CustomConverter {
-            split: ' ',
+            split: '-',
             node_range: 10,
             radius: 50,
             size: 50,
@@ -145,7 +145,7 @@ mod tests {
             link_groups: true,
         };
 
-        let content = "a b c a b c b b b c";
+        let content = "a-b-c-a-b-c-b--b-b-c";
         let res = convert_inner(content, &cct);
         eval_result(res);
     }
@@ -179,10 +179,12 @@ mod tests {
                 break;
             }
             let left = g.get_links()[0].to_hash;
-
-            if left == 0 {
-                panic!("Result did not link forward. ({:?})", g.get_links());
-            }
+            assert_ne!(
+                left,
+                0,
+                "Result did not link forward. ({:?})",
+                g.get_links()
+            );
         }
     }
 }

@@ -1,40 +1,45 @@
 extern crate image;
 extern crate pathfinder;
 extern crate rand;
-use image::Rgba;
 use pathfinder::*;
+use std::path::Path;
 
 /*
     Creates three groups filled with children randomly position within it's radius.
+    These numbers may need to be lowered depending on the machine.
 */
 
 fn main() {
-    let children = 600;
+    let mut groups = Vec::new();
+    let circle = shape::Circle::new();
+    let coordinates = circle.area(15);
+    let children: u32 = 100;
+    let radius = 7;
 
-    let color = [
-        Rgba {
-            data: [250, 20, 20, 255],
-        },
-        Rgba {
-            data: [20, 20, 250, 255],
-        },
-        Rgba {
-            data: [20, 250, 20, 255],
-        },
-    ];
-    let radius = [Some(50), Some(60), Some(65)];
+    let len = coordinates.len();
+    let d = 255 as f64 / len as f64;
+    let mut col = [0f64; 3];
 
-    let mut groups = Group::from_list(&[(0, 0), (240, 20), (115, 40)]);
+    println!(
+        "{} Groups will be rendered. {} Nodes",
+        len,
+        len * children as usize
+    );
 
-    for (i, ref mut group) in groups.iter_mut().enumerate() {
-        group.settings.radius = radius[i];
-        group.settings.color = color[i];
-        map::network::add_children(group, children);
+    for c in coordinates.iter() {
+        let mut group = Group::new_simple(c.x * radius, c.y * radius);
+        group.settings.radius = Some(radius as u32);
+
+        for i in 0..col.len() {
+            if col[i] as u8 != 255 {
+                col[i] += d;
+                break;
+            }
+        }
+
+        group.set_color(col[0] as u8, col[1] as u8, col[2] as u8);
+        map::network::add_children(&mut group, children);
+        groups.push(group);
     }
-
-    // Where and what to call the file.
-    let path = std::path::Path::new("out.png");
-    let mut map = Map::new();
-    map = map.map(&groups);
-    let _ = map.save(&path).unwrap();
+    let _ = Map::new().map(&groups).save(&Path::new("out.png")).unwrap();
 }

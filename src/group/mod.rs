@@ -66,16 +66,12 @@ pub fn add_node(
     if max.is_none() {
         max = Some(group.get_dynamic_radius());
     }
-    let min = min.unwrap();
-    let max = max.unwrap();
-    let name = name.unwrap();
 
-    let tmp = min;
-    let min = cmp::min(min, max);
-    let max = cmp::max(tmp, max);
+    let mi = cmp::min(min.unwrap(), max.unwrap());
+    let ma = cmp::max(min.unwrap(), max.unwrap());
 
-    let geo = coordinate::gen_radius(group.settings.geo, min, max);
-    let mut node = Node::new(name, geo);
+    let geo = coordinate::gen_radius(group.settings.geo, mi, ma);
+    let mut node = Node::new(name.unwrap(), geo);
     node.color = group.gen_color(geo);
     node.radius = group.settings.radius;
     group.push(node);
@@ -96,6 +92,14 @@ mod tests {
         let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
         groups[0].nodes = Node::from_list(&[(0, 0), (0, 0)]);
         assert_eq!(count(&groups), 2);
+    }
+
+    #[test]
+    fn test_add_node() {
+        let mut group = Group::new_simple(0, 0);
+        add_node(&mut group, None, None, None);
+        add_node(&mut group, Some("name"), Some(50), Some(20));
+        assert_eq!(group.nodes.len(), 2);
     }
 
 }

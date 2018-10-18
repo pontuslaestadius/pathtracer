@@ -1,16 +1,15 @@
 #!/bin/bash
 
 cd $(git rev-parse --show-toplevel)/examples
-rm out/*
 
 for file in *.rs
 do
     file="${file%.*}"
     cargo run --example $file
-
+    [ $? -ne 0 ] && continue
     for out in $PWD/out.*
     do
-        mv "$out" "out/$file.${out##*.}"
+        mv -f "$out" "out/$file.${out##*.}" > /dev/null
     done
 done
 

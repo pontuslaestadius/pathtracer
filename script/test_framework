@@ -7,10 +7,10 @@ fi
 
 EXECUTED=""
 
-for file in $REPOROOT/tests/*; do
-    while read line; do
+for file in $REPOROOT/tests/$1*; do
+    while read -r line; do
 	[ -z "$line" ] && continue
-        line_nospaces="$(echo -e "${line}" | tr -d '[:space:]')"
+        line_nospaces="$(echo -e ${line} | tr -d '[:space:]')"
         for prev in $EXECUTED; do
             if [ "$line_nospaces" == "$prev" ]; then
                 echo -e "\n\e[94mCommand '$prev' already executed, and will be skipped.\e[0m\n"
@@ -21,7 +21,7 @@ for file in $REPOROOT/tests/*; do
 
 	[ -z "$line" ] && continue
 	echo -e "\n\e[94mFILE: tests/$(basename $file) - COMMAND: ${line} \e[0m\n"
-	eval "${line}"
+	eval "cd $REPOROOT && ${line}"
         EXECUTED="$line_nospaces $EXECUTED"
     done <$file
 done
