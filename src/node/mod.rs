@@ -1,4 +1,4 @@
-use super::Node;
+use super::*;
 use std::{
     cmp::PartialEq,
     fs::File,
@@ -21,6 +21,32 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
         names.push(value.to_string());
     }
     Ok(names)
+}
+
+/// Prints the distance between all the nodes paths and returns a summary of
+/// the total distance.
+pub fn path_print(path: &Vec<Node>) -> u32 { verbose_path(path, true) }
+
+/// Returns the sum distance that all the nodes' are from each other.
+pub fn path_distances(path: &Vec<Node>) -> u32 { verbose_path(path, false) }
+
+/// Implementation of path_distance and path_print, Use those for interfacing.
+fn verbose_path(path: &Vec<Node>, side_effects: bool) -> u32 {
+    let mut distance = 0;
+    let mut prev = Coordinate::new(0, 0);
+    for (link_i, leg) in path.iter().enumerate() {
+        let dis = coordinate::distance(prev, leg.get_coordinate());
+        distance += dis;
+        prev = leg.get_coordinate().clone();
+        if side_effects {
+            println!("#{} ({:?}) - {}px", link_i, leg.get_coordinate(), dis);
+        }
+    }
+
+    if side_effects {
+        println!("Total distance: {}", distance);
+    }
+    distance
 }
 
 #[cfg(test)]

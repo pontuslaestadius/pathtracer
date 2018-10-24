@@ -1,6 +1,11 @@
+/*
+    Creates a small list of nodes which are sequentially connected.
+    Verifies that the initial node is connected with the last node.
+*/
+
 extern crate pathfinder;
 
-use pathfinder::{map::network, *};
+use pathfinder::{map::network, node, *};
 
 fn main() {
     let pos = [(0, 0), (100, 100), (150, 50), (100, 0)];
@@ -9,18 +14,5 @@ fn main() {
     let nodes = Node::linked_list(nodes);
     let net = Network::new(nodes);
     let path = net.path("D", "A", &network::path_shortest_leg);
-    print_path(&path);
-}
-
-fn print_path(path: &Vec<Node>) {
-    let mut distance = 0;
-    let mut prev = Coordinate::new(0, 0);
-    for (link_i, leg) in path.iter().enumerate() {
-        let dis = pathfinder::coordinate::distance(prev, leg.get_coordinate());
-        distance += dis;
-        prev = leg.get_coordinate().clone();
-        println!("#{} ({:?}) - {}px", link_i, leg.get_coordinate(), dis);
-    }
-
-    println!("Total distance: {}", distance);
+    node::path_print(&path);
 }
