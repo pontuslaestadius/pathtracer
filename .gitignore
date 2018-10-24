@@ -1,5 +1,6 @@
 target/
 .idea/
+.cache/
 push.config
 resources/*
 out.build
