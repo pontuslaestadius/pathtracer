@@ -1,2 +1,2 @@
 cargo tarpaulin -v
-cargo +nightly clippy
+cargo +nightly clippy --verbose

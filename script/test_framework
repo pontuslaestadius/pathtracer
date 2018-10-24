@@ -1,30 +1,81 @@
 #!/bin/bash
+#
+# Test framework for running tests in pathfinder/tests/.
+# tests are evaluated line by line and can not require several line context.
+# Input: Optional name filter. To run a specific test e.g. tests/travis , run './test_Framework travis'
+# Output is formatted in a matrix where each row is a test file and each column is a command ran.
+#
 set -e
 
 if [ -z "$REPOROOT" ]; then
     source $(git rev-parse --show-toplevel)/script/utils/setup
 fi
 
-EXECUTED=""
+cd $REPOROOT
+filter=$1
+env_location="$REPOROOT/.cache"
 
-for file in $REPOROOT/tests/$1*; do
-    while read -r line; do
-	[ -z "$line" ] && continue
-        line_nospaces="$(echo -e ${line} | tr -d '[:space:]')"
-        for prev in $EXECUTED; do
-            if [ "$line_nospaces" == "$prev" ]; then
-                echo -e "\n\e[94mCommand '$prev' already executed, and will be skipped.\e[0m\n"
-                unset line
-                break
-            fi
-        done
+env_file() {
+    mkdir -p "$env_location"
+    for name in $@; do
+        eval "PATH_$name=$env_location/.$name"
+        eval "export PATH_$name"
+        eval "echo > \$PATH_$name"
+    done
+}
 
-	[ -z "$line" ] && continue
-	echo -e "\n\e[94mFILE: tests/$(basename $file) - COMMAND: ${line} \e[0m\n"
-	eval "cd $REPOROOT && ${line}"
-        EXECUTED="$line_nospaces $EXECUTED"
-    done <$file
-done
+env_print() {
+    for name in $@; do
+        eval "cat \$(echo -e \$PATH_$name)"
+    done
+}
 
-echo -e "\e[92mSUCCESS\e[0m"
+eval() {
+    echo -e "\e[94m$@\e[0m"
+    builtin eval "$@"
+}
+export -f eval
+
+execute() {
+    file=$1
+    shift
+    line=$@
+
+    echo -e "$file - $line" >> "$PATH_executed"
+    eval "$line"
+}
+export -f execute
+
+run() {
+    file=$1
+    shift
+    line=$@
+
+    line_ns="$(echo -e ${line} | tr -d '[:space:]')" 
+    if [[ "$(cat $PATH_ignored)" == *"$line_ns"* ]]; then
+        echo -e "$file - $IGNORED\n$line" >> $PATH_ignored
+        return
+    fi
+
+    if [[ "$line" == *"| bash" ]]; then
+        line="${line/| bash/| xargs -I \{\} bash -c \'run sub_job \$@\' _ {}}"
+    fi
+
+    echo "$line_nospaces" >> $PATH_executed_ns
+    execute "$file" "$line"
+}
+export -f run
+
+init() {
+    for f in $REPOROOT/tests/$filter*; do
+        MATRIX="$MATRIX\n$(basename $f)"
+        while read -r l; do
+            [ ! -z "$l" ] && run "$(basename $f)" "$l"
+        done <$f
+    done
+}
+
+env_file "executed" "ignored" "executed_ns"
+init
+env_print "executed" "ignored" "executed_ns"
 
