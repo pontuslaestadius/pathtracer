@@ -8,11 +8,10 @@ repository = "https://github.com/pontuslae/pathfinder"
 readme = "README.md"
 keywords = ["nodes", "image"]
 categories = ["visualization", "text-processing"]
-license = "GPL-3.0"
+license = "MIT"
 
 [dependencies]
 rand = "0.3"
 gif = "0.10.1"
 image = "0.20.0"
 pythagoras = "0.1.1"
-

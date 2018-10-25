@@ -5,7 +5,7 @@
 
 extern crate pathfinder;
 
-use pathfinder::{map::network, node, *};
+use pathfinder::{node, *};
 
 fn main() {
     let pos = [(0, 0), (100, 100), (150, 50), (100, 0)];
@@ -13,6 +13,6 @@ fn main() {
     let nodes = Node::from_list(&pos);
     let nodes = Node::linked_list(nodes);
     let net = Network::new(nodes);
-    let path = net.path("D", "A", &network::path_shortest_leg);
+    let path = net.path("D", "A");
     node::path_print(&path);
 }

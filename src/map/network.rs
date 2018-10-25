@@ -16,13 +16,11 @@ pub fn path<'a>(
     algorithm(&network, a, b)
 }
 
+/// Retrieves a node from a network.
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     let tmp = Node::new(element, Coordinate::new(0, 0));
     for (i, elem) in network.hash_map.iter().enumerate() {
-        if elem.is_none() {
-            continue;
-        }
-        if i == (tmp.hash % 666) as usize {
+        if elem.is_some() && i == (tmp.hash % 666) as usize {
             return network.hash_map[i];
         }
     }
@@ -30,34 +28,46 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
 }
 
 pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
-    let _goal = network.get(b).expect("goal does not exist in network");
+    let goal = network.get(b).expect("goal does not exist in network");
     let first = network.get(a).expect("start does not exist in network");
+    let mut queue: Vec<(u32, Vec<Node>)> = Vec::new();
 
-    let mut weighted_path: Vec<(u32, Vec<Node>)> = Vec::new();
-    for l in first.get_links().iter() {
-        let node_opt = network.hash_map[(l.to_hash % 666) as usize];
-        if node_opt.is_none() {
-            continue;
+    let format = |mut from: Vec<Node>, link: &HL, acc: u32| -> (u32, Vec<Node>) {
+        let node_opt = network.hash_map[(link.t % 666) as usize];
+        let node = node_opt.expect(
+            format!(
+                "Node missing in network. From: {:?}, Link: {:?}",
+                from, link
+            )
+            .as_str(),
+        );
+        let dis = coordinate::distance(from[0].geo, node.geo);
+        from.insert(0, node);
+        (acc + dis, from)
+    };
+
+    for link in first.get_links().iter() {
+        if link.t != 0 {
+            queue.push(format(vec![first], link, 0));
         }
-        let node = node_opt.unwrap();
-        let dis = coordinate::distance(first.geo, node.geo);
-        weighted_path.push((dis, vec![first, node]));
     }
 
-    if weighted_path.is_empty() {
-        panic!("No more paths!");
+    while !queue.is_empty() {
+        queue.sort_by_key(|k| k.0);
+        let (dis, path) = queue.remove(0);
+        let current = path[0];
+
+        for link in current.get_links().iter() {
+            if link.t != 0 {
+                queue.push(format(path.clone(), link, dis));
+            }
+        }
+
+        if current.hash == goal.hash {
+            return path;
+        }
     }
-
-    let (_dis, path) = weighted_path.remove(0);
-    path
-
-    /*
-     * For each link in starting node.
-     * Make a weighted list of sum_distance for each available path.
-     * Pick the lowest weighted path.
-     * Once the path is at the goal, we stop.
-     * Generate path from numbers.
-     */
+    return Vec::new();
 }
 
 /// Adds the number of children supplied, positioned randomly to a group.
