@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
 [![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/)
-[![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-61-yellow.svg)](https://github.com/xd009642/tarpaulin)
+[![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-59-yellow.svg)](https://github.com/xd009642/tarpaulin)
 [![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathfinder.svg)](https://github.com/pontuslaestadius/pathfinder/blob/master/LICENSE)
 
 # Pathfinder
@@ -27,7 +27,6 @@ fn main() {
     let map = map
         .map(&[node])
         .map(&[group]);
-    /* Saving is omitted. */
 }
 ```
 
@@ -39,7 +38,6 @@ The group does not have any children Nodes and is not visable.
 Easily manipulate larger number of Nodes with less accuracy.
 
 ```rust
-/* ... */
 use pathfinder::map::network;
 use std::path::Path;
 

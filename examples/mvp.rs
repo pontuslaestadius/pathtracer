@@ -8,11 +8,12 @@ extern crate pathfinder;
 use pathfinder::{node, *};
 
 fn main() {
-    let pos = [(0, 0), (100, 100), (150, 50), (100, 0)];
+    let pos = [(0, 0), (100, 100), (150, 50), (2000, 4000), (400, 600)];
 
     let nodes = Node::from_list(&pos);
     let nodes = Node::linked_list(nodes);
     let net = Network::new(nodes);
-    let path = net.path("D", "A");
+    let path = net.path("E", "A"); // It's in the game.
+
     node::path_print(&path);
 }
