@@ -196,7 +196,7 @@ dependencies = [
 
 [[package]]
 name = "pathfinder"
-version = "0.4.3"
+version = "0.5.0"
 dependencies = [
  "gif 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "image 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",

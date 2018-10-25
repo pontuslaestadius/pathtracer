@@ -39,7 +39,7 @@ fn verbose_path(path: &Vec<Node>, side_effects: bool) -> u32 {
         distance += dis;
         prev = leg.get_coordinate().clone();
         if side_effects {
-            println!("#{} ({:?}) - {}px", link_i, leg.get_coordinate(), dis);
+            println!("#{} {:?} - distance: {}", link_i, leg.get_coordinate(), dis);
         }
     }
 
