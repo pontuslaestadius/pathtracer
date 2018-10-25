@@ -178,7 +178,7 @@ mod tests {
             if i == 0 {
                 break;
             }
-            let left = g.get_links()[0].to_hash;
+            let left = g.get_links()[0].t;
             assert_ne!(
                 left,
                 0,
