@@ -13,12 +13,11 @@ fn main() {
     let mut groups = Vec::new();
     let circle = shape::Circle::new();
     let coordinates = circle.area(15);
-    let children: u32 = 100;
-    let radius = 7;
+    let children: u32 = 20;
+    let radius = 10;
+    let spread = 18;
 
     let len = coordinates.len();
-    let d = 255 as f64 / len as f64;
-    let mut col = [0f64; 3];
 
     println!(
         "{} Groups will be rendered. {} Nodes",
@@ -27,19 +26,11 @@ fn main() {
     );
 
     for c in coordinates.iter() {
-        let mut group = Group::new_simple(c.x * radius, c.y * radius);
+        let mut group = Group::new_simple(c.x * spread, c.y * spread);
         group.settings.radius = Some(radius as u32);
-
-        for i in 0..col.len() {
-            if col[i] as u8 != 255 {
-                col[i] += d;
-                break;
-            }
-        }
-
-        group.set_color(col[0] as u8, col[1] as u8, col[2] as u8);
+        group.settings.color = tools::gen_rgba();
         map::network::add_children(&mut group, children);
         groups.push(group);
     }
-    let _ = Map::new().map(&groups).save(&Path::new("out.png")).unwrap();
+    let _ = Map::new().map(&groups).save(&Path::new("out.jpg")).unwrap();
 }
