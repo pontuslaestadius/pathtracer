@@ -23,9 +23,9 @@ pub struct Coordinate {
 }
 
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
-pub struct HashLink {
-    pub from_hash: u64,
-    pub to_hash: u64,
+pub struct HL {
+    pub f: u64,
+    pub t: u64,
     pub from: Option<Coordinate>,
     pub to: Option<Coordinate>,
 }
@@ -37,7 +37,7 @@ pub struct Node {
     pub geo: Coordinate,
     pub color: image::Rgba<u8>,
     pub radius: Option<u32>,
-    links: [HashLink; 10],
+    links: [HL; 10],
 }
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
@@ -79,7 +79,7 @@ pub trait Location {
     fn get_parameters(&self) -> (Coordinate, Coordinate);
 }
 
-impl Location for HashLink {
+impl Location for HL {
     fn get_coordinate(&self) -> Coordinate {
         if self.from.is_none() {
             Coordinate::new(0, 0)
@@ -99,7 +99,7 @@ impl Location for HashLink {
     }
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
-        if self.to_hash == hash {
+        if self.t == hash {
             return Some(self.get_coordinate());
         }
         None
@@ -146,7 +146,7 @@ pub trait Draw {
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn get_size(&self) -> u32;
-    fn get_links(&self) -> &[HashLink];
+    fn get_links(&self) -> &[HL];
 }
 
 impl Draw for Node {
@@ -179,7 +179,7 @@ impl Draw for Node {
         }
     }
 
-    fn get_links(&self) -> &[HashLink] { &self.links }
+    fn get_links(&self) -> &[HL] { &self.links }
 }
 
 impl Draw for Group {
@@ -212,13 +212,13 @@ impl Draw for Group {
         }
     }
 
-    fn get_links(&self) -> &[HashLink] { &self.settings.links }
+    fn get_links(&self) -> &[HL] { &self.settings.links }
 }
 
 // ------------------------------------------------------------------
 
-impl Hash for HashLink {
-    fn get_hash(&self) -> u64 { self.to_hash }
+impl Hash for HL {
+    fn get_hash(&self) -> u64 { self.t }
 }
 
 impl Hash for Node {
@@ -255,7 +255,7 @@ impl Node {
                 data: [0, 0, 0, 255],
             },
             radius: None,
-            links: [HashLink::new(0, 0); 10],
+            links: [HL::new(0, 0); 10],
         }
     }
 
@@ -268,7 +268,7 @@ impl Node {
     /// let nodes = Node::from_list(&list);
     /// assert_eq!(nodes.len(), 3);
     /// ```
-    pub fn from_list(list: &[(i16, i16)]) -> Vec<Node> {
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
         coordinate::from_list(&list, &|c, i| {
             Node::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
@@ -287,12 +287,12 @@ impl Node {
     /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     /// let linked_list = Node::linked_list(nodes);
     /// ```
-    pub fn linked_list(mut list: Vec<Node>) -> Vec<Node> {
+    pub fn linked_list(mut list: Vec<Node>) -> Vec<Self> {
         let mut prev = Coordinate::new(0, 0);
         let mut prev_h = 0;
         for node in &mut list {
             if prev_h != 0 {
-                let mut link = HashLink::new(node.hash, prev_h);
+                let mut link = HL::new(node.hash, prev_h);
                 link.to = Some(prev);
                 link.from = Some(node.geo);
                 node.links[0] = link;
@@ -315,9 +315,9 @@ impl Node {
     /// ```
     pub fn link(&mut self, other: &Node) {
         for link in &mut self.links {
-            if link.to_hash == 0 {
-                link.from_hash = self.hash;
-                link.to_hash = other.hash;
+            if link.t == 0 {
+                link.f = self.hash;
+                link.t = other.hash;
                 link.from = Some(self.geo);
                 link.to = Some(other.geo);
                 return;
@@ -326,11 +326,11 @@ impl Node {
     }
 }
 
-impl HashLink {
-    pub fn new(from_hash: u64, to_hash: u64) -> Self {
-        HashLink {
-            from_hash,
-            to_hash,
+impl HL {
+    pub fn new(f: u64, t: u64) -> Self {
+        HL {
+            f,
+            t,
             from: None,
             to: None,
         }
@@ -343,7 +343,7 @@ impl HashLink {
         y_offset: i16,
         size: u32,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        if self.from_hash == 0 || self.to_hash == 0 {
+        if self.f == 0 || self.t == 0 {
             return image;
         }
         let (from, to) = self.get_parameters();
@@ -463,6 +463,8 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 // ------------------------------------------------------------------
 
 impl Map {
+    /// Creates a new map, no parameters are intially required and are
+    /// generated automatically when calling Map::map.
     pub fn new() -> Self {
         Map {
             image: None,
@@ -471,13 +473,26 @@ impl Map {
         }
     }
 
-    /// Saves the image to disk.
+    /// Saves the image to disk. Can be absolute or relative path.
+    ///
+    /// # Examples
+    /// ```
+    /// use pathfinder::*;
+    /// use std::path::Path;
+    /// let nodes = Node::from_list(&[(0, 0), (10, 10)]);
+    /// let mut map = Map::new();
+    /// Map::new()
+    ///     .map(&nodes)
+    ///     .save(Path::new("/tmp/example.png"))
+    ///     .unwrap();
+    /// ```
     pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
         self.image.unwrap().save(path)
     }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
     ///
+    /// # Examples
     /// ```
     /// use pathfinder::*;
     /// let nodes: Vec<Node> = vec![
@@ -514,24 +529,40 @@ impl Map {
 
 impl Network<Node> {
     /// Calculates the path from node A to node B.
+    ///
+    /// # Examples
     /// ```
-    /// use pathfinder::{map::network, Coordinate, Network, Node};
+    /// use pathfinder::{Coordinate, Network, Node};
     /// let b = Node::new("B", Coordinate::new(20, 20));
     /// let mut a = Node::new("A", Coordinate::new(0, 0));
     /// a.link(&b);
-    /// let network = Network::new(vec![a, b]);
-    /// let path = network.path("A", "B", &network::path_shortest_leg);
-    /// assert_eq!(path, vec!(a, b));
+    /// let path = Network::new(vec![a, b]).path("A", "B");
+    /// assert_eq!(path, vec!(b, a));
     /// ```
-    pub fn path<'a>(
-        &'a self,
-        a: &str,
-        b: &str,
-        algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>,
-    ) -> Vec<Node> {
-        map::network::path(self, a, b, algorithm)
+    /// ```
+    /// use pathfinder::{Coordinate, Network, Node};
+    /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
+    /// let mut nodes = Node::linked_list(nodes);
+    /// let path = Network::new(nodes).path("D", "A");
+    /// assert_eq!(path.len(), 4);
+    /// for i in 0..path.len() {
+    ///     assert_eq!(path[i].geo.x, i as i16 * 10);
+    /// }
+    /// ```
+    pub fn path<'a>(&'a self, a: &str, b: &str) -> Vec<Node> {
+        map::network::path(self, a, b, &map::network::path_shortest_leg)
     }
 
     /// Returns if the given hash exists in the network.
+    ///
+    /// # Examples
+    /// ```
+    /// use pathfinder::{Coordinate, Network, Node};
+    /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
+    /// let network = Network::new(nodes.clone());
+    /// assert_eq!(network.get("A").is_some(), true);
+    /// assert_eq!(network.get("E").is_some(), true);
+    /// assert_eq!(network.get("F").is_some(), false);
+    /// ```
     pub fn get(&self, element: &str) -> Option<Node> { map::network::get(self, element) }
 }
