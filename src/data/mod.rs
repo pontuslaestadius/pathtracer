@@ -84,7 +84,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
             let index = groups
                 .iter()
                 .position(|ref g| g.settings.hash == hashed_line)
-                .unwrap();
+                .expect("Group located, but no hash matching.");
             groups[index].new_node_min_max(index as u32, cct.node_range);
 
         // Creates a new group because one did not exist.
