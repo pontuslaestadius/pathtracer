@@ -70,7 +70,7 @@ pub fn range_color(
 /// ```
 /// use pathfinder::tools;
 /// let nr = tools::roll(50, 100);
-/// assert_eq!(nr >= 50 && nr <= 100, true);
+/// assert!(nr >= 50 && nr <= 100);
 /// ```
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
@@ -278,7 +278,7 @@ mod tests {
     #[test]
     fn test_roll() {
         let res = roll(0, 5);
-        assert_eq!(res <= 5, true);
+        assert!(res <= 5);
     }
 
     #[test]
@@ -286,7 +286,7 @@ mod tests {
         let strings = ["a".to_string(), "b".to_string()];
         let res = get_random_item(&strings);
         let res = res == &strings[0] || res == &strings[1];
-        assert_eq!(res, true);
+        assert!(res);
     }
 
     #[test]
@@ -309,8 +309,7 @@ mod tests {
         let c1 = Coordinate::new(0, 0);
         let c2 = Coordinate::new(10, 10);
         let plot = plot(c1, c2);
-        let res = c1 == plot[0] && c2 == plot[plot.len() - 1];
-        assert_eq!(res, true);
+        assert!(c1 == plot[0] && c2 == plot[plot.len() - 1]);
     }
 
     #[test]

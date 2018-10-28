@@ -311,7 +311,7 @@ impl Node {
     /// let b: Node = Node::new("B", Coordinate::new(100, 100));
     /// let mut a: Node = Node::new("A", Coordinate::new(0, 0));
     /// a.link(&b);
-    /// assert_eq!(a.is_directly_connected(&b), true);
+    /// assert!(a.is_directly_connected(&b));
     /// ```
     pub fn link(&mut self, other: &Node) {
         for link in &mut self.links {
@@ -560,9 +560,9 @@ impl Network<Node> {
     /// use pathfinder::{Coordinate, Network, Node};
     /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
     /// let network = Network::new(nodes.clone());
-    /// assert_eq!(network.get("A").is_some(), true);
-    /// assert_eq!(network.get("E").is_some(), true);
-    /// assert_eq!(network.get("F").is_some(), false);
+    /// assert!(network.get("A").is_some());
+    /// assert!(network.get("E").is_some());
+    /// assert!(network.get("F").is_none());
     /// ```
     pub fn get(&self, element: &str) -> Option<Node> { map::network::get(self, element) }
 }
