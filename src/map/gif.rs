@@ -56,9 +56,9 @@ mod tests {
     #[test]
     fn test_gif_new() {
         let gif = Gif::new("test_gif_new.gif", 50, 50);
-        assert_eq!(gif.is_ok(), true);
+        assert!(gif.is_ok());
         let gif = gif.unwrap();
-        assert_eq!(gif.width == 50 && gif.height == 50, true);
+        assert!(gif.width == 50 && gif.height == 50);
         let _ = fs::remove_file("test_gif_new.gif").unwrap();
     }
 

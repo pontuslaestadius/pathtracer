@@ -56,7 +56,7 @@ mod tests {
     #[test]
     fn test_get_node_names_fail() {
         let res = get_node_names("invalid path");
-        assert_eq!(res.is_err(), true);
+        assert!(res.is_err());
     }
 
 }
