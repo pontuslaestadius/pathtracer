@@ -25,19 +25,19 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
 
 /// Prints the distance between all the nodes paths and returns a summary of
 /// the total distance.
-pub fn path_print(path: &Vec<Node>) -> u32 { verbose_path(path, true) }
+pub fn path_print(path: &[Node]) -> u32 { verbose_path(path, true) }
 
 /// Returns the sum distance that all the nodes' are from each other.
-pub fn path_distances(path: &Vec<Node>) -> u32 { verbose_path(path, false) }
+pub fn path_distances(path: &[Node]) -> u32 { verbose_path(path, false) }
 
 /// Implementation of path_distance and path_print, Use those for interfacing.
-fn verbose_path(path: &Vec<Node>, side_effects: bool) -> u32 {
+fn verbose_path(path: &[Node], side_effects: bool) -> u32 {
     let mut distance = 0;
     let mut prev = Coordinate::new(0, 0);
     for (link_i, leg) in path.iter().enumerate() {
         let dis = coordinate::distance(prev, leg.get_coordinate());
         distance += dis;
-        prev = leg.get_coordinate().clone();
+        prev = leg.get_coordinate();
         if side_effects {
             println!("#{} {:?} - distance: {}", link_i, leg.get_coordinate(), dis);
         }

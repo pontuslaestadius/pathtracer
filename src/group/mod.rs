@@ -3,7 +3,7 @@ use std::cmp;
 
 /// Counts the amount of child Nodes in a list of Groups.
 ///
-/// #Examples
+/// # Examples
 /// ```
 /// use pathfinder::{group, map::network, Group};
 /// let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
@@ -22,7 +22,7 @@ pub fn count(list: &[Group]) -> usize {
 
 /// Returns the the largest and smallest x and y position.
 ///
-/// #Examples
+/// # Examples
 /// ```
 /// use pathfinder::{group, Coordinate, Group, Node};
 /// let mut group = Group::new_simple(0, 0);

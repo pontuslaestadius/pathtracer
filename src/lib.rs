@@ -477,10 +477,9 @@ impl Map {
     ///
     /// # Examples
     /// ```
-    /// use pathfinder::*;
-    /// use std::path::Path;
+    /// # use pathfinder::*;
+    /// # use std::path::Path;
     /// let nodes = Node::from_list(&[(0, 0), (10, 10)]);
-    /// let mut map = Map::new();
     /// Map::new()
     ///     .map(&nodes)
     ///     .save(Path::new("/tmp/example.png"))
@@ -494,7 +493,7 @@ impl Map {
     ///
     /// # Examples
     /// ```
-    /// use pathfinder::*;
+    /// # use pathfinder::*;
     /// let nodes: Vec<Node> = vec![
     ///     Node::new("1", Coordinate::new(0, 0)),
     ///     Node::new("2", Coordinate::new(100, 100)),

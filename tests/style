@@ -1,1 +1,3 @@
-grep "\s$" -v -q -r -nr --include \*.rs
+grep -E "\s$" -r -nr --include \*.rs
+grep -E "^/// #\S" -r -nr --include \*.rs
+grep -E "^///\S" -r -nr --include \*.rs

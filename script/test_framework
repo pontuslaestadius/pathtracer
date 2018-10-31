@@ -5,7 +5,6 @@
 # Input: Optional name filter. To run a specific test e.g. tests/travis , run './test_Framework travis'
 # Output is formatted in a matrix where each row is a test file and each column is a command ran.
 #
-set -e
 
 if [ -z "$REPOROOT" ]; then
     source $(git rev-parse --show-toplevel)/script/utils/setup
@@ -58,7 +57,7 @@ run() {
     fi
 
     if [[ "$line" == *"| bash" ]]; then
-        line="${line/| bash/| xargs -I \{\} bash -c \'run sub_job \$@\' _ {}}"
+        line="${line/| bash/| xargs -I \{\} bash -c \'run ${file}_job \$@\' _ {}}"
     fi
 
     echo "$line_nospaces" >> $PATH_executed_ns
