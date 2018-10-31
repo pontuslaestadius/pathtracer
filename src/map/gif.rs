@@ -12,8 +12,7 @@ pub struct Gif {
 impl Gif {
     /// Constructs a Gif struct and initializes a file on the system for the
     /// Gif to be stored.
-    pub fn new(output: &str, width: u16, height: u16) -> Result<Gif, io::Error> {
-        // Initalize encoder.
+    pub fn new(output: &str, width: u16, height: u16) -> Result<Self, io::Error> {
         let file = File::create(output)?;
         let mut encoder = gif::Encoder::new(file, width, height, &[])?;
         encoder.set(Repeat::Infinite)?;

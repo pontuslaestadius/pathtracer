@@ -21,21 +21,33 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
 }
 
 /// Returns a Rgba with a modified value depending on how close it is to it's
-/// falloff.
+/// falloff point.
 ///
 /// # Examples
+/// First declare the colors and the range at which it becomes darker.
 /// ```
 /// extern crate image;
-/// extern crate pathfinder;
+/// # extern crate pathfinder;
 /// use pathfinder::{tools, Coordinate};
 ///
 /// let falloff = 100;
 /// let color = image::Rgba {
 ///     data: [100, 100, 100, 255],
 /// };
+/// ```
+/// Evaluate that based on the modified distance, in the small sense it is
+/// modified from the defined color above.
+/// ```
+/// # extern crate image;
+/// # extern crate pathfinder;
+/// # use pathfinder::{tools, Coordinate};
+///
+/// # let falloff = 100;
+/// # let color = image::Rgba {
+/// #     data: [100, 100, 100, 255],
+/// # };
 /// let base = Coordinate::new(0, 0);
 /// let to = Coordinate::new(10, 10);
-///
 /// assert_eq!(
 ///     tools::range_color(falloff, color, base, to),
 ///     image::Rgba {
@@ -68,9 +80,9 @@ pub fn range_color(
 /// Returns a random number between the min and maximum.
 /// # Examples
 /// ```
-/// use pathfinder::tools;
-/// let nr = tools::roll(50, 100);
-/// assert!(nr >= 50 && nr <= 100);
+/// # use pathfinder::tools;
+/// let nr = tools::roll(50, 60);
+/// assert!(nr >= 50 && nr <= 60);
 /// ```
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
@@ -98,6 +110,12 @@ pub fn get_random_item(list: &[String]) -> &String {
 pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) as u8 }
 
 /// Returns a random Rgb color. the opacity is always 255.
+/// # Examples
+/// ```
+/// # use pathfinder::tools;
+/// let rgba = tools::gen_rgba();
+/// println!("{:?}", rgba.data);
+/// ```
 pub fn gen_rgba() -> Rgba<u8> {
     let mut primary: Rgba<u8> = Rgba {
         data: [0, 0, 0, 255],
@@ -138,18 +156,31 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     primary
 }
 
-/// Implemented according to:
+/// Implemented according to
 /// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 ///
 /// Plots the pixels between two coordinate points.
 /// Checks so that the applied adjustments stay within a u8.
 ///
 /// # Examples
+///
+/// First we create a simple path between two coordinates.
+///
 /// ```
 /// use pathfinder::{tools, Coordinate};
 /// let a = Coordinate::new(0, 0);
 /// let b = Coordinate::new(1, 1);
 /// let path = tools::plot(a, b);
+/// ```
+///
+/// To confirm the small path created. Larger paths are more difficult to
+/// manually test.
+///
+/// ```
+/// # use pathfinder::{tools, Coordinate};
+/// # let a = Coordinate::new(0, 0);
+/// # let b = Coordinate::new(1, 1);
+/// # let path = tools::plot(a, b);
 /// let correct_path = vec![
 ///     Coordinate::new(0, 0),
 ///     Coordinate::new(1, 0),
@@ -194,7 +225,7 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
 }
 
 /// Draws a line between two coordinate points.
-/// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+/// Derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 /// # Panics
 ///
 /// delta_x == 0.00

@@ -34,13 +34,13 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
 
     let format = |mut from: Vec<Node>, link: &HL, acc: u32| -> (u32, Vec<Node>) {
         let node_opt = network.hash_map[(link.t % 666) as usize];
-        let node = node_opt.expect(
-            format!(
-                "Node missing in network. From: {:?}, Link: {:?}",
+        let node = node_opt.unwrap_or_else(|| {
+            panic!(
+                "Node missing in network. From: {:?}, Link:
+        {:?}",
                 from, link
             )
-            .as_str(),
-        );
+        });
         let dis = coordinate::distance(from[0].geo, node.geo);
         from.insert(0, node);
         (acc + dis, from)
@@ -67,12 +67,12 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
             return path;
         }
     }
-    return Vec::new();
+    Vec::new()
 }
 
 /// Adds the number of children supplied, positioned randomly to a group.
 ///
-/// #Examples
+/// # Examples
 ///
 /// ```
 /// use pathfinder::{group, map::network, Group};
