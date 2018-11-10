@@ -4,7 +4,7 @@ use image::{ImageBuffer, Rgba};
 use std::{fs::File, io};
 
 pub struct Gif {
-    pub encoder: gif::Encoder<File>,
+    pub encoder: Option<gif::Encoder<File>>,
     pub width: u16,
     pub height: u16,
 }
@@ -12,15 +12,21 @@ pub struct Gif {
 impl Gif {
     /// Constructs a Gif struct and initializes a file on the system for the
     /// Gif to be stored.
-    pub fn new(output: &str, width: u16, height: u16) -> Result<Self, io::Error> {
-        let file = File::create(output)?;
-        let mut encoder = gif::Encoder::new(file, width, height, &[])?;
-        encoder.set(Repeat::Infinite)?;
-        Ok(Gif {
-            encoder,
+    pub fn new(width: u16, height: u16) -> Self {
+        Gif {
+            encoder: None,
             width,
             height,
-        })
+        }
+    }
+
+    /// Initializes image encoder and creates output file.
+    pub fn init(&mut self, output: &str) -> Result<(), io::Error> {
+        let file = File::create(output)?;
+        let mut encoder = Encoder::new(file, self.width, self.height, &[])?;
+        encoder.set(Repeat::Infinite)?;
+        let _ = self.encoder.get_or_insert(encoder);
+        Ok(())
     }
 
     /// Pushes a frame using a map struct.
@@ -39,10 +45,11 @@ impl Gif {
         }
 
         // Create frame from data
-        let mut frame =
-            gif::Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
+        let mut frame = Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
-        self.encoder.write_frame(&frame)?;
+        let mut e = self.encoder.take().unwrap();
+        e.write_frame(&frame).unwrap();
+        let _ = self.encoder.get_or_insert(e);
         Ok(())
     }
 }
@@ -54,11 +61,12 @@ mod tests {
 
     #[test]
     fn test_gif_new() {
-        let gif = Gif::new("test_gif_new.gif", 50, 50);
-        assert!(gif.is_ok());
-        let gif = gif.unwrap();
+        let mut gif = Gif::new(50, 50);
+        let output = "test_gif_new.gif";
+        let init_res = gif.init(output);
+        assert!(init_res.is_ok());
         assert!(gif.width == 50 && gif.height == 50);
-        let _ = fs::remove_file("test_gif_new.gif").unwrap();
+        let _ = fs::remove_file(output).unwrap();
     }
 
 }
