@@ -80,21 +80,10 @@ pub trait Location {
 }
 
 impl Location for HL {
-    fn get_coordinate(&self) -> Coordinate {
-        if self.from.is_none() {
-            Coordinate::new(0, 0)
-        } else {
-            self.from.unwrap()
-        }
-    }
+    fn get_coordinate(&self) -> Coordinate { self.from.unwrap_or(Coordinate::new(0, 0)) }
 
     fn get_parameters(&self) -> (Coordinate, Coordinate) {
-        let to = if self.to.is_none() {
-            Coordinate::new(0, 0)
-        } else {
-            self.to.unwrap()
-        };
-
+        let to = self.to.unwrap_or(Coordinate::new(0, 0));
         (self.get_coordinate(), to)
     }
 
@@ -126,11 +115,7 @@ impl Location for Group {
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
         let f = tools::find(hash, &self.nodes);
-        if f.is_some() {
-            Some(f.unwrap().get_coordinate())
-        } else {
-            None
-        }
+        f.and_then(|x| Some(x.get_coordinate()))
     }
 }
 
@@ -171,13 +156,7 @@ impl Draw for Node {
         image
     }
 
-    fn get_size(&self) -> u32 {
-        if self.radius.is_none() {
-            4
-        } else {
-            self.radius.unwrap()
-        }
-    }
+    fn get_size(&self) -> u32 { self.radius.unwrap_or(4) }
 
     fn get_links(&self) -> &[HL] { &self.links }
 }

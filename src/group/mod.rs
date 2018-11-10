@@ -49,29 +49,16 @@ pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
 
 /// Adds a node to a given group, All parameters are optional except the group.
 /// This is the underlying function used in Group::push(..).
-pub fn add_node(
-    group: &mut Group,
-    mut name: Option<&str>,
-    mut min: Option<u32>,
-    mut max: Option<u32>,
-) {
-    if name.is_none() {
-        name = Some("");
-    }
+pub fn add_node(group: &mut Group, name: Option<&str>, min: Option<u32>, max: Option<u32>) {
+    let name = name.unwrap_or("");
+    let min = min.unwrap_or(0);
+    let max = max.unwrap_or(group.get_dynamic_radius());
 
-    if min.is_none() {
-        min = Some(0);
-    }
-
-    if max.is_none() {
-        max = Some(group.get_dynamic_radius());
-    }
-
-    let mi = cmp::min(min.unwrap(), max.unwrap());
-    let ma = cmp::max(min.unwrap(), max.unwrap());
+    let mi = cmp::min(min, max);
+    let ma = cmp::max(min, max);
 
     let geo = coordinate::gen_radius(group.settings.geo, mi, ma);
-    let mut node = Node::new(name.unwrap(), geo);
+    let mut node = Node::new(name, geo);
     node.color = group.gen_color(geo);
     node.radius = group.settings.radius;
     group.push(node);
