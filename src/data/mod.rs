@@ -6,7 +6,7 @@ use std::{
     hash::{Hash, Hasher},
     io::{self, prelude::*},
 };
-use tools::gen_rgba;
+use tools::seed_rgba;
 
 /// Holds configurations for converting a content String to a path network.
 pub struct CustomConverter<'a> {
@@ -72,7 +72,6 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups_boolean_array: [bool; 500] = [false; 500];
 
     for line in lines {
-        // Ignore empty lines, if enabled. Or match the lambda tag to retrieve it.
         if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {
             continue;
         };
@@ -86,13 +85,10 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
                 .position(|ref g| g.settings.hash == hashed_line)
                 .expect("Group located, but no hash matching.");
             groups[index].new_node_min_max(index as u32, cct.node_range);
-
-        // Creates a new group because one did not exist.
         } else {
-            // Sets the group to exists in the boolean array.
             groups_boolean_array[(hashed_line % cct.size) as usize] = true;
             let mut group = Group::new(&line, gen_radius(coordinates, 0, cct.radius));
-            group.settings.color = gen_rgba();
+            group.settings.color = seed_rgba(hashed_line);
 
             if cct.link_groups && !groups.is_empty() {
                 let tmp = &groups[groups.len() - 1];
@@ -101,7 +97,6 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
                 } else {
                     &tmp.nodes[tmp.nodes.len() - 1]
                 };
-
                 group.settings.link(n);
             }
 

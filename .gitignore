@@ -4,3 +4,6 @@ target/
 push.config
 resources/*
 out.build
+*.swp
+*~
+*.log
