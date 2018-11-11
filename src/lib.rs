@@ -172,7 +172,6 @@ impl Draw for Group {
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         image = self.settings.draw(image, x_offset, y_offset, size, shape);
-
         for node in &self.nodes {
             image = node.draw(image, x_offset, y_offset, size, shape);
         }
@@ -371,6 +370,15 @@ impl Group {
         }
     }
 
+    /// Plots node according to the fn provided.
+    pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
+        let c = coordinate::calc(self.get_coordinate(), self.nodes.len(), calc);
+        let color = self.gen_color(c);
+        let mut node = Node::new("", c);
+        node.color = color;
+        self.nodes.push(node);
+    }
+
     /// Adds a Node with a specific minimum and maximum distance from the
     /// center of the Group.
     pub fn new_node_min_max(&mut self, min: u32, max: u32) {
@@ -378,7 +386,9 @@ impl Group {
     }
 
     /// Removes all non-essentials from the standard implementation.
-    pub fn new_simple(x: i16, y: i16) -> Self { Group::new("", Coordinate::new(x, y)) }
+    pub fn new_simple(x: i16, y: i16) -> Self {
+        Group::new(&(x + y).to_string(), Coordinate::new(x, y))
+    }
 
     /// Pushes a Node to the Group.
     pub fn push(&mut self, node: Node) { self.nodes.push(node); }
@@ -411,7 +421,7 @@ impl Group {
     /// let groups = Group::from_list(&list);
     /// assert_eq!(groups.len(), 3);
     /// ```
-    pub fn from_list(list: &[(i16, i16)]) -> Vec<Group> {
+    pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
         coordinate::from_list(&list, &|c, i| {
             Group::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
@@ -495,7 +505,7 @@ impl Map {
         self
     }
 
-    // Maps the elements without stabalizing the positions on the canvas.
+    /// Maps the elements without stabalizing the positions on the canvas.
     pub fn map_absolute<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let (image, _) = map::gen_map(&element);

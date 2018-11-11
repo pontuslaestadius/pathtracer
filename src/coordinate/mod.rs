@@ -22,6 +22,24 @@ pub fn gen() -> Coordinate {
     }
 }
 
+/// Get a coordinate based of a function.
+///
+/// # Examples
+/// ```
+/// use pathfinder::{coordinate::*, Coordinate};
+/// let c1 = Coordinate::new(0, 0);
+/// let f = |i: usize| -> Coordinate { Coordinate::new(i as i16, i as i16) };
+/// let c2 = calc(c1, 5, &f);
+/// assert_eq!(c2, Coordinate { x: 5, y: 5 });
+/// ```
+pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) -> Coordinate {
+    let res = call(variable);
+    Coordinate {
+        x: start.x + res.x,
+        y: start.y + res.y,
+    }
+}
+
 /// Get difference in distance.
 ///
 /// # Examples
