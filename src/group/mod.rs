@@ -52,7 +52,7 @@ pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
 pub fn add_node(group: &mut Group, name: Option<&str>, min: Option<u32>, max: Option<u32>) {
     let name = name.unwrap_or("");
     let min = min.unwrap_or(0);
-    let max = max.unwrap_or(group.get_dynamic_radius());
+    let max = max.unwrap_or_else(|| group.get_dynamic_radius());
 
     let mi = cmp::min(min, max);
     let ma = cmp::max(min, max);

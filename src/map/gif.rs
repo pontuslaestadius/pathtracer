@@ -47,6 +47,7 @@ impl Gif {
         // Create frame from data
         let mut frame = Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
+        frame.delay = 20;
         let mut e = self.encoder.take().unwrap();
         e.write_frame(&frame).unwrap();
         let _ = self.encoder.get_or_insert(e);
