@@ -54,9 +54,10 @@ Produces an image with 2 Groups, each with 100 children Nodes.
 
 ## Example output
 
-![Pathfinder Logotype_gif](examples/out/hello_world_gif.gif "Gif")
+![Expanding group](examples/out/node_plot.gif "Gif")
 
 ![Groups](examples/out/random.jpg "Groups")
+
 
 ## Features
 
