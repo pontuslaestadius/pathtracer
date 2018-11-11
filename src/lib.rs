@@ -80,10 +80,14 @@ pub trait Location {
 }
 
 impl Location for HL {
-    fn get_coordinate(&self) -> Coordinate { self.from.unwrap_or(Coordinate::new(0, 0)) }
+    fn get_coordinate(&self) -> Coordinate {
+        let zero = Coordinate::new(0, 0);
+        self.from.unwrap_or(zero)
+    }
 
     fn get_parameters(&self) -> (Coordinate, Coordinate) {
-        let to = self.to.unwrap_or(Coordinate::new(0, 0));
+        let zero = Coordinate::new(0, 0);
+        let to = self.to.unwrap_or(zero);
         (self.get_coordinate(), to)
     }
 
