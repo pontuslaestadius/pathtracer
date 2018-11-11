@@ -102,12 +102,33 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     let angle = roll(0, 3600);
     let a: f64 = f64::consts::PI * 0.001 * f64::from(angle);
 
-    // x = cx + r * cos(a)
     let x = circle(f64::from(coord.x), a.cos()) as i16;
-    // y = cy + r * sin(a)
     let y = circle(f64::from(coord.y), a.sin()) as i16;
 
     Coordinate { x, y }
+}
+
+/// Rotates the provide Vec around the axis inplace.
+///
+/// # Examples
+/// ```
+/// use pathfinder::{coordinate::*, Coordinate, Node};
+/// let c1 = Coordinate::new(0, 0);
+/// let n = Node::new("", Coordinate::new(0, 100));
+/// let mut v = vec!(n);
+/// rotate_around_axis(c1, &mut v, 1.0);
+/// assert_eq!(v.remove(0).geo, Coordinate::new(99, 1));
+/// ```
+pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, rad: f64) {
+    let rad = rad * f64::consts::PI / 180.0;
+    for mut p in points.iter_mut() {
+        let radius = distance(axis, p.geo) as f64;
+        let diff = diff(p.geo, axis);
+        let base = (diff.0 as f64).atan2(diff.1 as f64);
+        let angle: f64 = base + rad;
+        p.geo.x = axis.x + (angle.cos()*radius) as i16;
+        p.geo.y = axis.y + (angle.sin()*radius) as i16;
+    }
 }
 
 impl Ord for Coordinate {

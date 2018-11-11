@@ -405,6 +405,11 @@ impl Group {
         }
     }
 
+    /// Rotates all the nodes inside the group.
+    pub fn rotate(&mut self, rad: f64) {
+        coordinate::rotate_around_axis(self.get_coordinate(), &mut self.nodes, rad);
+    }
+
     /// Generates an image::Rgba based on the color of the Group and the
     /// distance from center.
     pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {

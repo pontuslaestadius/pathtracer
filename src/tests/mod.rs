@@ -1,10 +1,6 @@
 #[cfg(test)]
 mod tests {
 
-    // ------------------------------------------------------------
-    // Each nested module represents one file that is being tested.
-    // ------------------------------------------------------------
-
     // Seperate from other tests, since it tests from_list for all
     // classes that have it.
     mod from_list {
