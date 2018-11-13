@@ -22,12 +22,12 @@ pub struct CustomConverter<'a> {
 /// Reads from the provided file, and converts to a path network using default
 /// settings.
 pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
-    let content = get_content(path)?;
+    let content = content(path)?;
     Ok(convert(&content, &lambda))
 }
 
 /// Reads from the provided file, and returns content.
-fn get_content(path: &str) -> Result<String, io::Error> {
+fn content(path: &str) -> Result<String, io::Error> {
     let mut file = OpenOptions::new().read(true).open(path)?;
 
     let mut contents = String::new();
@@ -173,12 +173,12 @@ mod tests {
             if i == 0 {
                 break;
             }
-            let left = g.get_links()[0].t;
+            let left = g.links()[0].t;
             assert_ne!(
                 left,
                 0,
                 "Result did not link forward. ({:?})",
-                g.get_links()
+                g.links()
             );
         }
     }

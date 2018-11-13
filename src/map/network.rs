@@ -9,7 +9,7 @@ pub fn path<'a>(
     let _goal = network.get(b).expect("goal does not exist in network");
     let start = network.get(a).expect("start does not exist in network");
 
-    if start.get_links().is_empty() {
+    if start.links().is_empty() {
         return Vec::new();
     }
 
@@ -46,7 +46,7 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
         (acc + dis, from)
     };
 
-    for link in first.get_links().iter() {
+    for link in first.links().iter() {
         if link.t != 0 {
             queue.push(format(vec![first], link, 0));
         }
@@ -57,7 +57,7 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
         let (dis, path) = queue.remove(0);
         let current = path[0];
 
-        for link in current.get_links().iter() {
+        for link in current.links().iter() {
             if link.t != 0 {
                 queue.push(format(path.clone(), link, dis));
             }
@@ -85,7 +85,7 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
 /// ```
 pub fn add_children(group: &mut Group, nr_children: u32) {
     for _ in 0..nr_children {
-        let co = gen_within_radius(group.settings.geo, group.settings.get_size());
+        let co = gen_within_radius(group.settings.geo, group.settings.size());
         let mut node = Node::new("", co);
         node.color = group.gen_color(co);
         group.push(node);
