@@ -4,7 +4,7 @@ extern crate pathfinder;
 use pathfinder::{map::gif::*, *};
 
 fn main() -> Result<(), std::io::Error> {
-    let frames = 20;
+    let frames = 10;
     let width = 600;
     let height = 100;
     let radius = 50;
@@ -21,7 +21,7 @@ fn main() -> Result<(), std::io::Error> {
         }
     };
 
-    for _ in 1..(frames + 1) {
+    for frame_nr in 1..(frames + 1) {
         let mut groups = Vec::new();
 
         for c in 0..count {
@@ -29,7 +29,7 @@ fn main() -> Result<(), std::io::Error> {
             let mut group =
                 Group::new_simple((c % x_max) * radius as i16, (c / x_max) * radius as i16);
             group.settings.radius = Some(radius as u32);
-            group.settings.color = tools::gen_rgba();
+            group.settings.color = tools::seed_rgba(c as u64 * 40000);
 
             for _ in (radius as usize / 2)..radius as usize {
                 for k in 1..(2 + c / 5) {
@@ -37,6 +37,7 @@ fn main() -> Result<(), std::io::Error> {
                     group.node_plot(&f1);
                 }
             }
+            group.rotate(f64::from(frame_nr * (360 / frames)));
             groups.push(group);
         }
 

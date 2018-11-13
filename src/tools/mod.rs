@@ -131,29 +131,13 @@ pub fn gen_rgba() -> Rgba<u8> {
 
 /// Returns a Rgb color based on a seed value. the opacity is always 255.
 pub fn seed_rgba(seed: u64) -> Rgba<u8> {
-    let rem: u64 = 255;
-    let mut mi: u32 = ((seed / 2) % rem) as u32;
-    let mut max: u32 = (seed % rem) as u32;
+    let r = seed % 254;
+    let g = (seed + 75) % 254;
+    let b = (seed + 150) % 254;
 
-    if mi > max {
-        swap(&mut mi, &mut max);
-    } else if mi == max && mi == 0 {
-        max += 1;
-    } else {
-        mi -= 1;
+    Rgba {
+        data: [r as u8, g as u8, b as u8, 255],
     }
-
-    let mut primary: Rgba<u8> = Rgba {
-        data: [0, 0, 0, 255],
-    };
-
-    // Color of the node.
-    for i in 0..4 {
-        let v = u32::from(primary.data[i]) + roll(mi, max);
-        primary.data[i] = min(v, 255) as u8;
-    }
-
-    primary
 }
 
 /// Implemented according to
@@ -332,6 +316,15 @@ mod tests {
         let seed = 9611;
         for i in 0..30 {
             let _ = seed_rgba(seed * i);
+        }
+    }
+
+    #[test]
+    fn test_seed_rgba_consistancy() {
+        let seed = 9611;
+        let res = seed_rgba(seed);
+        for _ in 0..30 {
+            assert_eq!(seed_rgba(seed), res);
         }
     }
 
