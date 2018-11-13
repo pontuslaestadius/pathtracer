@@ -51,8 +51,21 @@ pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) 
 /// assert_eq!(difference, (100, 100));
 /// ```
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
-    ((c1.x - c2.x).abs(), (c1.y - c2.y).abs())
+    let diffs = diff_noabs(c1, c2);
+    (diffs.0.abs(), diffs.1.abs())
 }
+
+/// Get difference in distance that works with negative values.
+///
+/// # Examples
+/// ```
+/// use pathfinder::{coordinate::*, Coordinate};
+/// let c1 = Coordinate::new(0, 0);
+/// let c2 = Coordinate::new(100, 100);
+/// let difference = c1.diff(c2);
+/// assert_eq!(difference, (100, 100));
+/// ```
+pub fn diff_noabs(c1: Coordinate, c2: Coordinate) -> (i16, i16) { ((c1.x - c2.x), (c1.y - c2.y)) }
 
 /// Get the distance between two Coordinates'.
 ///
@@ -112,22 +125,19 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
 ///
 /// # Examples
 /// ```
-/// use pathfinder::{coordinate::*, Coordinate, Node};
-/// let c1 = Coordinate::new(0, 0);
-/// let n = Node::new("", Coordinate::new(0, 100));
-/// let mut v = vec!(n);
-/// rotate_around_axis(c1, &mut v, 1.0);
-/// assert_eq!(v.remove(0).geo, Coordinate::new(99, 1));
+/// # use pathfinder::{coordinate::*, Coordinate, Node};
+/// let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+/// rotate_around_axis(Coordinate::new(0, 0), &mut v, 90.0);
+/// assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
 /// ```
-pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, rad: f64) {
-    let rad = rad * f64::consts::PI / 180.0;
+pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: f64) {
     for mut p in points.iter_mut() {
-        let radius = distance(axis, p.geo) as f64;
-        let diff = diff(p.geo, axis);
-        let base = (diff.0 as f64).atan2(diff.1 as f64);
-        let angle: f64 = base + rad;
-        p.geo.x = axis.x + (angle.cos()*radius) as i16;
-        p.geo.y = axis.y + (angle.sin()*radius) as i16;
+        let radius = f64::from(distance(axis, p.geo));
+        let diff = diff_noabs(p.geo, axis);
+        let base = f64::from(diff.0).atan2(f64::from(diff.1));
+        let angle = base + (deg * f64::consts::PI / 180.0);
+        p.geo.y = axis.y + (angle.cos() * radius) as i16;
+        p.geo.x = axis.x + (angle.sin() * radius) as i16;
     }
 }
 
@@ -153,7 +163,7 @@ impl Add for Coordinate {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{super::Node, *};
 
     #[test]
     fn test_eq() {
@@ -179,6 +189,67 @@ mod tests {
             assert!(co4 > co6);
             assert!(co5 < co6);
         }
+    }
+
+    #[test]
+    fn test_rotate_around_no_rotates() {
+        let c1 = Coordinate::new(0, 0);
+        for deg in 0..10 {
+            let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+            rotate_around_axis(c1, &mut v, f64::from(deg * 360));
+            assert_eq!(v.remove(0).geo, Coordinate::new(0, 100));
+        }
+    }
+
+    #[test]
+    fn test_rotate_around_one_circle() {
+        let c1 = Coordinate::new(0, 0);
+        let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+        for _ in 0..4 {
+            rotate_around_axis(c1, &mut v, 90.0);
+            println!("{:?}", v.get(0).unwrap().geo);
+        }
+        assert_eq!(v.remove(0).geo, Coordinate::new(0, 100));
+    }
+
+    #[test]
+    fn test_rotate_around_radians_1() {
+        let c1 = Coordinate::new(0, 0);
+        let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+        rotate_around_axis(c1, &mut v, 90.0);
+        assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
+    }
+
+    #[test]
+    fn test_rotate_around_radians_2() {
+        let c1 = Coordinate::new(0, 0);
+        let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+        rotate_around_axis(c1, &mut v, 180.0);
+        assert_eq!(v.remove(0).geo, Coordinate::new(0, -100));
+    }
+
+    #[test]
+    fn test_rotate_around_radians_3() {
+        let c1 = Coordinate::new(0, 0);
+        let mut v = vec![Node::new("", Coordinate::new(0, 100))];
+        rotate_around_axis(c1, &mut v, 270.0);
+        assert_eq!(v.remove(0).geo, Coordinate::new(-100, 0));
+    }
+
+    #[test]
+    fn test_rotate_around_moved_axis_1() {
+        let c1 = Coordinate::new(100, 100);
+        let mut v = vec![Node::new("", Coordinate::new(200, 100))];
+        rotate_around_axis(c1, &mut v, 90.0);
+        assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
+    }
+
+    #[test]
+    fn test_rotate_around_moved_axis_2() {
+        let c1 = Coordinate::new(99, 99);
+        let mut v = vec![Node::new("", Coordinate::new(199, 99))];
+        rotate_around_axis(c1, &mut v, 90.0);
+        assert_eq!(v.remove(0).geo, Coordinate::new(99, -1));
     }
 
     #[test]

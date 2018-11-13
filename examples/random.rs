@@ -12,7 +12,7 @@ use std::path::Path;
 fn main() {
     let mut groups = Vec::new();
     let circle = shape::Circle::new();
-    let coordinates = circle.area(15);
+    let coordinates = circle.area(10);
     let children: u32 = 20;
     let radius = 10;
     let spread = 18;
