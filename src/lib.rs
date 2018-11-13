@@ -129,8 +129,7 @@ pub trait Draw {
     fn draw<S: Shape>(
         &self,
         image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        x_offset: i16,
-        y_offset: i16,
+        offset: Coordinate,
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
@@ -142,20 +141,23 @@ impl Draw for Node {
     fn draw<S: Shape>(
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        x_offset: i16,
-        y_offset: i16,
+        offset: Coordinate,
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        let x = self.geo.x + x_offset as i16;
-        let y = self.geo.y + y_offset as i16;
+        let mut pos = self.geo;
+        pos.join(offset);
 
         for link in &self.links {
-            image = link.draw(image, x_offset, y_offset, size);
+            image = link.draw(image, offset, size);
         }
 
         for offset in shape.area(size) {
-            image.put_pixel((x + offset.x) as u32, (y + offset.y) as u32, self.color);
+            image.put_pixel(
+                (pos.x + offset.x) as u32,
+                (pos.y + offset.y) as u32,
+                self.color,
+            );
         }
         image
     }
@@ -170,14 +172,13 @@ impl Draw for Group {
     fn draw<S: Shape>(
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        x_offset: i16,
-        y_offset: i16,
+        offset: Coordinate,
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        image = self.settings.draw(image, x_offset, y_offset, size, shape);
+        image = self.settings.draw(image, offset, size, shape);
         for node in &self.nodes {
-            image = node.draw(image, x_offset, y_offset, size, shape);
+            image = node.draw(image, offset, size, shape);
         }
         image
     }
@@ -219,6 +220,12 @@ impl Coordinate {
 
     /// Calculates the different in x and y of two Coordinates.
     pub fn diff(self, other: Coordinate) -> (i16, i16) { coordinate::diff(self, other) }
+
+    /// Combines two coordinates.
+    pub fn join(&mut self, other: Coordinate) {
+        self.x += other.x;
+        self.y += other.y;
+    }
 
     /// Creates a list of coordinates from a list of tuples with x and y
     /// positions.
@@ -321,36 +328,34 @@ impl HL {
     fn draw(
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        x_offset: i16,
-        y_offset: i16,
+        offset: Coordinate,
         size: u32,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         if self.f == 0 || self.t == 0 {
             return image;
         }
-        let (from, to) = self.get_parameters();
+        let (mut from, mut to) = self.get_parameters();
         if from == to {
             return image;
         }
+        let mut off = offset;
+        off.join(Coordinate::new((size / 2) as i16, (size / 2) as i16));
 
-        let x_offset = x_offset + (size / 2) as i16;
-        let y_offset = y_offset + (size / 2) as i16;
+        from.join(off);
+        to.join(off);
 
-        let _ = tools::plot(
-            Coordinate::new(from.x + x_offset, from.y + y_offset),
-            Coordinate::new(to.x + x_offset, to.y + y_offset),
-        )
-        .iter()
-        .map(|c| {
-            image.put_pixel(
-                c.x as u32,
-                c.y as u32,
-                image::Rgba {
-                    data: [0, 0, 0, 255],
-                },
-            )
-        })
-        .collect::<Vec<_>>();
+        let _ = tools::plot(from, to)
+            .iter()
+            .map(|c| {
+                image.put_pixel(
+                    c.x as u32,
+                    c.y as u32,
+                    image::Rgba {
+                        data: [0, 0, 0, 255],
+                    },
+                )
+            })
+            .collect::<Vec<_>>();
         image
     }
 }
@@ -509,7 +514,12 @@ impl Map {
 
         let sq = shape::Square::new();
         for e in element {
-            self.image = Some(e.draw(self.image.unwrap(), self.add.0, self.add.1, self.size, &sq));
+            self.image = Some(e.draw(
+                self.image.unwrap(),
+                Coordinate::new(self.add.0, self.add.1),
+                self.size,
+                &sq,
+            ));
         }
         self
     }
