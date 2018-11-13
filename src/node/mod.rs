@@ -35,11 +35,11 @@ fn verbose_path(path: &[Node], side_effects: bool) -> u32 {
     let mut distance = 0;
     let mut prev = Coordinate::new(0, 0);
     for (link_i, leg) in path.iter().enumerate() {
-        let dis = coordinate::distance(prev, leg.get_coordinate());
+        let dis = coordinate::distance(prev, leg.position());
         distance += dis;
-        prev = leg.get_coordinate();
+        prev = leg.position();
         if side_effects {
-            println!("#{} {:?} - distance: {}", link_i, leg.get_coordinate(), dis);
+            println!("#{} {:?} - distance: {}", link_i, leg.position(), dis);
         }
     }
 

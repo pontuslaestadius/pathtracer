@@ -13,7 +13,7 @@ use std::{
 /// Finds an element using their hashes.
 pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
     for l in list {
-        if element == l.get_hash() {
+        if element == l.hash() {
             return Some(l);
         }
     }
@@ -91,7 +91,7 @@ pub fn roll(min: u32, max: u32) -> u32 {
 }
 
 /// Returns a random item from a given list.
-pub fn get_random_item(list: &[String]) -> &String {
+pub fn random_item(list: &[String]) -> &String {
     let roll = roll(0, list.len() as u32);
     &list[roll as usize]
 }
@@ -297,9 +297,9 @@ mod tests {
     }
 
     #[test]
-    fn test_get_random_item() {
+    fn test_random_item() {
         let strings = ["a".to_string(), "b".to_string()];
-        let res = get_random_item(&strings);
+        let res = random_item(&strings);
         let res = res == &strings[0] || res == &strings[1];
         assert!(res);
     }

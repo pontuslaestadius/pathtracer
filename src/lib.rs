@@ -68,41 +68,41 @@ pub trait Shape {
 }
 
 pub trait Hash {
-    fn get_hash(&self) -> u64;
+    fn hash(&self) -> u64;
 }
 
 // ------------------------------------------------------------------
 
 pub trait Location {
-    fn get_coordinate(&self) -> Coordinate;
+    fn position(&self) -> Coordinate;
     fn find(&self, hash: u64) -> Option<Coordinate>;
-    fn get_parameters(&self) -> (Coordinate, Coordinate);
+    fn parameters(&self) -> (Coordinate, Coordinate);
 }
 
 impl Location for HL {
-    fn get_coordinate(&self) -> Coordinate {
+    fn position(&self) -> Coordinate {
         let zero = Coordinate::new(0, 0);
         self.from.unwrap_or(zero)
     }
 
-    fn get_parameters(&self) -> (Coordinate, Coordinate) {
+    fn parameters(&self) -> (Coordinate, Coordinate) {
         let zero = Coordinate::new(0, 0);
         let to = self.to.unwrap_or(zero);
-        (self.get_coordinate(), to)
+        (self.position(), to)
     }
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
         if self.t == hash {
-            return Some(self.get_coordinate());
+            return Some(self.position());
         }
         None
     }
 }
 
 impl Location for Node {
-    fn get_coordinate(&self) -> Coordinate { self.geo }
+    fn position(&self) -> Coordinate { self.geo }
 
-    fn get_parameters(&self) -> (Coordinate, Coordinate) { (self.geo, self.geo) }
+    fn parameters(&self) -> (Coordinate, Coordinate) { (self.geo, self.geo) }
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
         if self.hash == hash {
@@ -113,13 +113,13 @@ impl Location for Node {
 }
 
 impl Location for Group {
-    fn get_coordinate(&self) -> Coordinate { self.settings.get_coordinate() }
+    fn position(&self) -> Coordinate { self.settings.position() }
 
-    fn get_parameters(&self) -> (Coordinate, Coordinate) { group::get_parameters(self) }
+    fn parameters(&self) -> (Coordinate, Coordinate) { group::parameters(self) }
 
     fn find(&self, hash: u64) -> Option<Coordinate> {
         let f = tools::find(hash, &self.nodes);
-        f.and_then(|x| Some(x.get_coordinate()))
+        f.and_then(|x| Some(x.position()))
     }
 }
 
@@ -133,8 +133,8 @@ pub trait Draw {
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
-    fn get_size(&self) -> u32;
-    fn get_links(&self) -> &[HL];
+    fn size(&self) -> u32;
+    fn links(&self) -> &[HL];
 }
 
 impl Draw for Node {
@@ -162,9 +162,9 @@ impl Draw for Node {
         image
     }
 
-    fn get_size(&self) -> u32 { self.radius.unwrap_or(4) }
+    fn size(&self) -> u32 { self.radius.unwrap_or(4) }
 
-    fn get_links(&self) -> &[HL] { &self.links }
+    fn links(&self) -> &[HL] { &self.links }
 }
 
 impl Draw for Group {
@@ -184,10 +184,10 @@ impl Draw for Group {
     }
 
     // Returns the largest node that exists within the group.
-    fn get_size(&self) -> u32 {
+    fn size(&self) -> u32 {
         let mut max = 0;
         for node in &self.nodes {
-            max = std::cmp::max(max, node.get_size());
+            max = std::cmp::max(max, node.size());
         }
         match self.settings.radius {
             Some(e) => max + e / 10,
@@ -195,21 +195,21 @@ impl Draw for Group {
         }
     }
 
-    fn get_links(&self) -> &[HL] { &self.settings.links }
+    fn links(&self) -> &[HL] { &self.settings.links }
 }
 
 // ------------------------------------------------------------------
 
 impl Hash for HL {
-    fn get_hash(&self) -> u64 { self.t }
+    fn hash(&self) -> u64 { self.t }
 }
 
 impl Hash for Node {
-    fn get_hash(&self) -> u64 { self.hash }
+    fn hash(&self) -> u64 { self.hash }
 }
 
 impl Hash for Group {
-    fn get_hash(&self) -> u64 { self.settings.get_hash() }
+    fn hash(&self) -> u64 { self.settings.hash() }
 }
 
 // ------------------------------------------------------------------
@@ -265,7 +265,7 @@ impl Node {
 
     /// Looks through all connected Nodes and returns if they are connected.
     pub fn is_directly_connected(&self, other: &Node) -> bool {
-        tools::find(other.hash, self.get_links()).is_some()
+        tools::find(other.hash, self.links()).is_some()
     }
 
     /// Links a list of nodes together in the order they are indexed.
@@ -334,7 +334,7 @@ impl HL {
         if self.f == 0 || self.t == 0 {
             return image;
         }
-        let (mut from, mut to) = self.get_parameters();
+        let (mut from, mut to) = self.parameters();
         if from == to {
             return image;
         }
@@ -381,7 +381,7 @@ impl Group {
 
     /// Plots node according to the fn provided.
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
-        let c = coordinate::calc(self.get_coordinate(), self.nodes.len(), calc);
+        let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
         let mut node = Node::new("", c);
         node.color = color;
@@ -403,7 +403,7 @@ impl Group {
     pub fn push(&mut self, node: Node) { self.nodes.push(node); }
 
     /// Returns a dynamic radius based on the number of Nodes in the Group.
-    pub fn get_dynamic_radius(&self) -> u32 {
+    pub fn dynamic_radius(&self) -> u32 {
         match self.settings.radius {
             Some(x) => x,
             None => 7 + self.nodes.len() as u32 / 2,
@@ -412,14 +412,14 @@ impl Group {
 
     /// Rotates all the nodes inside the group.
     pub fn rotate(&mut self, rad: f64) {
-        coordinate::rotate_around_axis(self.get_coordinate(), &mut self.nodes, rad);
+        coordinate::rotate_around_axis(self.position(), &mut self.nodes, rad);
     }
 
     /// Generates an image::Rgba based on the color of the Group and the
     /// distance from center.
     pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
         tools::range_color(
-            self.get_dynamic_radius() as i16,
+            self.dynamic_radius() as i16,
             self.settings.color,
             self.settings.geo,
             coordinates,
@@ -456,7 +456,7 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
         let mut hash_map: [Option<T>; 666] = [None; 666];
         while !elements.is_empty() {
             let e = elements.remove(0);
-            hash_map[(e.get_hash() % 666) as usize] = Some(e);
+            hash_map[(e.hash() % 666) as usize] = Some(e);
         }
 
         Network { hash_map }

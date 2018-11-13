@@ -27,18 +27,18 @@ pub fn count(list: &[Group]) -> usize {
 /// use pathfinder::{group, Coordinate, Group, Node};
 /// let mut group = Group::new_simple(0, 0);
 /// group.push(Node::new("", Coordinate::new(100, 100)));
-/// let (min, max) = group::get_parameters(&group);
+/// let (min, max) = group::parameters(&group);
 /// assert_eq!(min.x, 0); // y values are identical
 /// assert_eq!(max.x, 100);
 /// ```
-pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
+pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
     let mut min_x: i16 = 0;
     let mut min_y: i16 = 0;
     let mut max_x: i16 = 0;
     let mut max_y: i16 = 0;
 
     for node in &group.nodes {
-        let (min, max) = node.get_parameters();
+        let (min, max) = node.parameters();
         max_x = std::cmp::max(max_x, max.x);
         min_x = std::cmp::min(min_x, min.x);
         max_y = std::cmp::max(max_y, max.y);
@@ -52,7 +52,7 @@ pub fn get_parameters(group: &Group) -> (Coordinate, Coordinate) {
 pub fn add_node(group: &mut Group, name: Option<&str>, min: Option<u32>, max: Option<u32>) {
     let name = name.unwrap_or("");
     let min = min.unwrap_or(0);
-    let max = max.unwrap_or_else(|| group.get_dynamic_radius());
+    let max = max.unwrap_or_else(|| group.dynamic_radius());
 
     let mi = cmp::min(min, max);
     let ma = cmp::max(min, max);

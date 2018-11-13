@@ -30,8 +30,8 @@ fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
     let mut max = Coordinate::new(0, 0);
 
     for item in list {
-        size = cmp::max(size, item.get_size() as i16);
-        let (imin, imax) = item.get_parameters();
+        size = cmp::max(size, item.size() as i16);
+        let (imin, imax) = item.parameters();
 
         max.x = cmp::max(max.x, imax.x);
         min.x = cmp::min(min.x, imin.x);
