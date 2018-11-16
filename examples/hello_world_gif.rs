@@ -22,8 +22,8 @@ fn main() {
         let mut groups = Group::from_list(&[(0, 0), (45, 40), (110, 20)]);
 
         for (j, ref mut group) in groups.iter_mut().enumerate() {
-            group.settings.radius = Some(radius[j]);
-            group.settings.color = Rgba { data: color[j] };
+            group.radius(radius[j]);
+            group.color(Rgba { data: color[j] });
             map::network::add_children(group, 100);
         }
 

@@ -32,19 +32,18 @@ pub fn count(list: &[Group]) -> usize {
 /// assert_eq!(max.x, 100);
 /// ```
 pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
-    let mut min_x: i16 = 0;
-    let mut min_y: i16 = 0;
-    let mut max_x: i16 = 0;
-    let mut max_y: i16 = 0;
-
+    let mut min = Coordinate::new(0, 0);
+    let mut max = Coordinate::new(0, 0);
     for node in &group.nodes {
-        let (min, max) = node.parameters();
-        max_x = std::cmp::max(max_x, max.x);
-        min_x = std::cmp::min(min_x, min.x);
-        max_y = std::cmp::max(max_y, max.y);
-        min_y = std::cmp::min(min_y, min.y);
+        let (min2, max2) = node.parameters();
+        max.x = std::cmp::max(max.x, max2.x);
+        min.x = std::cmp::min(min.x, min2.x);
+        max.y = std::cmp::max(max.y, max2.y);
+        min.y = std::cmp::min(min.y, min2.y);
     }
-    (Coordinate::new(min_x, min_y), Coordinate::new(max_x, max_y))
+    min.join(group.position());
+    max.join(group.position());
+    (min, max)
 }
 
 /// Adds a node to a given group, All parameters are optional except the group.

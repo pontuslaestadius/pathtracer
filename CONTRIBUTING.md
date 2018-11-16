@@ -4,7 +4,9 @@ Contrubitions are not fully automated and require manual oversign to be integrat
 
 ## Way of working
 
-This repository initially worked on a code-first bases but has transitioned to a heavier TDD approach. This means that added functionality should come with additional tests. And any issue that is found should be attempted to be identified with a failing test.
+This repository initially worked on a code-first bases but has transitioned to a heavier TDD approach. 
+This means that added functionality should come with additional tests.
+And any issue that is found should be attempted to be identified with a failing test.
 
 ### Github
 

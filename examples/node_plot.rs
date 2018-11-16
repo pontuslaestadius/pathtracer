@@ -5,10 +5,11 @@ use pathfinder::{map::gif::*, *};
 
 fn main() -> Result<(), std::io::Error> {
     let frames = 10;
-    let width = 600;
-    let height = 100;
-    let radius = 50;
+    let width = 500;
+    let height = 80;
+    let radius = 40;
     let x_max: i16 = (width / radius) as i16;
+    let frame_rot = f64::from(360 / frames);
     let count = x_max * (height / radius) as i16;
     let mut gif = Gif::new(width + 8, height + 8);
     let _ = gif.init("out.gif")?;
@@ -21,24 +22,25 @@ fn main() -> Result<(), std::io::Error> {
         }
     };
 
-    for frame_nr in 1..(frames + 1) {
-        let mut groups = Vec::new();
+    let mut groups = Vec::new();
+    for c in 0..count {
+        let c = c as i16;
+        let mut group = Group::new_simple((c % x_max) * radius as i16, (c / x_max) * radius as i16);
+        group.radius(radius as u32);
+        group.color(tools::seed_rgba(c as u64 * 6));
 
-        for c in 0..count {
-            let c = c as i16;
-            let mut group =
-                Group::new_simple((c % x_max) * radius as i16, (c / x_max) * radius as i16);
-            group.settings.radius = Some(radius as u32);
-            group.settings.color = tools::seed_rgba(c as u64 * 40000);
-
-            for _ in (radius as usize / 2)..radius as usize {
-                for k in 1..(2 + c / 5) {
-                    let f1 = |i: usize| -> Coordinate { f(i, (6 * k) as f64) };
-                    group.node_plot(&f1);
-                }
+        for _ in (radius as usize / 2)..radius as usize {
+            for k in 1..(2 + c / 5) {
+                let f1 = |i: usize| -> Coordinate { f(i, (6 * k) as f64) };
+                group.node_plot(&f1);
             }
-            group.rotate(f64::from(frame_nr * (360 / frames)));
-            groups.push(group);
+        }
+        groups.push(group);
+    }
+
+    for _ in 1..(frames + 1) {
+        for g in groups.iter_mut() {
+            g.rotate(frame_rot);
         }
 
         let mut map = Map::new();

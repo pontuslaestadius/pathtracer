@@ -43,4 +43,86 @@ mod tests {
 
     }
 
+    mod rotate {
+
+        use Group;
+        use Node;
+        use coordinate::diff;
+        use Location;
+        use map::network::*;
+
+        #[test]
+        fn group() {
+            let mut g = Group::new_simple(0, 0);
+            add_children(&mut g, 100);
+            for _ in 0..36 {
+                let before = g.position();
+                g.rotate(10.0);
+                assert_eq!(before, g.position());
+            }
+        }
+
+        fn setup_group() -> Group {    
+            let mut g = Group::new_simple(0, 0);
+            g.radius(100);
+            add_children(&mut g, 100);
+            g
+        }
+
+        fn no_move(a: &Vec<Node>, b: &Vec<Node>) {
+            let matching = a.iter().zip(b.iter()).filter(|&(a, b)| {
+                let d = diff(a.position(),b.position());
+                // Close enough.
+                d.0 < 10 && d.1 < 10
+            }
+            ).count();
+            assert_eq!(b.len(), matching);
+        }
+
+        #[test]
+        fn group_children_no_move() {
+            let mut g = setup_group();
+            let nodes = g.nodes().clone();
+            for _ in 0..100 {
+                g.rotate(0.0);
+            }
+            no_move(&nodes, g.nodes());
+        }
+
+        #[test]
+        fn group_children_no_move_incr() {
+            let mut g = setup_group();
+            let nodes = g.nodes().clone();
+            g.rotate(10.0);
+            g.rotate(-10.0);
+            no_move(&nodes, g.nodes());
+        }
+
+
+        #[test]
+        fn group_children_inc2() {
+            let mut g = setup_group();
+            let nodes = g.nodes().clone();
+            for _ in 0..10 {
+                g.rotate(36.0);
+            }
+            no_move(&nodes, g.nodes());
+        }
+
+    }
+
+    mod path {
+
+        use Node;
+        use Coordinate;
+
+        #[test]
+        fn nodes() {
+            let mut a = Node::new("A", Coordinate::new(0, 0));
+            let b = Node::new("B", Coordinate::new(100, 100));
+            a.link(&b);
+            assert!(a.is_directly_connected(&b));
+        }
+
+    }
 }

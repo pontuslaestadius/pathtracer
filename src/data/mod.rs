@@ -174,12 +174,7 @@ mod tests {
                 break;
             }
             let left = g.links()[0].t;
-            assert_ne!(
-                left,
-                0,
-                "Result did not link forward. ({:?})",
-                g.links()
-            );
+            assert_ne!(left, 0, "Result did not link forward. ({:?})", g.links());
         }
     }
 }
