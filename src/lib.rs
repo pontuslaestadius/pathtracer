@@ -379,15 +379,13 @@ impl Group {
 
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
-    
+
     pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
 
     pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
     /// Sets the color of the Group.
-    pub fn color(&mut self, rgba: image::Rgba<u8>) {
-        self.settings.color = rgba;
-    }
+    pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
 
     /// Plots node according to the fn provided.
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {

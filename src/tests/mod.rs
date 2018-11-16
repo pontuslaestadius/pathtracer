@@ -45,11 +45,11 @@ mod tests {
 
     mod rotate {
 
-        use Group;
-        use Node;
         use coordinate::diff;
-        use Location;
         use map::network::*;
+        use Group;
+        use Location;
+        use Node;
 
         #[test]
         fn group() {
@@ -62,7 +62,7 @@ mod tests {
             }
         }
 
-        fn setup_group() -> Group {    
+        fn setup_group() -> Group {
             let mut g = Group::new_simple(0, 0);
             g.radius(100);
             add_children(&mut g, 100);
@@ -70,12 +70,15 @@ mod tests {
         }
 
         fn no_move(a: &Vec<Node>, b: &Vec<Node>) {
-            let matching = a.iter().zip(b.iter()).filter(|&(a, b)| {
-                let d = diff(a.position(),b.position());
-                // Close enough.
-                d.0 < 10 && d.1 < 10
-            }
-            ).count();
+            let matching = a
+                .iter()
+                .zip(b.iter())
+                .filter(|&(a, b)| {
+                    let d = diff(a.position(), b.position());
+                    // Close enough.
+                    d.0 < 10 && d.1 < 10
+                })
+                .count();
             assert_eq!(b.len(), matching);
         }
 
@@ -98,7 +101,6 @@ mod tests {
             no_move(&nodes, g.nodes());
         }
 
-
         #[test]
         fn group_children_inc2() {
             let mut g = setup_group();
@@ -113,8 +115,8 @@ mod tests {
 
     mod path {
 
-        use Node;
         use Coordinate;
+        use Node;
 
         #[test]
         fn nodes() {
