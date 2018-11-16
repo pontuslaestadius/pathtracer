@@ -27,8 +27,8 @@ fn main() {
 
     for c in coordinates.iter() {
         let mut group = Group::new_simple(c.x * spread, c.y * spread);
-        group.settings.radius = Some(radius as u32);
-        group.settings.color = tools::gen_rgba();
+        group.radius(radius as u32);
+        group.color(tools::gen_rgba());
         map::network::add_children(&mut group, children);
         groups.push(group);
     }

@@ -44,8 +44,8 @@ pub struct Node {
 /// The group itself has no displayed output and is not visible.
 #[derive(Clone, Debug)]
 pub struct Group {
-    pub settings: Node,
-    pub nodes: Vec<Node>,
+    settings: Node,
+    nodes: Vec<Node>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -177,13 +177,15 @@ impl Draw for Group {
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         image = self.settings.draw(image, offset, size, shape);
+        let mut o = offset;
+        o.join(self.position());
         for node in &self.nodes {
-            image = node.draw(image, offset, size, shape);
+            image = node.draw(image, o, size, shape);
         }
         image
     }
 
-    // Returns the largest node that exists within the group.
+    /// Returns the largest node that exists within the group.
     fn size(&self) -> u32 {
         let mut max = 0;
         for node in &self.nodes {
@@ -225,6 +227,12 @@ impl Coordinate {
     pub fn join(&mut self, other: Coordinate) {
         self.x += other.x;
         self.y += other.y;
+    }
+
+    /// Subtracts the other from self.
+    pub fn normalize(&mut self, other: Coordinate) {
+        self.x -= other.x;
+        self.y -= other.y;
     }
 
     /// Creates a list of coordinates from a list of tuples with x and y
@@ -339,8 +347,8 @@ impl HL {
             return image;
         }
         let mut off = offset;
-        off.join(Coordinate::new((size / 2) as i16, (size / 2) as i16));
-
+        let s = (size / 2) as i16;
+        off.join(Coordinate::new(s, s));
         from.join(off);
         to.join(off);
 
@@ -371,12 +379,14 @@ impl Group {
 
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
+    
+    pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
+
+    pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
     /// Sets the color of the Group.
-    pub fn set_color<T: Into<u8>>(&mut self, r: T, g: T, b: T) {
-        self.settings.color = image::Rgba {
-            data: [r.into(), g.into(), b.into(), 255],
-        }
+    pub fn color(&mut self, rgba: image::Rgba<u8>) {
+        self.settings.color = rgba;
     }
 
     /// Plots node according to the fn provided.
@@ -385,7 +395,7 @@ impl Group {
         let color = self.gen_color(c);
         let mut node = Node::new("", c);
         node.color = color;
-        self.nodes.push(node);
+        self.push(node);
     }
 
     /// Adds a Node with a specific minimum and maximum distance from the
@@ -400,7 +410,10 @@ impl Group {
     }
 
     /// Pushes a Node to the Group.
-    pub fn push(&mut self, node: Node) { self.nodes.push(node); }
+    pub fn push(&mut self, mut node: Node) {
+        node.geo.normalize(self.position());
+        self.nodes.push(node);
+    }
 
     /// Returns a dynamic radius based on the number of Nodes in the Group.
     pub fn dynamic_radius(&self) -> u32 {
@@ -412,7 +425,8 @@ impl Group {
 
     /// Rotates all the nodes inside the group.
     pub fn rotate(&mut self, rad: f64) {
-        coordinate::rotate_around_axis(self.position(), &mut self.nodes, rad);
+        // Use 0, 0 because we have normalized the self.nodes positions relative.
+        coordinate::rotate_around_axis(Coordinate::new(0, 0), &mut self.nodes, rad);
     }
 
     /// Generates an image::Rgba based on the color of the Group and the

@@ -131,13 +131,17 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
 /// assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
 /// ```
 pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: f64) {
+    if deg == 0.0 {
+        return;
+    }
+
     for mut p in points.iter_mut() {
         let radius = f64::from(distance(axis, p.geo));
         let diff = diff_noabs(p.geo, axis);
         let base = f64::from(diff.0).atan2(f64::from(diff.1));
         let angle = base + (deg * f64::consts::PI / 180.0);
-        p.geo.y = axis.y + (angle.cos() * radius) as i16;
-        p.geo.x = axis.x + (angle.sin() * radius) as i16;
+        p.geo.y = axis.y + f64::round(angle.cos() * radius) as i16;
+        p.geo.x = axis.x + f64::round(angle.sin() * radius) as i16;
     }
 }
 

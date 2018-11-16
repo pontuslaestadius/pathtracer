@@ -5,11 +5,11 @@ extern crate pathfinder;
 use pathfinder::*;
 use std::path::Path;
 
-fn main() {
-    let ls = 35; // Letter spacing.
+fn main() -> Result<(), std::io::Error> {
+    let ls = 30; // Letter spacing.
     let hs = ls / 2; // Letter spacing half.
 
-    // spelling out P A T H F I N D E R
+    // spells out PATHFINDER
     let node_pos: Vec<(i16, i16)> = vec![
         (0, 0),
         (hs, -hs),
@@ -57,12 +57,8 @@ fn main() {
     ];
     let nodes = Node::from_list(&node_pos);
     let mut nodes = Node::linked_list(nodes);
-    for node in nodes.iter_mut() {
-        node.color = tools::gen_rgba();
+    for (i, node) in nodes.iter_mut().enumerate() {
+        node.color = tools::seed_rgba(959 * i as u64);
     }
-
-    let path = Path::new("out.png");
-    let mut map = Map::new();
-    map = map.map(&nodes);
-    let _ = map.image.unwrap().save(&path);
+    Map::new().map(&nodes).save(&Path::new("out.png"))
 }
