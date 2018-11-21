@@ -260,6 +260,9 @@ impl Node {
         }
     }
 
+    /// Retrive coordinate from a csv format.
+    pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> { node::from_file(path) }
+
     /// Converts a list of tuples (x,y) to a Vector of Nodes.
     /// Names are assigned from "A" and upwards automatically.
     ///
