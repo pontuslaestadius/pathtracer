@@ -41,8 +41,8 @@ pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
         max.y = std::cmp::max(max.y, max2.y);
         min.y = std::cmp::min(min.y, min2.y);
     }
-    min.join(group.position());
-    max.join(group.position());
+    min.add(group.position());
+    max.add(group.position());
     (min, max)
 }
 

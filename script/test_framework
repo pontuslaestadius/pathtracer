@@ -6,13 +6,42 @@
 # Output is formatted in a matrix where each row is a test file and each column is a command ran.
 #
 
+
+usage() {
+    echo "Usage: $0 Filter test case: [-filter <test name>] [-d] [-h]" 1>&2; 
+    exit 1; 
+}
+
+while getopts ":s:p:" o; do
+    case "${o}" in
+        filter)
+            filter=${OPTARG}
+            ;;
+        d)
+            d=true
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
 if [ -z "$REPOROOT" ]; then
     source $(git rev-parse --show-toplevel)/script/utils/setup
 fi
 
 cd $REPOROOT
 filter=$1
+dry_run=$2
 env_location="$REPOROOT/.cache"
+
+if [ ! -z "${d}" ]; then
+    cargo() {
+        echo "$@" > /dev/null
+    }
+    export -f cargo
+fi
 
 env_file() {
     mkdir -p "$env_location"
@@ -66,7 +95,7 @@ run() {
 export -f run
 
 init() {
-    for f in $REPOROOT/tests/$filter*; do
+    for f in $REPOROOT/tests/${filter}*; do
         MATRIX="$MATRIX\n$(basename $f)"
         while read -r l; do
             [ ! -z "$l" ] && run "$(basename $f)" "$l"
@@ -76,5 +105,5 @@ init() {
 
 env_file "executed" "ignored" "executed_ns"
 init
-env_print "executed" "ignored" "executed_ns"
+env_print "executed" "ignored"
 

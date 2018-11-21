@@ -25,7 +25,7 @@ fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
 
 /// Finds the min and max of a list and returns ((minX, minY),(maxX, maxY)).
 fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
-    let mut size: i16 = 4;
+    let mut size: i16 = consts::DEFAULT_SIZE as i16;
     let mut min = Coordinate::new(0, 0);
     let mut max = Coordinate::new(0, 0);
 

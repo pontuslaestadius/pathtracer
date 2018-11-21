@@ -12,9 +12,9 @@ extern crate rand;
 use image::Rgba;
 use pathfinder::{map::gif::*, *};
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let mut gif = Gif::new(200, 100);
-    let _ = gif.init("out.gif").unwrap();
+    let _ = gif.init("out.gif")?;
     let radius = [30, 20, 40];
     let color = [[250, 20, 20, 255], [20, 20, 250, 255], [20, 250, 20, 255]];
 
@@ -29,6 +29,7 @@ fn main() {
 
         let mut map = Map::new();
         map = map.map(&groups);
-        gif.push_frame(&map.image.unwrap()).unwrap();
+        gif.push_frame(&map.image.unwrap())?
     }
+    Ok(())
 }

@@ -1,4 +1,4 @@
-use super::{super::coordinate::*, *};
+use super::{consts, coordinate::*, *};
 
 pub fn path<'a>(
     network: &'a Network<Node>,
@@ -20,7 +20,7 @@ pub fn path<'a>(
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     let tmp = Node::new(element, Coordinate::new(0, 0));
     for (i, elem) in network.hash_map.iter().enumerate() {
-        if elem.is_some() && i == (tmp.hash % 666) as usize {
+        if elem.is_some() && i == tmp.hash as usize % consts::NETWORK_REM {
             return network.hash_map[i];
         }
     }
@@ -33,7 +33,7 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
     let mut queue: Vec<(u32, Vec<Node>)> = Vec::new();
 
     let format = |mut from: Vec<Node>, link: &HL, acc: u32| -> (u32, Vec<Node>) {
-        let node_opt = network.hash_map[(link.t % 666) as usize];
+        let node_opt = network.hash_map[link.t as usize % consts::NETWORK_REM];
         let node = node_opt.unwrap_or_else(|| {
             panic!(
                 "Node missing in network. From: {:?}, Link:
