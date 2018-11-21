@@ -15,6 +15,17 @@ pub mod tools;
 
 mod tests;
 
+mod consts {
+    pub const MAX_LINKS: usize = 5;
+    pub const NETWORK_REM: usize = 666;
+    pub const DEFAULT_SIZE: u16 = 4;
+    pub const DEFAULT_RGBA: image::Rgba<u8> = image::Rgba {
+        data: [0, 0, 0, 255],
+    };
+}
+
+// ------------------------------------------------------------------
+
 /// Holds a position used for Nodes and Groups.
 #[derive(Debug, Eq, Copy, Clone, Default)]
 pub struct Coordinate {
@@ -37,7 +48,7 @@ pub struct Node {
     pub geo: Coordinate,
     pub color: image::Rgba<u8>,
     pub radius: Option<u32>,
-    links: [HL; 10],
+    links: [HL; consts::MAX_LINKS],
 }
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
@@ -52,12 +63,12 @@ pub struct Group {
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
     pub add: (i16, i16),
-    pub size: u32,
+    pub size: u16,
 }
 
 #[derive(Clone, Copy)]
 pub struct Network<T: Draw + Hash + std::marker::Copy> {
-    pub hash_map: [Option<T>; 666],
+    pub hash_map: [Option<T>; consts::NETWORK_REM],
 }
 
 // ------------------------------------------------------------------
@@ -146,18 +157,14 @@ impl Draw for Node {
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let mut pos = self.geo;
-        pos.join(offset);
+        pos.add(offset);
 
         for link in &self.links {
             image = link.draw(image, offset, size);
         }
 
-        for offset in shape.area(size) {
-            image.put_pixel(
-                (pos.x + offset.x) as u32,
-                (pos.y + offset.y) as u32,
-                self.color,
-            );
+        for o in shape.area(size) {
+            image.put_pixel((pos.x + o.x) as u32, (pos.y + o.y) as u32, self.color);
         }
         image
     }
@@ -172,15 +179,14 @@ impl Draw for Group {
     fn draw<S: Shape>(
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        offset: Coordinate,
+        mut offset: Coordinate,
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         image = self.settings.draw(image, offset, size, shape);
-        let mut o = offset;
-        o.join(self.position());
+        offset.add(self.position());
         for node in &self.nodes {
-            image = node.draw(image, o, size, shape);
+            image = node.draw(image, offset, size, shape);
         }
         image
     }
@@ -197,7 +203,7 @@ impl Draw for Group {
         }
     }
 
-    fn links(&self) -> &[HL] { &self.settings.links }
+    fn links(&self) -> &[HL] { &self.settings.links() }
 }
 
 // ------------------------------------------------------------------
@@ -223,14 +229,14 @@ impl Coordinate {
     /// Calculates the different in x and y of two Coordinates.
     pub fn diff(self, other: Coordinate) -> (i16, i16) { coordinate::diff(self, other) }
 
-    /// Combines two coordinates.
-    pub fn join(&mut self, other: Coordinate) {
+    /// Adds the other to self.
+    pub fn add(&mut self, other: Coordinate) {
         self.x += other.x;
         self.y += other.y;
     }
 
     /// Subtracts the other from self.
-    pub fn normalize(&mut self, other: Coordinate) {
+    pub fn subtract(&mut self, other: Coordinate) {
         self.x -= other.x;
         self.y -= other.y;
     }
@@ -248,11 +254,9 @@ impl Node {
         Node {
             hash: data::calculate_hash(&name),
             geo,
-            color: image::Rgba {
-                data: [0, 0, 0, 255],
-            },
+            color: consts::DEFAULT_RGBA,
             radius: None,
-            links: [HL::new(0, 0); 10],
+            links: [HL::new(0, 0); consts::MAX_LINKS],
         }
     }
 
@@ -292,7 +296,8 @@ impl Node {
                 let mut link = HL::new(node.hash, prev_h);
                 link.to = Some(prev);
                 link.from = Some(node.geo);
-                node.links[0] = link;
+                let i = node.get_link_avail_index();
+                node.links[i] = link;
             }
 
             prev_h = node.hash;
@@ -301,7 +306,17 @@ impl Node {
         list
     }
 
-    /// Links Node self to the provided node's coordinate.
+    /// Returns the next point which is available to link.
+    fn get_link_avail_index(&self) -> usize {
+        for (i, link) in self.links().iter().enumerate() {
+            if link.t == 0 {
+                return i;
+            }
+        }
+        consts::MAX_LINKS - 1
+    }
+
+    /// Links Node self to another point that has Hash and Location implemented.
     ///
     /// ```
     /// use pathfinder::{Coordinate, Location, Node};
@@ -310,16 +325,14 @@ impl Node {
     /// a.link(&b);
     /// assert!(a.is_directly_connected(&b));
     /// ```
-    pub fn link(&mut self, other: &Node) {
-        for link in &mut self.links {
-            if link.t == 0 {
-                link.f = self.hash;
-                link.t = other.hash;
-                link.from = Some(self.geo);
-                link.to = Some(other.geo);
-                return;
-            }
-        }
+    pub fn link<P: Hash + Location>(&mut self, other: &P) {
+        let i = self.get_link_avail_index();
+        self.links[i] = HL {
+            f: self.hash,
+            t: other.hash(),
+            from: Some(self.geo),
+            to: Some(other.position()),
+        };
     }
 }
 
@@ -336,33 +349,21 @@ impl HL {
     fn draw(
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        offset: Coordinate,
+        mut offset: Coordinate,
         size: u32,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        if self.f == 0 || self.t == 0 {
-            return image;
-        }
         let (mut from, mut to) = self.parameters();
-        if from == to {
+        if self.f == 0 || self.t == 0 || from == to {
             return image;
         }
-        let mut off = offset;
         let s = (size / 2) as i16;
-        off.join(Coordinate::new(s, s));
-        from.join(off);
-        to.join(off);
+        offset.add(Coordinate::new(s, s));
+        from.add(offset);
+        to.add(offset);
 
         let _ = tools::plot(from, to)
             .iter()
-            .map(|c| {
-                image.put_pixel(
-                    c.x as u32,
-                    c.y as u32,
-                    image::Rgba {
-                        data: [0, 0, 0, 255],
-                    },
-                )
-            })
+            .map(|c| image.put_pixel(c.x as u32, c.y as u32, consts::DEFAULT_RGBA))
             .collect::<Vec<_>>();
         image
     }
@@ -384,10 +385,13 @@ impl Group {
 
     pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
+    pub fn node(&self) -> &Node { &self.settings }
+
     /// Sets the color of the Group.
     pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
 
     /// Plots node according to the fn provided.
+    /// The provided function value is the number of children the group has.
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
         let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
@@ -409,7 +413,7 @@ impl Group {
 
     /// Pushes a Node to the Group.
     pub fn push(&mut self, mut node: Node) {
-        node.geo.normalize(self.position());
+        node.geo.subtract(self.position());
         self.nodes.push(node);
     }
 
@@ -417,13 +421,13 @@ impl Group {
     pub fn dynamic_radius(&self) -> u32 {
         match self.settings.radius {
             Some(x) => x,
-            None => 7 + self.nodes.len() as u32 / 2,
+            None => u32::from(consts::DEFAULT_SIZE) + self.nodes.len() as u32 / 2,
         }
     }
 
     /// Rotates all the nodes inside the group.
     pub fn rotate(&mut self, rad: f64) {
-        // Use 0, 0 because we have normalized the self.nodes positions relative.
+        // Use 0, 0 because the self.nodes positions relative.
         coordinate::rotate_around_axis(Coordinate::new(0, 0), &mut self.nodes, rad);
     }
 
@@ -465,10 +469,10 @@ impl Group {
 
 impl<T: Draw + Hash + std::marker::Copy> Network<T> {
     pub fn new(mut elements: Vec<T>) -> Self {
-        let mut hash_map: [Option<T>; 666] = [None; 666];
+        let mut hash_map: [Option<T>; consts::NETWORK_REM] = [None; consts::NETWORK_REM];
         while !elements.is_empty() {
             let e = elements.remove(0);
-            hash_map[(e.hash() % 666) as usize] = Some(e);
+            hash_map[(e.hash() as usize % consts::NETWORK_REM)] = Some(e);
         }
 
         Network { hash_map }
@@ -484,7 +488,7 @@ impl Map {
         Map {
             image: None,
             add: (0, 0),
-            size: 4,
+            size: consts::DEFAULT_SIZE,
         }
     }
 
@@ -529,7 +533,7 @@ impl Map {
             self.image = Some(e.draw(
                 self.image.unwrap(),
                 Coordinate::new(self.add.0, self.add.1),
-                self.size,
+                self.size.into(),
                 &sq,
             ));
         }

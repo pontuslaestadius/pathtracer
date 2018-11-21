@@ -117,9 +117,7 @@ pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) a
 /// println!("{:?}", rgba.data);
 /// ```
 pub fn gen_rgba() -> Rgba<u8> {
-    let mut primary: Rgba<u8> = Rgba {
-        data: [0, 0, 0, 255],
-    };
+    let mut primary: Rgba<u8> = super::consts::DEFAULT_RGBA;
 
     for i in 0..4 {
         let v = u32::from(primary.data[i]) + roll(0, 255);
@@ -172,15 +170,15 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 /// ];
 /// assert_eq!(path, correct_path);
 /// ```
-pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinate> {
+pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
-    if coordinates1.x < 0 || coordinates2.x < 0 || coordinates1.y < 0 || coordinates2.y < 0 {
-        let add_x = max(-coordinates1.x, -coordinates2.x);
-        let add_y = max(-coordinates1.y, -coordinates2.y);
+    if a.x < 0 || b.x < 0 || a.y < 0 || b.y < 0 {
+        let add_x = max(-a.x, -b.x);
+        let add_y = max(-a.y, -b.y);
 
         let new_coordinates = plot(
-            Coordinate::new(coordinates1.x + add_x, coordinates1.y + add_y),
-            Coordinate::new(coordinates2.x + add_x, coordinates2.y + add_y),
+            Coordinate::new(a.x + add_x, a.y + add_y),
+            Coordinate::new(b.x + add_x, b.y + add_y),
         );
 
         let mut vec_final = Vec::new();
@@ -192,19 +190,13 @@ pub fn plot(coordinates1: Coordinate, coordinates2: Coordinate) -> Vec<Coordinat
     }
 
     // If it's a vertical line
-    if coordinates1.x == coordinates2.x {
-        let mut vec = Vec::new();
-        for y in min(coordinates1.y, coordinates2.y)..max(coordinates1.y, coordinates2.y) {
-            vec.push(Coordinate::new(coordinates1.x, y));
-        }
-        vec
+    if a.x == b.x {
+        (min(a.y, b.y)..max(a.y, b.y))
+            .map(|y| Coordinate::new(a.x, y))
+            .collect()
     // If it's not a vertical line
     } else {
-        let x0 = (coordinates1.x) as usize;
-        let x1 = (coordinates2.x) as usize;
-        let y0 = (coordinates1.y) as usize;
-        let y1 = (coordinates2.y) as usize;
-        plot_bresenham(x0, y0, x1, y1)
+        plot_bresenham(a.x as usize, a.y as usize, b.x as usize, b.y as usize)
     }
 }
 

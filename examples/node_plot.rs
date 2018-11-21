@@ -4,12 +4,12 @@ extern crate pathfinder;
 use pathfinder::{map::gif::*, *};
 
 fn main() -> Result<(), std::io::Error> {
-    let frames = 10;
+    let frames = 5;
     let width = 500;
-    let height = 80;
-    let radius = 40;
+    let height = 90;
+    let radius = 38;
     let x_max: i16 = (width / radius) as i16;
-    let frame_rot = f64::from(360 / frames);
+    let frame_rot = f64::from(90 / (frames - 1));
     let count = x_max * (height / radius) as i16;
     let mut gif = Gif::new(width + 8, height + 8);
     let _ = gif.init("out.gif")?;
@@ -30,8 +30,8 @@ fn main() -> Result<(), std::io::Error> {
         group.color(tools::seed_rgba(c as u64 * 6));
 
         for _ in (radius as usize / 2)..radius as usize {
-            for k in 1..(2 + c / 5) {
-                let f1 = |i: usize| -> Coordinate { f(i, (6 * k) as f64) };
+            for k in 3..(4 + c / 5) {
+                let f1 = |i: usize| -> Coordinate { f(i, (4 * k) as f64) };
                 group.node_plot(&f1);
             }
         }
