@@ -23,6 +23,35 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
     Ok(names)
 }
 
+pub fn write_file(path: &str, nodes: &[Node]) -> std::io::Result<()> {
+    let mut file = File::create(path)?;
+    for n in nodes.iter() {
+        let p = n.position();
+        writeln!(&mut file, "{},{}", p.x, p.y).unwrap();
+    }
+    Ok(())
+}
+
+pub fn from_file(path: &str) -> Result<Vec<Node>, io::Error> {
+    let mut contents = String::new();
+    let mut nodes = Vec::new();
+
+    let mut file = File::open(path)?;
+    file.read_to_string(&mut contents)?;
+    for value in contents.split('\n') {
+        let vals = value.split(',').collect::<Vec<_>>();
+        if vals.len() < 2 {
+            continue;
+        }
+
+        let x = &vals[0].parse::<i16>().unwrap();
+        let y = &vals[1].parse::<i16>().unwrap();
+        let node = Node::new(value, Coordinate::new(*x, *y));
+        nodes.push(node);
+    }
+    Ok(nodes)
+}
+
 /// Prints the distance between all the nodes paths and returns a summary of
 /// the total distance.
 pub fn path_print(path: &[Node]) -> u32 { verbose_path(path, true) }
