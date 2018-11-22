@@ -84,6 +84,20 @@ pub trait Hash {
 
 // ------------------------------------------------------------------
 
+impl std::fmt::Display for Coordinate {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}, {}", self.x, self.y)
+    }
+}
+
+impl std::fmt::Display for HL {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{} -> {}", self.f, self.t)
+    }
+}
+
+// ------------------------------------------------------------------
+
 pub trait Location {
     fn position(&self) -> Coordinate;
     fn find(&self, hash: u64) -> Option<Coordinate>;
@@ -312,7 +326,7 @@ impl Node {
     /// Returns the next point which is available to link.
     fn get_link_avail_index(&self) -> usize {
         for (i, link) in self.links().iter().enumerate() {
-            if link.t == 0 {
+            if !link.is_connected() {
                 return i;
             }
         }
@@ -348,6 +362,8 @@ impl HL {
             to: None,
         }
     }
+
+    pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
     fn draw(
         &self,
@@ -575,7 +591,15 @@ impl Network<Node> {
     ///     assert_eq!(path[i].geo.x, i as i16 * 10);
     /// }
     /// ```
-    pub fn path<'a>(&'a self, a: &str, b: &str) -> Vec<Node> {
+    pub fn path<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
+
+        let mut path = map::network::path(self, b, a, &map::network::path_shortest_leg)?;
+        path.reverse();
+        Ok(path)
+    }
+
+    /// Mimics path behaviour but works in reverse, Meaning stepping back in the links.
+    pub fn path_rev<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         map::network::path(self, a, b, &map::network::path_shortest_leg)
     }
 
