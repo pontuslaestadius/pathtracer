@@ -1,19 +1,15 @@
 use super::{consts, coordinate::*, *};
+use std::io::{Error, ErrorKind, self};
 
 pub fn path<'a>(
     network: &'a Network<Node>,
     a: &str,
     b: &str,
-    algorithm: &Fn(&Network<Node>, &str, &str) -> Vec<Node>,
-) -> Vec<Node> {
-    let _goal = network.get(b).expect("goal does not exist in network");
+    algorithm: &Fn(&Network<Node>, Node, Node) -> io::Result<Vec<Node>>,
+) -> io::Result<Vec<Node>> {
+    let goal = network.get(b).expect("goal does not exist in network");
     let start = network.get(a).expect("start does not exist in network");
-
-    if start.links().is_empty() {
-        return Vec::new();
-    }
-
-    algorithm(&network, a, b)
+    algorithm(&network, start, goal)
 }
 
 /// Retrieves a node from a network.
@@ -27,9 +23,7 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     None
 }
 
-pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Vec<Node> {
-    let goal = network.get(b).expect("goal does not exist in network");
-    let first = network.get(a).expect("start does not exist in network");
+pub fn path_shortest_leg<'a>(network: &'a Network<Node>, start: Node, goal: Node) -> io::Result<Vec<Node>> {
     let mut queue: Vec<(u32, Vec<Node>)> = Vec::new();
 
     let format = |mut from: Vec<Node>, link: &HL, acc: u32| -> (u32, Vec<Node>) {
@@ -46,10 +40,11 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
         (acc + dis, from)
     };
 
-    for link in first.links().iter() {
-        if link.t != 0 {
-            queue.push(format(vec![first], link, 0));
+    for link in start.links().iter() {
+        if !link.is_connected() {
+            break;
         }
+        queue.push(format(vec![start], link, 0));
     }
 
     while !queue.is_empty() {
@@ -57,17 +52,17 @@ pub fn path_shortest_leg<'a>(network: &'a Network<Node>, a: &str, b: &str) -> Ve
         let (dis, path) = queue.remove(0);
         let current = path[0];
 
+        if current.hash == goal.hash {
+            return Ok(path);
+        }
+
         for link in current.links().iter() {
-            if link.t != 0 {
+            if link.is_connected() {
                 queue.push(format(path.clone(), link, dis));
             }
         }
-
-        if current.hash == goal.hash {
-            return path;
-        }
     }
-    Vec::new()
+    Err(Error::new(ErrorKind::Other, "not a valid path"))
 }
 
 /// Adds the number of children supplied, positioned randomly to a group.

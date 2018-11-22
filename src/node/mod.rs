@@ -68,7 +68,7 @@ fn verbose_path(path: &[Node], side_effects: bool) -> u32 {
         distance += dis;
         prev = leg.position();
         if side_effects {
-            println!("#{} {:?} - distance: {}", link_i, leg.position(), dis);
+            println!("#{} {} - distance: {}", link_i, leg.position(), dis);
         }
     }
 
