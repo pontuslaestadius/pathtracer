@@ -1,5 +1,5 @@
 use super::{consts, coordinate::*, *};
-use std::io::{Error, ErrorKind, self};
+use std::io::{self, Error, ErrorKind};
 
 pub fn path<'a>(
     network: &'a Network<Node>,
@@ -23,7 +23,11 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     None
 }
 
-pub fn path_shortest_leg<'a>(network: &'a Network<Node>, start: Node, goal: Node) -> io::Result<Vec<Node>> {
+pub fn path_shortest_leg<'a>(
+    network: &'a Network<Node>,
+    start: Node,
+    goal: Node,
+) -> io::Result<Vec<Node>> {
     let mut queue: Vec<(u32, Vec<Node>)> = Vec::new();
 
     let format = |mut from: Vec<Node>, link: &HL, acc: u32| -> (u32, Vec<Node>) {

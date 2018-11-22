@@ -592,13 +592,13 @@ impl Network<Node> {
     /// }
     /// ```
     pub fn path<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
-
         let mut path = map::network::path(self, b, a, &map::network::path_shortest_leg)?;
         path.reverse();
         Ok(path)
     }
 
-    /// Mimics path behaviour but works in reverse, Meaning stepping back in the links.
+    /// Mimics path behaviour but works in reverse, Meaning stepping back in
+    /// the links.
     pub fn path_rev<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         map::network::path(self, a, b, &map::network::path_shortest_leg)
     }
