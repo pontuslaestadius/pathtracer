@@ -222,7 +222,10 @@ impl Draw for Node {
         image
     }
 
-    fn size(&self) -> u32 { self.radius.unwrap_or(consts::DEFAULT_SIZE as u32) }
+    fn size(&self) -> u32 {
+        self.radius
+            .unwrap_or_else(|| u32::from(consts::DEFAULT_SIZE))
+    }
 
     fn links(&self) -> &[HL] { &self.links }
 }
@@ -249,7 +252,10 @@ impl Draw for Group {
         for node in &self.nodes {
             max = std::cmp::max(max, node.size());
         }
-        max + self.settings.radius.unwrap_or(consts::DEFAULT_SIZE as u32)
+        max + self
+            .settings
+            .radius
+            .unwrap_or_else(|| u32::from(consts::DEFAULT_SIZE))
     }
 
     fn links(&self) -> &[HL] { &self.settings.links() }
@@ -294,7 +300,7 @@ impl Coordinate {
     pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
 
     /// Calculates the different in x and y of two Coordinates.
-    pub fn diff<L: Location>(self, other: L) -> (i16, i16) {
+    pub fn diff<L: Location>(self, other: &L) -> (i16, i16) {
         coordinate::diff(self, other.position())
     }
 

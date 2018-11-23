@@ -47,7 +47,7 @@ pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) 
 /// use pathfinder::{coordinate::*, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
 /// let c2 = Coordinate::new(100, 100);
-/// let difference = c1.diff(c2);
+/// let difference = c1.diff(&c2);
 /// assert_eq!(difference, (100, 100));
 /// ```
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
@@ -62,8 +62,7 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 /// use pathfinder::{coordinate::*, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
 /// let c2 = Coordinate::new(100, 100);
-/// let difference = c1.diff(c2);
-/// assert_eq!(difference, (100, 100));
+/// assert_eq!(diff_noabs(c1, c2), (-100, -100));
 /// ```
 pub fn diff_noabs(c1: Coordinate, c2: Coordinate) -> (i16, i16) { ((c1.x - c2.x), (c1.y - c2.y)) }
 
@@ -268,10 +267,10 @@ mod tests {
         let co2: Coordinate = Coordinate::new(102, 102);
         let co3: Coordinate = Coordinate::new(-102, -102);
 
-        assert!(co1.diff(co2) == (101, 101));
-        assert!(co1.diff(co3) == (103, 103));
-        assert!(co2.diff(co3) == (204, 204));
-        assert!(co1.diff(co1) == (0, 0));
+        assert!(co1.diff(&co2) == (101, 101));
+        assert!(co1.diff(&co3) == (103, 103));
+        assert!(co2.diff(&co3) == (204, 204));
+        assert!(co1.diff(&co1) == (0, 0));
     }
 
     #[test]
