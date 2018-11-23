@@ -19,6 +19,7 @@ mod consts {
     pub const MAX_LINKS: usize = 5;
     pub const NETWORK_REM: usize = 666;
     pub const DEFAULT_SIZE: u16 = 4;
+    pub const DEFAULT_LINK_SIZE: u16 = 2;
     pub const DEFAULT_RGBA: image::Rgba<u8> = image::Rgba {
         data: [0, 0, 0, 255],
     };
@@ -429,10 +430,18 @@ impl HL {
         from += offset;
         to += offset;
 
-        let _ = tools::plot(from, to)
-            .iter()
-            .map(|c| image.put_pixel(c.x as u32, c.y as u32, consts::DEFAULT_RGBA))
-            .collect::<Vec<_>>();
+        for i in 0..consts::DEFAULT_LINK_SIZE {
+            for j in 0..consts::DEFAULT_LINK_SIZE {
+                let add = Coordinate::new(
+                    j as i16 - consts::DEFAULT_LINK_SIZE as i16 / 2,
+                    i as i16 - consts::DEFAULT_LINK_SIZE as i16 / 2,
+                );
+                let _ = tools::plot(from + add, to + add)
+                    .iter()
+                    .map(|c| image.put_pixel(c.x as u32, c.y as u32, consts::DEFAULT_RGBA))
+                    .collect::<Vec<_>>();
+            }
+        }
         image
     }
 }

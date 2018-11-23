@@ -8,10 +8,9 @@ fn main() -> std::io::Result<()> {
     if args.len() < 2 {
         panic!("Can't plant nodes without config file.");
     }
-    let file = &args[1];
-    let path = Path::new(file);
-    let nodes = Node::from_file(path.to_str().unwrap());
-    let mut nodes = Node::linked_list(nodes?);
+    let nodes = Node::from_file(&args[1])?;
+    let mut nodes = Node::linked_list(nodes);
+
     for (i, node) in nodes.iter_mut().enumerate() {
         node.color = tools::seed_rgba(32 * i as u64);
     }

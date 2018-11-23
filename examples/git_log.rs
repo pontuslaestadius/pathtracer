@@ -9,7 +9,7 @@ extern crate rand;
 use pathfinder::{data, group, *};
 use std::{env, path::Path};
 
-fn main() {
+fn main() -> std::io::Result<()> {
     // Gets command line arguments.
     let args: Vec<String> = env::args().collect();
 
@@ -32,10 +32,10 @@ fn main() {
     let log = &args[1].as_str();
 
     // Use the log directory and the tag to create the groups.
-    let groups: Vec<Group> = data::convert_file(log, &lambda).unwrap();
+    let groups: Vec<Group> = data::convert_file(log, &lambda)?;
     let n = group::count(&groups);
     println!("{:?} groups with {} nodes", groups.len(), n);
 
     let map = Map::new();
-    map.map(&groups).save(Path::new(&args[2])).unwrap();
+    map.map(&groups).save(Path::new(&args[2]))
 }

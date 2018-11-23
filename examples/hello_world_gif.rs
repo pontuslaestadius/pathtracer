@@ -12,7 +12,7 @@ extern crate rand;
 use image::Rgba;
 use pathfinder::{map::gif::*, *};
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> std::io::Result<()> {
     let mut gif = Gif::new(200, 100);
     let _ = gif.init("out.gif")?;
     let radius = [30, 20, 40];
