@@ -29,20 +29,20 @@ pub fn count(list: &[Group]) -> usize {
 /// group.push(Node::new("", Coordinate::new(100, 100)));
 /// let (min, max) = group::parameters(&group);
 /// assert_eq!(min.x, 0); // y values are identical
-/// assert_eq!(max.x, 100);
+/// assert_eq!(max.x, 102);
 /// ```
 pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
     let mut min = Coordinate::new(0, 0);
     let mut max = Coordinate::new(0, 0);
     for node in &group.nodes {
-        let (min2, max2) = node.parameters();
+        let (min2, max2) = node.min_max();
         max.x = std::cmp::max(max.x, max2.x);
         min.x = std::cmp::min(min.x, min2.x);
         max.y = std::cmp::max(max.y, max2.y);
         min.y = std::cmp::min(min.y, min2.y);
     }
-    min.add(group.position());
-    max.add(group.position());
+    min += group.position();
+    max += group.position();
     (min, max)
 }
 

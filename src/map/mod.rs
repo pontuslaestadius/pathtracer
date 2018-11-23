@@ -7,7 +7,7 @@ use std::cmp;
 pub mod gif;
 pub mod network;
 
-pub fn gen_map<T: Location + Draw>(
+pub fn gen_map<T: Location + Draw + MinMax>(
     list: &[T],
 ) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (i16, i16)) {
     let min_max = min_max(&list);
@@ -24,14 +24,14 @@ fn gen_map_dimensions(min_max: ((i16, i16), (i16, i16))) -> (u32, u32) {
 }
 
 /// Finds the min and max of a list and returns ((minX, minY),(maxX, maxY)).
-fn min_max<T: Location + Draw>(list: &[T]) -> ((i16, i16), (i16, i16)) {
+fn min_max<T: Location + Draw + MinMax>(list: &[T]) -> ((i16, i16), (i16, i16)) {
     let mut size: i16 = consts::DEFAULT_SIZE as i16;
     let mut min = Coordinate::new(0, 0);
     let mut max = Coordinate::new(0, 0);
 
     for item in list {
         size = cmp::max(size, item.size() as i16);
-        let (imin, imax) = item.parameters();
+        let (imin, imax) = item.min_max();
 
         max.x = cmp::max(max.x, imax.x);
         min.x = cmp::min(min.x, imin.x);
@@ -79,6 +79,6 @@ mod tests {
     fn test_min_max() {
         let nodes = Node::from_list(&[(-50, 50), (50, -50), (0, 25), (25, 0)]);
         let res = min_max(&nodes);
-        assert_eq!(res, ((-54, 54), (-54, 54)));
+        assert_eq!(res, ((-56, 56), (-56, 56)));
     }
 }
