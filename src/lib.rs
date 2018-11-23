@@ -78,8 +78,22 @@ pub trait Shape {
     fn area(&self, size: u32) -> Vec<Coordinate>;
 }
 
+// ------------------------------------------------------------------
+
 pub trait Hash {
     fn hash(&self) -> u64;
+}
+
+impl Hash for HL {
+    fn hash(&self) -> u64 { self.t }
+}
+
+impl Hash for Node {
+    fn hash(&self) -> u64 { self.hash }
+}
+
+impl Hash for Group {
+    fn hash(&self) -> u64 { self.settings.hash() }
 }
 
 // ------------------------------------------------------------------
@@ -98,10 +112,61 @@ impl std::fmt::Display for HL {
 
 // ------------------------------------------------------------------
 
+pub trait Find: Hash + Location {
+    fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
+        if self.hash() == hash.hash() {
+            return Some(self.position());
+        }
+        None
+    }
+}
+
+impl Find for HL {}
+
+impl Find for Node {}
+
+impl Find for Group {
+    fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
+        let f = tools::find(hash.hash(), &self.nodes);
+        f.and_then(|x| Some(x.position()))
+    }
+}
+
+// ------------------------------------------------------------------
+
+pub trait MinMax {
+    fn min_max(&self) -> (Coordinate, Coordinate);
+}
+
+impl MinMax for HL {
+    fn min_max(&self) -> (Coordinate, Coordinate) {
+        let zero = Coordinate::new(0, 0);
+        let to = self.to.unwrap_or(zero);
+        (self.position(), to)
+    }
+}
+
+impl MinMax for Node {
+    fn min_max(&self) -> (Coordinate, Coordinate) {
+        let mut max = Coordinate::new(
+            consts::DEFAULT_SIZE as i16 / 2,
+            consts::DEFAULT_SIZE as i16 / 2,
+        );
+        let mut min = self.position();
+        min -= max;
+        max += self.geo;
+        (min, max)
+    }
+}
+
+impl MinMax for Group {
+    fn min_max(&self) -> (Coordinate, Coordinate) { group::parameters(self) }
+}
+
+// ------------------------------------------------------------------
+
 pub trait Location {
     fn position(&self) -> Coordinate;
-    fn find(&self, hash: u64) -> Option<Coordinate>;
-    fn parameters(&self) -> (Coordinate, Coordinate);
 }
 
 impl Location for HL {
@@ -109,43 +174,18 @@ impl Location for HL {
         let zero = Coordinate::new(0, 0);
         self.from.unwrap_or(zero)
     }
-
-    fn parameters(&self) -> (Coordinate, Coordinate) {
-        let zero = Coordinate::new(0, 0);
-        let to = self.to.unwrap_or(zero);
-        (self.position(), to)
-    }
-
-    fn find(&self, hash: u64) -> Option<Coordinate> {
-        if self.t == hash {
-            return Some(self.position());
-        }
-        None
-    }
 }
 
 impl Location for Node {
-    fn position(&self) -> Coordinate { self.geo }
-
-    fn parameters(&self) -> (Coordinate, Coordinate) { (self.geo, self.geo) }
-
-    fn find(&self, hash: u64) -> Option<Coordinate> {
-        if self.hash == hash {
-            return Some(self.geo);
-        }
-        None
-    }
+    fn position(&self) -> Coordinate { self.geo.position() }
 }
 
 impl Location for Group {
     fn position(&self) -> Coordinate { self.settings.position() }
+}
 
-    fn parameters(&self) -> (Coordinate, Coordinate) { group::parameters(self) }
-
-    fn find(&self, hash: u64) -> Option<Coordinate> {
-        let f = tools::find(hash, &self.nodes);
-        f.and_then(|x| Some(x.position()))
-    }
+impl Location for Coordinate {
+    fn position(&self) -> Coordinate { *self }
 }
 
 // ------------------------------------------------------------------
@@ -170,8 +210,7 @@ impl Draw for Node {
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        let mut pos = self.geo;
-        pos.add(offset);
+        let pos = self.geo + offset;
 
         for link in &self.links {
             image = link.draw(image, offset, size);
@@ -183,7 +222,7 @@ impl Draw for Node {
         image
     }
 
-    fn size(&self) -> u32 { self.radius.unwrap_or(4) }
+    fn size(&self) -> u32 { self.radius.unwrap_or(consts::DEFAULT_SIZE as u32) }
 
     fn links(&self) -> &[HL] { &self.links }
 }
@@ -198,23 +237,19 @@ impl Draw for Group {
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         image = self.settings.draw(image, offset, size, shape);
-        offset.add(self.position());
+        offset += self.position();
         for node in &self.nodes {
             image = node.draw(image, offset, size, shape);
         }
         image
     }
 
-    /// Returns the largest node that exists within the group.
     fn size(&self) -> u32 {
         let mut max = 0;
         for node in &self.nodes {
             max = std::cmp::max(max, node.size());
         }
-        match self.settings.radius {
-            Some(e) => max + e / 10,
-            None => max,
-        }
+        max + self.settings.radius.unwrap_or(consts::DEFAULT_SIZE as u32)
     }
 
     fn links(&self) -> &[HL] { &self.settings.links() }
@@ -222,16 +257,34 @@ impl Draw for Group {
 
 // ------------------------------------------------------------------
 
-impl Hash for HL {
-    fn hash(&self) -> u64 { self.t }
+impl std::ops::Add for Coordinate {
+    type Output = Coordinate;
+
+    fn add(self, other: Coordinate) -> Coordinate {
+        Coordinate::new(self.x + other.x, self.y + other.y)
+    }
 }
 
-impl Hash for Node {
-    fn hash(&self) -> u64 { self.hash }
+impl std::ops::Sub for Coordinate {
+    type Output = Coordinate;
+
+    fn sub(self, other: Coordinate) -> Coordinate {
+        Coordinate::new(self.x - other.x, self.y - other.y)
+    }
 }
 
-impl Hash for Group {
-    fn hash(&self) -> u64 { self.settings.hash() }
+impl std::ops::AddAssign for Coordinate {
+    fn add_assign(&mut self, other: Coordinate) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
+impl std::ops::SubAssign for Coordinate {
+    fn sub_assign(&mut self, other: Coordinate) {
+        self.x -= other.x;
+        self.y -= other.y;
+    }
 }
 
 // ------------------------------------------------------------------
@@ -241,18 +294,8 @@ impl Coordinate {
     pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
 
     /// Calculates the different in x and y of two Coordinates.
-    pub fn diff(self, other: Coordinate) -> (i16, i16) { coordinate::diff(self, other) }
-
-    /// Adds the other to self.
-    pub fn add(&mut self, other: Coordinate) {
-        self.x += other.x;
-        self.y += other.y;
-    }
-
-    /// Subtracts the other from self.
-    pub fn subtract(&mut self, other: Coordinate) {
-        self.x -= other.x;
-        self.y -= other.y;
+    pub fn diff<L: Location>(self, other: L) -> (i16, i16) {
+        coordinate::diff(self, other.position())
     }
 
     /// Creates a list of coordinates from a list of tuples with x and y
@@ -371,14 +414,14 @@ impl HL {
         mut offset: Coordinate,
         size: u32,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        let (mut from, mut to) = self.parameters();
+        let (mut from, mut to) = self.min_max();
         if self.f == 0 || self.t == 0 || from == to {
             return image;
         }
         let s = (size / 2) as i16;
-        offset.add(Coordinate::new(s, s));
-        from.add(offset);
-        to.add(offset);
+        offset += Coordinate::new(s, s);
+        from += offset;
+        to += offset;
 
         let _ = tools::plot(from, to)
             .iter()
@@ -432,7 +475,7 @@ impl Group {
 
     /// Pushes a Node to the Group.
     pub fn push(&mut self, mut node: Node) {
-        node.geo.subtract(self.position());
+        node.geo -= self.position();
         self.nodes.push(node);
     }
 
@@ -501,7 +544,7 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 // ------------------------------------------------------------------
 
 impl Map {
-    /// Creates a new map, no parameters are intially required and are
+    /// Creates a new map, no min_max are intially required and are
     /// generated automatically when calling Map::map.
     pub fn new() -> Self {
         Map {
@@ -540,7 +583,7 @@ impl Map {
     /// let mut map = Map::new();
     /// map = map.map(&nodes);
     /// ```
-    pub fn map<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
+    pub fn map<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let (image, add) = map::gen_map(&element);
             self.image = Some(image);
@@ -560,7 +603,7 @@ impl Map {
     }
 
     /// Maps the elements without stabalizing the positions on the canvas.
-    pub fn map_absolute<T: Draw + Location + Hash>(mut self, element: &[T]) -> Self {
+    pub fn map_absolute<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let (image, _) = map::gen_map(&element);
             self.image = Some(image);

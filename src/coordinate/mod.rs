@@ -2,7 +2,7 @@ extern crate pythagoras;
 extern crate rand;
 
 use super::{tools::roll, Coordinate};
-use std::{cmp::Ordering, f64, ops::Add};
+use std::{cmp::Ordering, f64};
 
 /// Constructs a vector of generic structs from a given list convered to
 /// Coordinates.
@@ -155,14 +155,6 @@ impl PartialOrd for Coordinate {
 
 impl PartialEq for Coordinate {
     fn eq(&self, other: &Coordinate) -> bool { (self.x == other.x) && (self.y == other.y) }
-}
-
-impl Add for Coordinate {
-    type Output = Coordinate;
-
-    fn add(self, other: Coordinate) -> Coordinate {
-        Coordinate::new(self.x + other.x, self.y + other.y)
-    }
 }
 
 #[cfg(test)]
