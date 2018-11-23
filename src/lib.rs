@@ -575,21 +575,10 @@ impl Network<Node> {
     /// # Examples
     /// ```
     /// use pathfinder::{Coordinate, Network, Node};
-    /// let b = Node::new("B", Coordinate::new(20, 20));
-    /// let mut a = Node::new("A", Coordinate::new(0, 0));
-    /// a.link(&b);
-    /// let path = Network::new(vec![a, b]).path("A", "B");
-    /// assert_eq!(path, vec!(b, a));
-    /// ```
-    /// ```
-    /// use pathfinder::{Coordinate, Network, Node};
     /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
     /// let mut nodes = Node::linked_list(nodes);
-    /// let path = Network::new(nodes).path("D", "A");
+    /// let path = Network::new(nodes).path("A", "D").unwrap();
     /// assert_eq!(path.len(), 4);
-    /// for i in 0..path.len() {
-    ///     assert_eq!(path[i].geo.x, i as i16 * 10);
-    /// }
     /// ```
     pub fn path<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         let mut path = map::network::path(self, b, a, &map::network::path_shortest_leg)?;
