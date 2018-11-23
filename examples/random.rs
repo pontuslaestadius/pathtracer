@@ -9,7 +9,7 @@ use std::path::Path;
     These numbers may need to be lowered depending on the machine.
 */
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let mut groups = Vec::new();
     let circle = shape::Circle::new();
     let coordinates = circle.area(10);
@@ -32,5 +32,5 @@ fn main() {
         map::network::add_children(&mut group, children);
         groups.push(group);
     }
-    let _ = Map::new().map(&groups).save(&Path::new("out.jpg")).unwrap();
+    Map::new().map(&groups).save(&Path::new("out.jpg"))
 }

@@ -1,8 +1,0 @@
-#!/bin/bash
-setup() {
-    ARGS="${REPOROOT}/examples/conf/pathfinder"
-}
-
-teardown() {
-
-}
