@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
 [![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/)
-[![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-64%-yellow.svg)](https://github.com/xd009642/tarpaulin)
+[![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-64-yellow.svg)](https://github.com/xd009642/tarpaulin)
 [![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathfinder.svg)](https://github.com/pontuslaestadius/pathfinder/blob/master/LICENSE)
+
 
 # Pathfinder
 > Easily create large number of Connected points mapped on to an Image or Gif.
@@ -20,17 +21,19 @@ Properties like width and height are internally managed.
 * [Connecting Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world.rs)
 * [Traversing paths](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/mvp.rs)
 * [Data visualisation](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/git_log.rs)
-* [Images with large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/random.rs)
+* [Large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/random.rs)
+* [Plot large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/node_plot.rs)
 * [Gifs](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world_gif.rs)
-* [Accurately plot large number of
-* Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/node_plot.rs)
+
 
 ### Major structs
 
 Coordinate - Holds the position and performs low-level calculations for positioning.
-Node - Includes Coordinate, and adds customizations like color, size and connecting to other
-Nodes.
+
+Node - Includes Coordinate, and adds customizations like color, size and connecting to other Nodes.
+
 Group - Includes Nodes in larger numbers which normalizes around it's axis.
+
 
 ## Example
 
@@ -51,9 +54,10 @@ let _ = Map::new()
 
 Produces an image with 2 Groups, each with 100 children Nodes.
 
+
 ### Example output
 
-![Expanding group](examples/out/node_plot.gif "Gif")
+![Node plot](examples/out/node_plot.gif "Gif")
 
 ![Groups](examples/out/random.jpg "Groups")
 
