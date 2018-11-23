@@ -61,7 +61,7 @@ pub fn range_color(
     base_geo: Coordinate,
     to_geo: Coordinate,
 ) -> image::Rgba<u8> {
-    let (x_dif, y_dif) = base_geo.diff(to_geo);
+    let (x_dif, y_dif) = base_geo.diff(&to_geo);
     let x_scale: f64 = f64::from(x_dif) / f64::from(falloff);
     let y_scale: f64 = f64::from(y_dif) / f64::from(falloff);
     let max_multi: f64 =
