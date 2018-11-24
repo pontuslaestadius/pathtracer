@@ -214,7 +214,7 @@ impl Draw for Node {
         let pos = self.geo + offset;
 
         for link in &self.links {
-            image = link.draw(image, offset, size);
+            image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
         }
 
         for o in shape.area(size) {
@@ -355,11 +355,26 @@ impl Node {
     /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     /// let linked_list = Node::linked_list(nodes);
     /// ```
-    pub fn linked_list(mut list: Vec<Node>) -> Vec<Self> {
+    pub fn linked_list(list: Vec<Node>) -> Vec<Self> {
+        Node::linked_list_predicate(list, &|_, _| true)
+    }
+
+    /// Links a list of nodes together in the order they are indexed.
+    /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    ///
+    /// ```
+    /// use pathfinder::Node;
+    /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+    /// let linked_list = Node::linked_list(nodes);
+    /// ```
+    pub fn linked_list_predicate(
+        mut list: Vec<Node>,
+        f: &Fn(Coordinate, Coordinate) -> bool,
+    ) -> Vec<Self> {
         let mut prev = Coordinate::new(0, 0);
         let mut prev_h = 0;
         for node in &mut list {
-            if prev_h != 0 {
+            if prev_h != 0 && f(prev, node.geo) {
                 let mut link = HL::new(node.hash, prev_h);
                 link.to = Some(prev);
                 link.from = Some(node.geo);
@@ -367,14 +382,14 @@ impl Node {
                 node.links[i] = link;
             }
 
-            prev_h = node.hash;
+            prev_h = node.hash();
             prev = node.geo;
         }
         list
     }
 
     /// Returns the next point which is available to link.
-    fn get_link_avail_index(&self) -> usize {
+    pub fn get_link_avail_index(&self) -> usize {
         for (i, link) in self.links().iter().enumerate() {
             if !link.is_connected() {
                 return i;
@@ -382,6 +397,9 @@ impl Node {
         }
         consts::MAX_LINKS - 1
     }
+
+    /// Removes all connects leaving this node.
+    pub fn disconnect(&mut self) { self.links = [HL::new(0, 0); consts::MAX_LINKS]; }
 
     /// Links Node self to another point that has Hash and Location implemented.
     ///
@@ -430,12 +448,9 @@ impl HL {
         from += offset;
         to += offset;
 
-        for i in 0..consts::DEFAULT_LINK_SIZE {
-            for j in 0..consts::DEFAULT_LINK_SIZE {
-                let add = Coordinate::new(
-                    j as i16 - consts::DEFAULT_LINK_SIZE as i16 / 2,
-                    i as i16 - consts::DEFAULT_LINK_SIZE as i16 / 2,
-                );
+        for i in 0..size {
+            for j in 0..size {
+                let add = Coordinate::new(j as i16 - s, i as i16 - s);
                 let _ = tools::plot(from + add, to + add)
                     .iter()
                     .map(|c| image.put_pixel(c.x as u32, c.y as u32, consts::DEFAULT_RGBA))
@@ -598,7 +613,17 @@ impl Map {
     /// let mut map = Map::new();
     /// map = map.map(&nodes);
     /// ```
-    pub fn map<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
+    pub fn map<T: Draw + Location + Hash + MinMax>(self, element: &[T]) -> Self {
+        self.map_filter(&element, &|_| true)
+    }
+
+    /// Maps the elements but with an added filter parameter to exclude
+    /// elements.
+    pub fn map_filter<T: Draw + Location + Hash + MinMax>(
+        mut self,
+        element: &[T],
+        filter: &Fn(&T) -> bool,
+    ) -> Self {
         if self.image.is_none() {
             let (image, add) = map::gen_map(&element);
             self.image = Some(image);
@@ -607,6 +632,9 @@ impl Map {
 
         let sq = shape::Square::new();
         for e in element {
+            if !filter(e) {
+                continue;
+            }
             self.image = Some(e.draw(
                 self.image.unwrap(),
                 Coordinate::new(self.add.0, self.add.1),
