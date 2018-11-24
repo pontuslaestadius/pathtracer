@@ -69,7 +69,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
     let mut groups: Vec<Group> = Vec::new();
     let lines = content.split(cct.split);
     let coordinates = Coordinate::new(0, 0);
-    let mut groups_boolean_array: [bool; 500] = [false; 500];
+    let mut gr_bool_arr: [bool; 500] = [false; 500];
 
     for line in lines {
         if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {
@@ -78,7 +78,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
 
         let hashed_line = calculate_hash(&line);
         // Checks the boolean array position for the groups existence.
-        if groups_boolean_array[(hashed_line % cct.size) as usize] {
+        if gr_bool_arr[(hashed_line % cct.size) as usize] {
             // Add a new node to the existing group.
             let index = groups
                 .iter()
@@ -86,7 +86,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
                 .expect("Group located, but no hash matching.");
             groups[index].new_node_min_max(index as u32, cct.node_range);
         } else {
-            groups_boolean_array[(hashed_line % cct.size) as usize] = true;
+            gr_bool_arr[(hashed_line % cct.size) as usize] = true;
             let mut group = Group::new(&line, gen_radius(coordinates, 0, cct.radius));
             group.settings.color = seed_rgba(hashed_line);
 
