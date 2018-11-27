@@ -13,7 +13,7 @@ impl Shape for Square {
     fn new() -> Square { Square {} }
 
     /// Returns all coordinates that the shape occupies.
-    /// Assume that you start at coordinate x: 0, y: 0.
+    /// Assume that 0 0 is the center of the node.
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
         for i in 0..size {
@@ -33,31 +33,27 @@ impl Shape for Circle {
     /// https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
-
         let mut x: i16 = (size - 1) as i16;
         let mut y: i16 = 0;
-        let mut dx: i16 = 1;
-        let mut dy: i16 = 1;
-        let x0: i16 = 0;
-        let y0: i16 = 0;
-        let mut err: i16 = dx - (size << 1) as i16;
+        let mut d = Coordinate::new(1, 1);
+        let mut err: i16 = d.x - (size << 1) as i16;
 
         let q_plot = |x1, y1, x2, y2| plot(Coordinate::new(x1, y1), Coordinate::new(x2, y2));
 
         while x >= y {
-            vec.append(&mut q_plot(x0 + x, y0 + y, x0 - x, y0 + y));
-            vec.append(&mut q_plot(x0 + x, y0 - y, x0 - x, y0 - y));
-            vec.append(&mut q_plot(x0 - y, y0 - x, x0 - y, y0 + x));
-            vec.append(&mut q_plot(x0 + y, y0 - x, x0 + y, y0 + x));
+            vec.append(&mut q_plot(x, y, -x, y));
+            vec.append(&mut q_plot(x, -y, -x, -y));
+            vec.append(&mut q_plot(-y, -x, -y, x));
+            vec.append(&mut q_plot(y, -x, y, x));
 
             if err <= 0 {
                 y += 1;
-                err += dy;
-                dy += 2;
+                err += d.y;
+                d.y += 2;
             } else {
                 x -= 1;
-                dx += 2;
-                err += dx - (size << 1) as i16;
+                d.x += 2;
+                err += d.x - (size << 1) as i16;
             }
         }
 
