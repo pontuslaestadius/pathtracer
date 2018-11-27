@@ -19,6 +19,7 @@ mod consts {
     pub const MAX_LINKS: usize = 5;
     pub const NETWORK_REM: usize = 666;
     pub const DEFAULT_SIZE: u16 = 4;
+    pub const DEFAULT_SHADE: u16 = 20;
     pub const DEFAULT_LINK_SIZE: u16 = 2;
     pub const DEFAULT_RGBA: image::Rgba<u8> = image::Rgba {
         data: [0, 0, 0, 255],
@@ -217,8 +218,22 @@ impl Draw for Node {
         for link in &self.links {
             image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
         }
+
         for o in shape.area(size) {
-            image.put_pixel((pos.x + o.x) as u32, (pos.y + o.y) as u32, self.color);
+            let color = if o.x == 0 || o.y == 0 {
+                let c = self
+                    .color
+                    .data
+                    .iter()
+                    .map(|x| std::cmp::min(255, u16::from(*x) + consts::DEFAULT_SHADE) as u8)
+                    .collect::<Vec<_>>();
+                image::Rgba {
+                    data: [c[0], c[1], c[2], c[3]],
+                }
+            } else {
+                self.color
+            };
+            image.put_pixel((pos.x + o.x) as u32, (pos.y + o.y) as u32, color);
         }
         image
     }
@@ -451,7 +466,7 @@ impl HL {
         for i in 0..size {
             for j in 0..size {
                 let add = Coordinate::new(j as i16 - s, i as i16 - s);
-                let col = (size - i) as u8 * 20;
+                let col = (size - i) as u8 * consts::DEFAULT_SHADE as u8;
                 let _ = tools::plot(from + add, to + add)
                     .iter()
                     .map(|c| {

@@ -10,10 +10,10 @@ fn main() -> Result<(), std::io::Error> {
     let wrapper = Node::linked_list(Node::from_list(&pos));
 
     let mut pos = Vec::new();
-    let y = vec![10, 50, 40, 80, 90, 90, 50, 20, 30, 60];
-    let spread = 300 / y.len() as i16;
+    let y = vec![5, 30, 45, 35, 40, 80, 75, 70, 25, 30];
+    let spread = 300 / (y.len() - 1) as i16;
     for (i, y) in y.iter().enumerate() {
-        pos.push((i as i16 * spread, *y));
+        pos.push((i as i16 * spread, -*y));
     }
     let line = Node::linked_list(Node::from_list(&pos));
 
