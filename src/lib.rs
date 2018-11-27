@@ -211,12 +211,12 @@ impl Draw for Node {
         size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        let pos = self.geo + offset;
+        let s = consts::DEFAULT_LINK_SIZE / 2;
+        let pos = self.geo + offset - Coordinate::new(s as i16, s as i16);
 
         for link in &self.links {
             image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
         }
-
         for o in shape.area(size) {
             image.put_pixel((pos.x + o.x) as u32, (pos.y + o.y) as u32, self.color);
         }
@@ -451,9 +451,18 @@ impl HL {
         for i in 0..size {
             for j in 0..size {
                 let add = Coordinate::new(j as i16 - s, i as i16 - s);
+                let col = (size - i) as u8 * 20;
                 let _ = tools::plot(from + add, to + add)
                     .iter()
-                    .map(|c| image.put_pixel(c.x as u32, c.y as u32, consts::DEFAULT_RGBA))
+                    .map(|c| {
+                        image.put_pixel(
+                            c.x as u32,
+                            c.y as u32,
+                            image::Rgba {
+                                data: [col, col, col, 255],
+                            },
+                        )
+                    })
                     .collect::<Vec<_>>();
             }
         }

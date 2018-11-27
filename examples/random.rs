@@ -12,7 +12,7 @@ use std::path::Path;
 fn main() -> std::io::Result<()> {
     let mut groups = Vec::new();
     let circle = shape::Circle::new();
-    let coordinates = circle.area(10);
+    let coordinates = circle.area(7);
     let children: u32 = 20;
     let radius = 10;
     let spread = 18;
@@ -25,10 +25,10 @@ fn main() -> std::io::Result<()> {
         len * children as usize
     );
 
-    for c in coordinates.iter() {
+    for (i, c) in coordinates.iter().enumerate() {
         let mut group = Group::new_simple(c.x * spread, c.y * spread);
         group.radius(radius as u32);
-        group.color(tools::gen_rgba());
+        group.color(tools::seed_rgba((i * 100) as u64));
         map::network::add_children(&mut group, children);
         groups.push(group);
     }
