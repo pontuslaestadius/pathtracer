@@ -173,18 +173,10 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
     if a.x < 0 || b.x < 0 || a.y < 0 || b.y < 0 {
-        let add_x = max(-a.x, -b.x);
-        let add_y = max(-a.y, -b.y);
-
-        let new_coordinates = plot(
-            Coordinate::new(a.x + add_x, a.y + add_y),
-            Coordinate::new(b.x + add_x, b.y + add_y),
-        );
-
+        let add = Coordinate::new(max(-a.x, -b.x), max(-a.y, -b.y));
         let mut vec_final = Vec::new();
-
-        for c in &new_coordinates {
-            vec_final.push(Coordinate::new(c.x - add_x, c.y - add_y));
+        for c in &plot(a + add, b + add) {
+            vec_final.push(*c - add);
         }
         return vec_final;
     }
@@ -194,6 +186,7 @@ pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
         (min(a.y, b.y)..max(a.y, b.y))
             .map(|y| Coordinate::new(a.x, y))
             .collect()
+
     // If it's not a vertical line
     } else {
         plot_bresenham(a.x as usize, a.y as usize, b.x as usize, b.y as usize)

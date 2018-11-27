@@ -1,6 +1,6 @@
 [package]
 name = "pathfinder"
-version = "0.5.3"
+version = "0.5.4"
 authors = ["pontus"]
 include = ["src/**/*", "Cargo.toml"]
 description = "A small library to create nodes, groups of nodes and connection in between them utilizing the image crate."
