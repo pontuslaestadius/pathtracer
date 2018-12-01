@@ -3,7 +3,8 @@ extern crate rand;
 
 use super::{Coordinate, Hash};
 use image::Rgba;
-use rand::distributions::{IndependentSample, Range};
+use rand::{distributions::Uniform, Rng};
+
 use std::{
     cmp::{max, min},
     f64,
@@ -43,16 +44,12 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
 /// # use pathfinder::{tools, Coordinate};
 ///
 /// # let falloff = 100;
-/// # let color = image::Rgba {
-/// #     data: [100, 100, 100, 255],
-/// # };
+/// # let color = image::Rgba([100, 100, 100, 255]);
 /// let base = Coordinate::new(0, 0);
 /// let to = Coordinate::new(10, 10);
 /// assert_eq!(
 ///     tools::range_color(falloff, color, base, to),
-///     image::Rgba {
-///         data: [77, 77, 77, 255]
-///     }
+///     image::Rgba([77, 77, 77, 255])
 /// );
 /// ```
 pub fn range_color(
@@ -67,14 +64,12 @@ pub fn range_color(
     let max_multi: f64 =
         f64::from(i32::from(base[0]) + i32::from(base[1]) + i32::from(base[2]) / 3);
     let modify = (-max_multi * (x_scale + y_scale) / 2.0) as i32;
-    image::Rgba {
-        data: [
-            border(base[0], modify),
-            border(base[1], modify),
-            border(base[2], modify),
-            border(base[3], 0),
-        ],
-    }
+    image::Rgba([
+        border(base[0], modify),
+        border(base[1], modify),
+        border(base[2], modify),
+        border(base[3], 0),
+    ])
 }
 
 /// Returns a random number between the min and maximum.
@@ -86,8 +81,7 @@ pub fn range_color(
 /// ```
 pub fn roll(min: u32, max: u32) -> u32 {
     let mut rng = rand::thread_rng();
-    let between: Range<u32> = Range::new(min, max);
-    between.ind_sample(&mut rng) as u32
+    rng.sample(Uniform::new(min, max))
 }
 
 /// Returns a random item from a given list.
@@ -133,9 +127,7 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     let g = (seed + 75) % 254;
     let b = (seed + 150) % 254;
 
-    Rgba {
-        data: [r as u8, g as u8, b as u8, 255],
-    }
+    Rgba([r as u8, g as u8, b as u8, 255])
 }
 
 /// Implemented according to
@@ -170,12 +162,18 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
 /// ];
 /// assert_eq!(path, correct_path);
 /// ```
-pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
+pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> { plot_type(a, b, &plot_bresenham) }
+
+pub fn plot_type(
+    mut a: Coordinate,
+    mut b: Coordinate,
+    plot_kind: &Fn(Coordinate, Coordinate) -> Vec<Coordinate>,
+) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
     if a.x < 0 || b.x < 0 || a.y < 0 || b.y < 0 {
         let add = Coordinate::new(max(-a.x, -b.x), max(-a.y, -b.y));
         let mut vec_final = Vec::new();
-        for c in &plot(a + add, b + add) {
+        for c in &plot_type(a + add, b + add, &plot_bresenham) {
             vec_final.push(*c - add);
         }
         return vec_final;
@@ -189,7 +187,13 @@ pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
 
     // If it's not a vertical line
     } else {
-        plot_bresenham(a.x as usize, a.y as usize, b.x as usize, b.y as usize)
+        // This case is handles reversed plotting, meaning going from a larger node to
+        // a smaller one.
+        if a.y != b.y && a.x > b.x {
+            swap(&mut a.x, &mut b.x);
+            swap(&mut a.y, &mut b.y);
+        }
+        plot_kind(a, b)
     }
 }
 
@@ -198,17 +202,10 @@ pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
 /// # Panics
 ///
 /// delta_x == 0.00
-fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) -> Vec<Coordinate> {
-    // This case is handles reversed plotting, meaning going from a larger node to
-    // a smaller one.
-    if y0 != y1 && x0 > x1 {
-        swap(&mut x0, &mut x1);
-        swap(&mut y0, &mut y1);
-    }
-
-    // Convert the numbers to be isize to enable the usize values to be less than 0.
-    let delta_x: f64 = (x1 as isize - x0 as isize) as f64;
-    let delta_y: f64 = (y1 as isize - y0 as isize) as f64;
+fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+    let delta = to - from;
+    let delta_x = f64::from(delta.x);
+    let delta_y = f64::from(delta.y);
 
     if delta_x == 0.00 {
         panic!("Bresenham does not support straight vertical lines!");
@@ -217,23 +214,68 @@ fn plot_bresenham(mut x0: usize, mut y0: usize, mut x1: usize, mut y1: usize) ->
     let delta_err: f64 = (delta_y / delta_x).abs();
     let mut error: f64 = 0.00;
 
-    let mut y: i16 = y0 as i16;
-
     let mut plot: Vec<Coordinate> = Vec::new();
-    let mut last_y = y;
-    for x in min(x0, x1)..=max(x0, x1) {
-        for i in min(last_y, y)..=max(last_y, y) {
-            plot.push(Coordinate::new(x as i16, i));
-        }
-        last_y = y;
+    let mut last_y = from.y;
 
+    for x in min(from.x, to.x)..=max(from.x, to.x) {
+        for y in min(last_y, from.y)..=max(last_y, from.y) {
+            plot.push(Coordinate::new(x as i16, y));
+        }
+        last_y = from.y;
         error += delta_err;
         while error >= 0.50 {
-            y += f64::signum(delta_y) as i16;
+            from.y += f64::signum(delta_y) as i16;
             error -= 1.00;
         }
     }
     plot
+}
+
+/// Gives the midpoint between two points.
+/// # Examples
+/// First declare the colors and the range at which it becomes darker.
+/// ```
+/// use pathfinder::{tools, Coordinate};
+/// let a = Coordinate::new(0, 0);
+/// let b = Coordinate::new(100, 100);
+/// let mid = tools::midpoint(a, b);
+/// assert_eq!(mid, Coordinate::new(50, 50));
+/// ```
+pub fn midpoint(a: Coordinate, b: Coordinate) -> Coordinate {
+    Coordinate::new((a.x + b.x) / 2, (a.y + b.y) / 2)
+}
+
+/// # Experimental! Work in progress.
+/// Draws a line between two coordinate points in the form on a ellipse.
+/// Derived from: https://en.wikipedia.org/wiki/Ellipse
+pub fn plot_ellipse(from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+    let mut result = Vec::new();
+    let t = f64::consts::PI / 2.0; // How the ellipse is angled.
+    let step: f64 = t / 5.0; // ?
+    let mut theta: f64 = 0.50; // starting angle.
+    let mut prev_point = from;
+    let diff = from - to;
+    let _t_max = midpoint(from, to);
+    let c = Coordinate::new(diff.x.abs(), diff.y.abs())
+        + Coordinate::new(std::cmp::min(from.x, to.x), std::cmp::min(from.y, to.y));
+    let r: f64 = f64::from(diff.x).abs() / 2.0; // distance from center to node aka radius.
+
+    println!(
+        "r: {} |t: {} |s: {} |from: {} |to: {} |diff: {} |c: {}",
+        r, t, step, from, to, diff, c
+    );
+
+    while theta < t {
+        let point =
+            prev_point + Coordinate::new((r * theta.cos()) as i16, (-r * theta.sin() / 2.0) as i16);
+        println!("Theta: {} | Coordinate: {} <- {}", theta, point, prev_point);
+        let mut line = plot_type(prev_point, point, &plot_bresenham);
+        result.append(&mut line);
+        prev_point = point;
+        theta += step;
+    }
+    println!();
+    result
 }
 
 #[cfg(test)]
