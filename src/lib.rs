@@ -64,7 +64,7 @@ pub struct Group {
 #[derive(Clone, Debug, Default)]
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
-    pub add: (i16, i16),
+    pub add: Coordinate,
     pub size: u16,
 }
 
@@ -227,9 +227,7 @@ impl Draw for Node {
                     .iter()
                     .map(|x| std::cmp::min(255, u16::from(*x) + consts::DEFAULT_SHADE) as u8)
                     .collect::<Vec<_>>();
-                image::Rgba {
-                    data: [c[0], c[1], c[2], c[3]],
-                }
+                image::Rgba([c[0], c[1], c[2], c[3]])
             } else {
                 self.color
             };
@@ -470,13 +468,7 @@ impl HL {
                 let _ = tools::plot(from + add, to + add)
                     .iter()
                     .map(|c| {
-                        image.put_pixel(
-                            c.x as u32,
-                            c.y as u32,
-                            image::Rgba {
-                                data: [col, col, col, 255],
-                            },
-                        )
+                        image.put_pixel(c.x as u32, c.y as u32, image::Rgba([col, col, col, 255]))
                     })
                     .collect::<Vec<_>>();
             }
@@ -603,7 +595,7 @@ impl Map {
     pub fn new() -> Self {
         Map {
             image: None,
-            add: (0, 0),
+            add: Coordinate::new(0, 0),
             size: consts::DEFAULT_SIZE,
         }
     }
@@ -659,12 +651,7 @@ impl Map {
             if !filter(e) {
                 continue;
             }
-            self.image = Some(e.draw(
-                self.image.unwrap(),
-                Coordinate::new(self.add.0, self.add.1),
-                self.size.into(),
-                &sq,
-            ));
+            self.image = Some(e.draw(self.image.unwrap(), self.add, self.size.into(), &sq));
         }
         self
     }

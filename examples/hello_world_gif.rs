@@ -1,9 +1,3 @@
-//! Author: Pontus Laestadius
-//! Version: 0.3
-//! Since: 2017-04-06
-//!
-//! Visualizes a moving gif.
-
 extern crate gif;
 extern crate image;
 extern crate pathfinder;

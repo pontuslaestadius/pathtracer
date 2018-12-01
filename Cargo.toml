@@ -3,15 +3,15 @@ name = "pathfinder"
 version = "0.5.4"
 authors = ["pontus"]
 include = ["src/**/*", "Cargo.toml"]
-description = "A small library to create nodes, groups of nodes and connection in between them utilizing the image crate."
+description = "Create nodes, clusters of nodes and connection in between."
 repository = "https://github.com/pontuslae/pathfinder"
 readme = "README.md"
-keywords = ["nodes", "image"]
+keywords = ["nodes", "image", "pathing"]
 categories = ["visualization", "text-processing"]
 license = "MIT"
 
 [dependencies]
-rand = "0.3"
+rand = "0.6.1"
 gif = "0.10.1"
-image = "0.20.0"
+image = "0.20.1"
 pythagoras = "0.1.1"
