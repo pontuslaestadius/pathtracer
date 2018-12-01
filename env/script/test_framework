@@ -28,7 +28,7 @@ done
 shift $((OPTIND-1))
 
 if [ -z "$REPOROOT" ]; then
-    source $(git rev-parse --show-toplevel)/script/utils/setup
+    source $(git rev-parse --show-toplevel)/env/script/utils/setup
 fi
 
 cd $REPOROOT
@@ -95,7 +95,7 @@ run() {
 export -f run
 
 init() {
-    for f in $REPOROOT/tests/${filter}*; do
+    for f in $REPOROOT/env/tests/${filter}*; do
         MATRIX="$MATRIX\n$(basename $f)"
         while read -r l; do
             [ ! -z "$l" ] && run "$(basename $f)" "$l"
