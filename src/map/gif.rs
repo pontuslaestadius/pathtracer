@@ -34,8 +34,7 @@ impl Gif {
         self.push_frame(&map.image.unwrap())
     }
 
-    /// Pushes a frame to the Gif structure, This also immediately saves it to
-    /// disk.
+    /// Pushes a frame to the structure, This also immediately saves it to disk.
     pub fn push_frame(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
         for pix in image.pixels() {
@@ -43,13 +42,11 @@ impl Gif {
                 pixels.push(pix.data[i]);
             }
         }
-
-        // Create frame from data
         let mut frame = Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
         frame.delay = 20;
         let mut e = self.encoder.take().unwrap();
-        e.write_frame(&frame).unwrap();
+        e.write_frame(&frame)?;
         let _ = self.encoder.get_or_insert(e);
         Ok(())
     }

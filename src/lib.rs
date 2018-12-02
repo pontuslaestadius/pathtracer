@@ -65,7 +65,6 @@ pub struct Group {
 pub struct Map {
     pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
     pub add: Coordinate,
-    pub size: u16,
 }
 
 #[derive(Clone, Copy)]
@@ -197,7 +196,6 @@ pub trait Draw {
         &self,
         image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
         offset: Coordinate,
-        size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
     fn size(&self) -> u32;
@@ -209,7 +207,6 @@ impl Draw for Node {
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
         offset: Coordinate,
-        size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
         let s = consts::DEFAULT_LINK_SIZE / 2;
@@ -219,13 +216,13 @@ impl Draw for Node {
             image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
         }
 
-        for o in shape.area(size) {
+        for o in shape.area(self.size()) {
             let color = if o.x == 0 || o.y == 0 {
                 let c = self
                     .color
                     .data
                     .iter()
-                    .map(|x| std::cmp::min(255, u16::from(*x) + consts::DEFAULT_SHADE) as u8)
+                    .map(|x| x.saturating_add(consts::DEFAULT_SHADE as u8))
                     .collect::<Vec<_>>();
                 image::Rgba([c[0], c[1], c[2], c[3]])
             } else {
@@ -250,13 +247,12 @@ impl Draw for Group {
         &self,
         mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
         mut offset: Coordinate,
-        size: u32,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        image = self.settings.draw(image, offset, size, shape);
+        //image = self.settings.draw(image, offset, shape);
         offset += self.position();
         for node in &self.nodes {
-            image = node.draw(image, offset, size, shape);
+            image = node.draw(image, offset, shape);
         }
         image
     }
@@ -468,7 +464,11 @@ impl HL {
                 let _ = tools::plot(from + add, to + add)
                     .iter()
                     .map(|c| {
-                        image.put_pixel(c.x as u32, c.y as u32, image::Rgba([col, col, col, 255]))
+                        image.put_pixel(
+                            c.x as u32,
+                            c.y as u32,
+                            image::Rgba([col, col, col, u8::max_value()]),
+                        )
                     })
                     .collect::<Vec<_>>();
             }
@@ -596,7 +596,6 @@ impl Map {
         Map {
             image: None,
             add: Coordinate::new(0, 0),
-            size: consts::DEFAULT_SIZE,
         }
     }
 
@@ -651,7 +650,7 @@ impl Map {
             if !filter(e) {
                 continue;
             }
-            self.image = Some(e.draw(self.image.unwrap(), self.add, self.size.into(), &sq));
+            self.image = Some(e.draw(self.image.unwrap(), self.add, &sq));
         }
         self
     }

@@ -1,12 +1,10 @@
-use super::{Coordinate, Group};
-use coordinate::*;
+use super::{coordinate, tools, Coordinate, Group};
 use std::{
     collections::hash_map::DefaultHasher,
     fs::OpenOptions,
     hash::{Hash, Hasher},
     io::{self, prelude::*},
 };
-use tools::seed_rgba;
 
 /// Holds configurations for converting a content String to a path network.
 pub struct CustomConverter<'a> {
@@ -87,8 +85,8 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
             groups[index].new_node_min_max(index as u32, cct.node_range);
         } else {
             gr_bool_arr[(hashed_line % cct.size) as usize] = true;
-            let mut group = Group::new(&line, gen_radius(coordinates, 0, cct.radius));
-            group.settings.color = seed_rgba(hashed_line);
+            let mut group = Group::new(&line, coordinate::gen_radius(coordinates, 0, cct.radius));
+            group.settings.color = tools::seed_rgba(hashed_line);
 
             if cct.link_groups && !groups.is_empty() {
                 let tmp = &groups[groups.len() - 1];
