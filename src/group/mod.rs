@@ -12,13 +12,7 @@ use std::cmp;
 /// }
 /// assert_eq!(group::count(&groups), 100);
 /// ```
-pub fn count(list: &[Group]) -> usize {
-    let mut n: usize = 0;
-    for g in list.iter() {
-        n += g.nodes.len();
-    }
-    n
-}
+pub fn count(list: &[Group]) -> usize { list.iter().fold(0, |acc, x| acc + x.nodes.len()) }
 
 /// Returns the the largest and smallest x and y position.
 ///

@@ -13,12 +13,7 @@ use std::{
 
 /// Finds an element using their hashes.
 pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
-    for l in list {
-        if element == l.hash() {
-            return Some(l);
-        }
-    }
-    None
+    list.iter().find(|&x| x.hash() == element)
 }
 
 /// Returns a Rgba with a modified value depending on how close it is to it's
@@ -64,6 +59,7 @@ pub fn range_color(
     let max_multi: f64 =
         f64::from(i32::from(base[0]) + i32::from(base[1]) + i32::from(base[2]) / 3);
     let modify = (-max_multi * (x_scale + y_scale) / 2.0) as i32;
+
     image::Rgba([
         border(base[0], modify),
         border(base[1], modify),
@@ -76,12 +72,12 @@ pub fn range_color(
 /// # Examples
 /// ```
 /// # use pathfinder::tools;
-/// let nr = tools::roll(50, 60);
+/// let nr = tools::roll(50u32, 60);
 /// assert!(nr >= 50 && nr <= 60);
 /// ```
-pub fn roll(min: u32, max: u32) -> u32 {
+pub fn roll<T: Into<u32>>(min: T, max: T) -> u32 {
     let mut rng = rand::thread_rng();
-    rng.sample(Uniform::new(min, max))
+    rng.sample(Uniform::new(min.into(), max.into()))
 }
 
 /// Returns a random item from a given list.
@@ -96,10 +92,8 @@ pub fn random_item(list: &[String]) -> &String {
 /// use pathfinder::tools;
 /// let a = 50;
 /// let b = 250;
-/// let max = tools::border(a, b);
-/// let zero = tools::border(a, -b);
-/// assert_eq!(max, 255);
-/// assert_eq!(zero, 0);
+/// assert_eq!(tools::border(a, b), 255);
+/// assert_eq!(tools::border(a, -b), 0);
 /// ```
 pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) as u8 }
 
@@ -111,14 +105,10 @@ pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) a
 /// println!("{:?}", rgba.data);
 /// ```
 pub fn gen_rgba() -> Rgba<u8> {
-    let mut primary: Rgba<u8> = super::consts::DEFAULT_RGBA;
-
-    for i in 0..4 {
-        let v = u32::from(primary.data[i]) + roll(0, 255);
-        primary.data[i] = min(v, 255) as u8;
-    }
-
-    primary
+    (0..4).fold(super::consts::DEFAULT_RGBA, |mut acc, x| {
+        acc.data[x] = acc.data[x].saturating_add(roll(0u8, u8::max_value()) as u8);
+        acc
+    })
 }
 
 /// Returns a Rgb color based on a seed value. the opacity is always 255.
@@ -319,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_roll() {
-        let res = roll(0, 5);
+        let res = roll(0u32, 5);
         assert!(res <= 5);
     }
 

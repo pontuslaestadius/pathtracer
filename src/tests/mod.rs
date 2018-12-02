@@ -5,9 +5,7 @@ mod tests {
     // classes that have it.
     mod from_list {
 
-        use Coordinate;
-        use Group;
-        use Node;
+        use crate::{Coordinate, Group, Node};
 
         // List used for calling from_list tests.
         fn get_list<'a>() -> &'a [(i16, i16); 8] {
@@ -45,11 +43,7 @@ mod tests {
 
     mod rotate {
 
-        use coordinate::diff;
-        use map::network::*;
-        use Group;
-        use Location;
-        use Node;
+        use crate::{coordinate::diff, map::network::*, Group, Location, Node};
 
         #[test]
         fn group() {
@@ -115,8 +109,7 @@ mod tests {
 
     mod path {
 
-        use Coordinate;
-        use Node;
+        use crate::{Coordinate, Node};
 
         #[test]
         fn nodes() {

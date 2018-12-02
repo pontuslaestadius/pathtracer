@@ -51,20 +51,9 @@ pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) 
 /// assert_eq!(difference, (100, 100));
 /// ```
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
-    let diffs = diff_noabs(c1, c2);
-    (diffs.0.abs(), diffs.1.abs())
+    let d = c1 - c2;
+    (d.x.abs(), d.y.abs())
 }
-
-/// Get difference in distance that works with negative values.
-///
-/// # Examples
-/// ```
-/// use pathfinder::{coordinate::*, Coordinate};
-/// let c1 = Coordinate::new(0, 0);
-/// let c2 = Coordinate::new(100, 100);
-/// assert_eq!(diff_noabs(c1, c2), (-100, -100));
-/// ```
-pub fn diff_noabs(c1: Coordinate, c2: Coordinate) -> (i16, i16) { ((c1.x - c2.x), (c1.y - c2.y)) }
 
 /// Get the distance between two Coordinates'.
 ///
@@ -111,7 +100,7 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     let circle = |a: f64, b: f64| a + r * b;
 
     // Gets a random angle.
-    let angle = roll(0, 3600);
+    let angle = roll(0u32, 3600u32);
     let a: f64 = f64::consts::PI * 0.001 * f64::from(angle);
 
     let x = circle(f64::from(coord.x), a.cos()) as i16;
@@ -134,10 +123,10 @@ pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: 
         return;
     }
 
-    for mut p in points.iter_mut() {
+    for p in points.iter_mut() {
         let radius = f64::from(distance(axis, p.geo));
-        let diff = diff_noabs(p.geo, axis);
-        let base = f64::from(diff.0).atan2(f64::from(diff.1));
+        let diff = p.geo - axis;
+        let base = f64::from(diff.x).atan2(f64::from(diff.y));
         let angle = base + (deg * f64::consts::PI / 180.0);
         p.geo.y = axis.y + f64::round(angle.cos() * radius) as i16;
         p.geo.x = axis.x + f64::round(angle.sin() * radius) as i16;

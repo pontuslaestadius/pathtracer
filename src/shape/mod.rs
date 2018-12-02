@@ -15,10 +15,11 @@ impl Shape for Square {
     /// Returns all coordinates that the shape occupies.
     /// Assume that 0 0 is the center of the node.
     fn area(&self, size: u32) -> Vec<Coordinate> {
+        let size = size as i16;
         let mut vec = Vec::new();
-        for i in 0..size {
-            for j in 0..size {
-                vec.push(Coordinate::new(i as i16, j as i16));
+        for i in 0i16..size {
+            for j in 0i16..size {
+                vec.push(Coordinate::new(i, j));
             }
         }
         vec
@@ -66,14 +67,13 @@ impl Shape for Triangle {
     /// Returns all coordinates that the shape occupies.
     /// Assume that you start at coordinate x: 0, y: 0.
     fn area(&self, size: u32) -> Vec<Coordinate> {
-        let mut vec = Vec::new();
         let size = size as i16;
-        for i in 0..size {
-            vec.append(&mut plot(
+        (0..size).fold(vec![], |mut acc, x| {
+            acc.append(&mut plot(
                 Coordinate::new(size / 2, 0),
-                Coordinate::new(i, size),
+                Coordinate::new(x, size),
             ));
-        }
-        vec
+            acc
+        })
     }
 }

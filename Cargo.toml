@@ -1,7 +1,8 @@
 [package]
 name = "pathfinder"
 version = "0.5.4"
-authors = ["pontus"]
+authors = ["PontusLaestadius <pontus.laestadius@gmail.com>"]
+edition = "2018"
 include = ["src/**/*", "Cargo.toml"]
 description = "Create nodes, clusters of nodes and connection in between."
 repository = "https://github.com/pontuslae/pathfinder"
