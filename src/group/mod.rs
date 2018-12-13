@@ -35,9 +35,7 @@ pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
         max.y = std::cmp::max(max.y, max2.y);
         min.y = std::cmp::min(min.y, min2.y);
     }
-    min += group.position();
-    max += group.position();
-    (min, max)
+    (min + group.position(), max + group.position())
 }
 
 /// Adds a node to a given group, All parameters are optional except the group.

@@ -1,3 +1,4 @@
+#![feature(tool_lints)]
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::derive_hash_xor_eq))]
 
 extern crate gif;
@@ -37,6 +38,7 @@ pub struct Coordinate {
 
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HL {
+    pub style: u8,
     pub f: u64,
     pub t: u64,
     pub from: Option<Coordinate>,
@@ -249,7 +251,6 @@ impl Draw for Group {
         mut offset: Coordinate,
         shape: &S,
     ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-        //image = self.settings.draw(image, offset, shape);
         offset += self.position();
         for node in &self.nodes {
             image = node.draw(image, offset, shape);
@@ -368,6 +369,24 @@ impl Node {
         Node::linked_list_predicate(list, &|_, _| true)
     }
 
+    /// Returns a specific link if it exists. Returns none if not.
+    pub fn hl(&self, index: usize) -> Option<&HL> {
+        if index > self.get_link_avail_index() {
+            None
+        } else {
+            Some(&self.links[index])
+        }
+    }
+
+    /// Returns a specific mut link if it exists. Returns none if not.
+    pub fn hl_mut(&mut self, index: usize) -> Option<&mut HL> {
+        if index > self.get_link_avail_index() {
+            None
+        } else {
+            Some(&mut self.links[index])
+        }
+    }
+
     /// Links a list of nodes together in the order they are indexed.
     /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
     ///
@@ -422,6 +441,7 @@ impl Node {
     pub fn link<P: Hash + Location>(&mut self, other: &P) {
         let i = self.get_link_avail_index();
         self.links[i] = HL {
+            style: 0,
             f: self.hash,
             t: other.hash(),
             from: Some(self.geo),
@@ -433,12 +453,19 @@ impl Node {
 impl HL {
     pub fn new(f: u64, t: u64) -> Self {
         HL {
+            style: 0,
             f,
             t,
             from: None,
             to: None,
         }
     }
+
+    /// Style setter. Values are:
+    /// 0: Default value, bresenhem lines.
+    /// 1: Straight.
+    /// 2: Coming in 0.5.6. Ellipse
+    pub fn style(&mut self, s: u8) { self.style = s; }
 
     pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
@@ -461,7 +488,13 @@ impl HL {
             for j in 0..size {
                 let add = Coordinate::new(j as i16 - s, i as i16 - s);
                 let col = (size - i) as u8 * consts::DEFAULT_SHADE as u8;
-                let _ = tools::plot(from + add, to + add)
+                let plot = match self.style {
+                    0 => tools::plot_type(from + add, to + add, &tools::plot_bresenham),
+                    1 => tools::plot_type(from + add, to + add, &tools::plot_rectangle),
+                    2 => tools::plot_type(from + add, to + add, &tools::plot_ellipse),
+                    _ => tools::plot(from + add, to + add),
+                };
+                let _ = plot
                     .iter()
                     .map(|c| {
                         image.put_pixel(
