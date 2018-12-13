@@ -11,7 +11,7 @@ fn main() -> Result<(), std::io::Error> {
     let x_max: i16 = (width / radius) as i16;
     let frame_rot = f64::from(90 / (frames - 1));
     let count = x_max * (height / radius) as i16;
-    let mut gif = Gif::new(width + 8, height + 8);
+    let mut gif = Gif::new(width, height + 10);
     let _ = gif.init("out.gif")?;
 
     let f = |i: usize, d: f64| -> Coordinate {
@@ -26,19 +26,20 @@ fn main() -> Result<(), std::io::Error> {
     for c in 0..count {
         let c = c as i16;
         let mut group = Group::new_simple((c % x_max) * radius as i16, (c / x_max) * radius as i16);
-        println!("{}", group.position());
         group.radius(radius as u32);
-        group.color(tools::seed_rgba(c as u64 * 55));
+        group.color(tools::seed_rgba(c as u64 * 32));
 
         for _ in 5..radius as usize {
-            for k in 2..(4 + c / 5) {
-                let f1 = |i: usize| -> Coordinate { f(i, (4 * k) as f64) };
+            for k in 1..(4 + c / 5) {
+                let f1 = |i: usize| -> Coordinate { f(i, 4.5 * k as f64) };
                 group.node_plot(&f1);
             }
         }
         groups.push(group);
     }
 
+    // For each frame, we rotate the nodes in the group.
+    // Always creates a seemless infinite spin.
     for _ in 1..(frames + 1) {
         for g in groups.iter_mut() {
             g.rotate(frame_rot);
@@ -46,7 +47,7 @@ fn main() -> Result<(), std::io::Error> {
 
         let mut map = Map::new();
         map = map.map(&groups);
-        gif.push_frame(&map.image.unwrap())?;
+        gif.push_map(map)?;
     }
     Ok(())
 }

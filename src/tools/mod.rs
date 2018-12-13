@@ -192,7 +192,7 @@ pub fn plot_type(
 /// # Panics
 ///
 /// delta_x == 0.00
-fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+pub fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let delta = to - from;
     let delta_x = f64::from(delta.x);
     let delta_y = f64::from(delta.y);
@@ -218,6 +218,14 @@ fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
             error -= 1.00;
         }
     }
+    plot
+}
+
+/// Draws a line between two coordinate points in straight horizontal or
+/// vertical lines.
+pub fn plot_rectangle(from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+    let mut plot: Vec<Coordinate> = (from.x..to.x).map(|y| Coordinate::new(y, from.y)).collect();
+    plot.append(&mut (from.y..to.y).map(|y| Coordinate::new(to.x, y)).collect());
     plot
 }
 
@@ -273,37 +281,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_border_zero() {
+    fn test_border() {
         assert_eq!(border(0, 0), 0);
-    }
-
-    #[test]
-    fn test_border_negative_adjust() {
         assert_eq!(border(0, -55), 0);
-    }
-
-    #[test]
-    fn test_border_sub_max_add() {
         assert_eq!(border(100, 100), 200);
-    }
-
-    #[test]
-    fn test_border_set_max() {
-        assert_eq!(border(0, 255), 255);
-    }
-
-    #[test]
-    fn test_border_too_high() {
         assert_eq!(border(255, 255), 255);
-    }
-
-    #[test]
-    fn test_border_no_add() {
+        assert_eq!(border(0, 255), 255);
         assert_eq!(border(255, 0), 255);
-    }
-
-    #[test]
-    fn test_border_eq() {
         assert_eq!(border(255, -255), 0);
     }
 

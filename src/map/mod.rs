@@ -34,7 +34,7 @@ fn min_max<T: Location + Draw + MinMax>(list: &[T]) -> (Coordinate, Coordinate) 
     }
 
     // We add a safety border using size.
-    let size = Coordinate::new(size / 2, size / 2);
+    let size = Coordinate::new(size / 4, size / 4);
     (min - size, max + size)
 }
 
@@ -57,7 +57,7 @@ mod tests {
     fn test_min_max() {
         let nodes = Node::from_list(&[(-50, 50), (50, -50), (0, 25), (25, 0)]);
         let (min, max) = min_max(&nodes);
-        assert_eq!(min, Coordinate::new(-54, -54));
-        assert_eq!(max, Coordinate::new(54, 54));
+        assert_eq!(min, Coordinate::new(-53, -53));
+        assert_eq!(max, Coordinate::new(53, 53));
     }
 }
