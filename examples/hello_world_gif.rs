@@ -23,7 +23,7 @@ fn main() -> std::io::Result<()> {
 
         let mut map = Map::new();
         map = map.map(&groups);
-        gif.push_frame(&map.image.unwrap())?
+        gif.push_frame(&map.consume())?
     }
     Ok(())
 }

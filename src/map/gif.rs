@@ -1,6 +1,5 @@
-use super::super::Map;
+use super::super::{Map, IW};
 use gif::{self, *};
-use image::{ImageBuffer, Rgba};
 use std::{fs::File, io};
 
 pub struct Gif {
@@ -31,18 +30,19 @@ impl Gif {
 
     /// Pushes a frame using a map struct.
     pub fn push_map(&mut self, map: Map) -> Result<(), io::Error> {
-        self.push_frame(&map.image.unwrap())
+        self.push_frame(&map.consume())
     }
 
     /// Pushes a frame to the structure, This also immediately saves it to disk.
-    pub fn push_frame(&mut self, image: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> Result<(), io::Error> {
+    pub fn push_frame(&mut self, image: &IW) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
-        for pix in image.pixels() {
+        for pix in image.image().pixels() {
             for i in 0..4 {
                 pixels.push(pix.data[i]);
             }
         }
-        let mut frame = Frame::from_rgba(image.width() as u16, image.height() as u16, &mut pixels);
+        let dim = image.dimensions();
+        let mut frame = Frame::from_rgba(dim.x as u16, dim.y as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
         frame.delay = 20;
         let mut e = self.encoder.take().unwrap();

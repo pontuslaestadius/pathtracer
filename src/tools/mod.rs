@@ -160,28 +160,22 @@ pub fn plot_type(
     plot_kind: &Fn(Coordinate, Coordinate) -> Vec<Coordinate>,
 ) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
-    if a.x < 0 || b.x < 0 || a.y < 0 || b.y < 0 {
+    if a.lt(0) || b.lt(0) {
         let add = Coordinate::new(max(-a.x, -b.x), max(-a.y, -b.y));
-        let mut vec_final = Vec::new();
-        for c in &plot_type(a + add, b + add, &plot_bresenham) {
-            vec_final.push(*c - add);
-        }
-        return vec_final;
-    }
-
+        plot_type(a + add, b + add, &plot_bresenham)
+            .iter()
+            .fold(vec![], |mut acc, c| {
+                acc.push(*c - add);
+                acc
+            })
     // If it's a vertical line
-    if a.x == b.x {
+    } else if a.x == b.x {
         (min(a.y, b.y)..max(a.y, b.y))
             .map(|y| Coordinate::new(a.x, y))
             .collect()
-
-    // If it's not a vertical line
     } else {
-        // This case is handles reversed plotting, meaning going from a larger node to
-        // a smaller one.
-        if a.y != b.y && a.x > b.x {
-            swap(&mut a.x, &mut b.x);
-            swap(&mut a.y, &mut b.y);
+        if b.x < a.x {
+            swap(&mut a, &mut b);
         }
         plot_kind(a, b)
     }
@@ -246,32 +240,34 @@ pub fn midpoint(a: Coordinate, b: Coordinate) -> Coordinate {
 /// # Experimental! Work in progress.
 /// Draws a line between two coordinate points in the form on a ellipse.
 /// Derived from: https://en.wikipedia.org/wiki/Ellipse
-pub fn plot_ellipse(from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
-    let mut result = Vec::new();
-    let t = f64::consts::PI / 2.0; // How the ellipse is angled.
-    let step: f64 = t / 5.0; // ?
-    let mut theta: f64 = 0.50; // starting angle.
-    let mut prev_point = from;
-    let diff = from - to;
+pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+    let min = Coordinate::new(min(from.x, to.x), min(from.y, to.y));
+    let _max = Coordinate::new(max(from.x, to.x), max(from.y, to.y));
     let _t_max = midpoint(from, to);
-    let c = Coordinate::new(diff.x.abs(), diff.y.abs())
-        + Coordinate::new(std::cmp::min(from.x, to.x), std::cmp::min(from.y, to.y));
-    let r: f64 = f64::from(diff.x).abs() / 2.0; // distance from center to node aka radius.
+
+    let mut result = Vec::new();
+    let t = f64::consts::PI / 2.0; // How the ellipse is angled. and how steep it angles.
+    let mut theta: f64 = 0.5; // starting angle.
+    let diff = from - to;
+    let step: f64 = t / 5.0; // Number of ellipse steps from start to finish.
+    let c = min;
+    let r: f64 = f64::from(diff.x / 2).abs(); // distance from center to node aka radius.
 
     println!(
         "r: {} |t: {} |s: {} |from: {} |to: {} |diff: {} |c: {}",
         r, t, step, from, to, diff, c
     );
 
-    while theta < t {
+    while t > theta {
         let point =
-            prev_point + Coordinate::new((r * theta.cos()) as i16, (-r * theta.sin() / 2.0) as i16);
-        println!("Theta: {} | Coordinate: {} <- {}", theta, point, prev_point);
-        let mut line = plot_type(prev_point, point, &plot_bresenham);
+            from + Coordinate::new((r * theta.cos()) as i16, (-r * theta.sin() / 2.0) as i16);
+        println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
+        let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);
-        prev_point = point;
+        from = point;
         theta += step;
     }
+    result.append(&mut plot_type(from, to, &plot_bresenham));
     println!();
     result
 }
