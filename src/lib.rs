@@ -65,8 +65,8 @@ pub struct Group {
 
 #[derive(Clone, Debug, Default)]
 pub struct Map {
-    pub image: Option<image::ImageBuffer<image::Rgba<u8>, Vec<u8>>>,
-    pub add: Coordinate,
+    image: Option<IW>,
+    add: Coordinate,
 }
 
 #[derive(Clone, Copy)]
@@ -110,6 +110,35 @@ impl std::fmt::Display for Coordinate {
 impl std::fmt::Display for HL {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{} -> {}", self.f, self.t)
+    }
+}
+
+// ------------------------------------------------------------------
+
+/// Image wrapper around the Image crate
+#[derive(Clone, Debug)]
+pub struct IW {
+    img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+}
+
+impl IW {
+    pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> { &self.img }
+
+    /// Wraps around Image put_pixel but indicates failed positions.
+    pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
+        if l.x() as u32 > self.img.width() || l.y() as u32 > self.img.height() {
+            panic!(
+                "position {} is out of bound of image {}, {}",
+                l.position(),
+                self.img.width(),
+                self.img.height()
+            );
+        }
+        self.img.put_pixel(l.x() as u32, l.y() as u32, color);
+    }
+
+    pub fn dimensions(&self) -> Coordinate {
+        Coordinate::new(self.img.width() as i16, self.img.height() as i16)
     }
 }
 
@@ -170,6 +199,10 @@ impl MinMax for Group {
 
 pub trait Location {
     fn position(&self) -> Coordinate;
+
+    fn x(&self) -> i16 { self.position().x }
+
+    fn y(&self) -> i16 { self.position().y }
 }
 
 impl Location for HL {
@@ -194,23 +227,13 @@ impl Location for Coordinate {
 // ------------------------------------------------------------------
 
 pub trait Draw {
-    fn draw<S: Shape>(
-        &self,
-        image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        offset: Coordinate,
-        shape: &S,
-    ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>>;
+    fn draw<S: Shape>(&self, image: IW, offset: Coordinate, shape: &S) -> IW;
     fn size(&self) -> u32;
     fn links(&self) -> &[HL];
 }
 
 impl Draw for Node {
-    fn draw<S: Shape>(
-        &self,
-        mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        offset: Coordinate,
-        shape: &S,
-    ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+    fn draw<S: Shape>(&self, mut image: IW, offset: Coordinate, shape: &S) -> IW {
         let s = consts::DEFAULT_LINK_SIZE / 2;
         let pos = self.geo + offset - Coordinate::new(s as i16, s as i16);
 
@@ -230,7 +253,8 @@ impl Draw for Node {
             } else {
                 self.color
             };
-            image.put_pixel((pos.x + o.x) as u32, (pos.y + o.y) as u32, color);
+            let c = pos + o;
+            image.put(&c, color);
         }
         image
     }
@@ -245,12 +269,7 @@ impl Draw for Node {
 
 impl Draw for Group {
     /// Draws the Nodes inside that Group. If none the Group is draw as blank.
-    fn draw<S: Shape>(
-        &self,
-        mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        mut offset: Coordinate,
-        shape: &S,
-    ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+    fn draw<S: Shape>(&self, mut image: IW, mut offset: Coordinate, shape: &S) -> IW {
         offset += self.position();
         for node in &self.nodes {
             image = node.draw(image, offset, shape);
@@ -315,6 +334,12 @@ impl Coordinate {
         coordinate::diff(self, other.position())
     }
 
+    /// Returns true if either x or y is less than the input.
+    pub fn lt(self, lt: i16) -> bool { self.x < lt || self.y < lt }
+
+    /// Returns the absolute i.e. the positive equivilent.
+    pub fn abs(self) -> Coordinate { Coordinate::new(self.x.abs(), self.y.abs()) }
+
     /// Creates a list of coordinates from a list of tuples with x and y
     /// positions.
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
@@ -336,6 +361,12 @@ impl Node {
 
     /// Retrive coordinate from a csv format.
     pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> { node::from_file(path) }
+
+    /// Gets the center position of the node accounting for size.
+    pub fn center(&self) -> Coordinate {
+        let half = Coordinate::new(self.size() as i16 / 2, self.size() as i16 / 2);
+        self.position() + half
+    }
 
     /// Converts a list of tuples (x,y) to a Vector of Nodes.
     /// Names are assigned from "A" and upwards automatically.
@@ -469,12 +500,7 @@ impl HL {
 
     pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
-    fn draw(
-        &self,
-        mut image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
-        mut offset: Coordinate,
-        size: u32,
-    ) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+    fn draw(&self, mut image: IW, mut offset: Coordinate, size: u32) -> IW {
         let (mut from, mut to) = self.min_max();
         if self.f == 0 || self.t == 0 || from == to {
             return image;
@@ -496,13 +522,7 @@ impl HL {
                 };
                 let _ = plot
                     .iter()
-                    .map(|c| {
-                        image.put_pixel(
-                            c.x as u32,
-                            c.y as u32,
-                            image::Rgba([col, col, col, u8::max_value()]),
-                        )
-                    })
+                    .map(|c| image.put(c, image::Rgba([col, col, col, u8::max_value()])))
                     .collect::<Vec<_>>();
             }
         }
@@ -645,8 +665,11 @@ impl Map {
     ///     .unwrap();
     /// ```
     pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
-        self.image.unwrap().save(path)
+        self.image.unwrap().image().save(path)
     }
+
+    /// Unwraps the image wrapper
+    pub fn consume(self) -> IW { self.image.unwrap() }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
     ///
@@ -674,7 +697,7 @@ impl Map {
     ) -> Self {
         if self.image.is_none() {
             let (image, add) = map::gen_map(&element);
-            self.image = Some(image);
+            self.image = Some(IW { img: image });
             self.add = add;
         }
 
@@ -692,7 +715,7 @@ impl Map {
     pub fn map_absolute<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let (image, _) = map::gen_map(&element);
-            self.image = Some(image);
+            self.image = Some(IW { img: image });
         }
         self.map(element)
     }
