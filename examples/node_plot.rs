@@ -3,8 +3,8 @@ extern crate image;
 extern crate pathfinder;
 use pathfinder::{map::gif::*, *};
 
-fn main() -> Result<(), std::io::Error> {
-    let frames = 5;
+fn main() -> std::io::Result<()> {
+    let frames = 6;
     let width = 300;
     let height = 90;
     let radius = 38;
@@ -45,9 +45,7 @@ fn main() -> Result<(), std::io::Error> {
             g.rotate(frame_rot);
         }
 
-        let mut map = Map::new();
-        map = map.map(&groups);
-        gif.push_map(map)?;
+        gif.push_map(Map::new().map(&groups))?;
     }
     Ok(())
 }

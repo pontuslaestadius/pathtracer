@@ -37,7 +37,7 @@ Group - Includes Nodes in larger numbers which normalizes around it's axis.
 
 ## Example
 
-Easily manipulate larger number of Nodes with less accuracy.
+Easily manipulate large number of Nodes with less accuracy.
 
 ```rust
 use pathfinder::{Group, map};
@@ -45,9 +45,9 @@ use std::path::Path;
 
 let mut groups = Group::from_list([(0, 0), (100, 100)]);
 for group in groups.iter_mut() {
-    map::network::add_children(&mut group, 100);
+    group.add(100);
 }
-let _ = Map::new()
+Map::new()
     .map(&groups)
     .save(&Path::new("out.png"));
 ```

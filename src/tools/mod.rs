@@ -217,9 +217,28 @@ pub fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
 
 /// Draws a line between two coordinate points in straight horizontal or
 /// vertical lines.
-pub fn plot_rectangle(from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
-    let mut plot: Vec<Coordinate> = (from.x..to.x).map(|y| Coordinate::new(y, from.y)).collect();
-    plot.append(&mut (from.y..to.y).map(|y| Coordinate::new(to.x, y)).collect());
+pub fn plot_rectangle(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
+    let mut plot: Vec<Coordinate> = Vec::new();
+    let mut delta = Coordinate::new(1, 1);
+
+    if from.x > to.x {
+        delta.x = -1;
+    }
+
+    if from.y > to.y {
+        delta.y = -1;
+    }
+
+    while from.x != to.x {
+        from.x += delta.x;
+        plot.push(from);
+    }
+
+    while from.y != to.y {
+        from.y += delta.y;
+        plot.push(from);
+    }
+
     plot
 }
 
@@ -249,7 +268,7 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let t = f64::consts::PI / 2.0; // How the ellipse is angled. and how steep it angles.
     let mut theta: f64 = 0.5; // starting angle.
     let diff = from - to;
-    let step: f64 = t / 5.0; // Number of ellipse steps from start to finish.
+    let step: f64 = t / 4.5; // Number of ellipse steps from start to finish.
     let c = min;
     let r: f64 = f64::from(diff.x / 2).abs(); // distance from center to node aka radius.
 
@@ -258,9 +277,17 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
         r, t, step, from, to, diff, c
     );
 
+    // -r = J shape. r = n shape.
+    let mut s = Coordinate::new(1, 1);
+    if from.y > to.y {
+        s.y = -1;
+    }
+
     while t > theta {
-        let point =
-            from + Coordinate::new((r * theta.cos()) as i16, (-r * theta.sin() / 2.0) as i16);
+        let point = from + Coordinate::new(
+            (r * theta.cos()) as i16,
+            (f64::from(s.y) * r * theta.sin() / 2.0) as i16,
+        );
         println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
         let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);
@@ -268,7 +295,7 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
         theta += step;
     }
     result.append(&mut plot_type(from, to, &plot_bresenham));
-    println!();
+    //println!("{:#?}", result);
     result
 }
 
