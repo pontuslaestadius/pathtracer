@@ -60,7 +60,7 @@ pub struct Node {
 #[derive(Clone, Debug)]
 pub struct Group {
     settings: Node,
-    nodes: Vec<Node>,
+    pub nodes: Vec<Node>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -126,13 +126,14 @@ impl IW {
 
     /// Wraps around Image put_pixel but indicates failed positions.
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
-        if l.x() as u32 > self.img.width() || l.y() as u32 > self.img.height() {
-            panic!(
-                "position {} is out of bound of image {}, {}",
+        if l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height() {
+            println!(
+                "({}) out of bound of image ({}, {})",
                 l.position(),
                 self.img.width(),
                 self.img.height()
             );
+            return;
         }
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
@@ -548,6 +549,16 @@ impl Group {
 
     pub fn node(&self) -> &Node { &self.settings }
 
+    /// Adds a set of nodes randomly located inside the group.
+    pub fn add(&mut self, nr: u32) { map::network::add_children(self, nr); }
+
+    /// Applies the lambda function over each mutable child node.
+    pub fn each(&mut self, func: &Fn(&mut Node)) {
+        for node in self.nodes.iter_mut() {
+            func(node);
+        }
+    }
+
     /// Sets the color of the Group.
     pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
 
@@ -691,24 +702,20 @@ impl Map {
     /// Maps the elements but with an added filter parameter to exclude
     /// elements.
     pub fn map_filter<T: Draw + Location + Hash + MinMax>(
-        mut self,
+        self,
         element: &[T],
         filter: &Fn(&T) -> bool,
     ) -> Self {
-        if self.image.is_none() {
-            let (image, add) = map::gen_map(&element);
-            self.image = Some(IW { img: image });
-            self.add = add;
-        }
+        self.map_params(&element, &filter, &shape::Square::new())
+    }
 
-        let sq = shape::Square::new();
-        for e in element {
-            if !filter(e) {
-                continue;
-            }
-            self.image = Some(e.draw(self.image.unwrap(), self.add, &sq));
-        }
-        self
+    /// Maps the elements with a specified shape struct.
+    pub fn map_shape<T: Draw + Location + Hash + MinMax, S: Shape>(
+        self,
+        element: &[T],
+        shape: &S,
+    ) -> Self {
+        self.map_params(&element, &|_| true, shape)
     }
 
     /// Maps the elements without stabalizing the positions on the canvas.
@@ -718,6 +725,28 @@ impl Map {
             self.image = Some(IW { img: image });
         }
         self.map(element)
+    }
+
+    /// Maps the elements but with all added parameters.
+    pub fn map_params<T: Draw + Location + Hash + MinMax, S: Shape>(
+        mut self,
+        element: &[T],
+        filter: &Fn(&T) -> bool,
+        shape: &S,
+    ) -> Self {
+        if self.image.is_none() {
+            let (image, add) = map::gen_map(&element);
+            self.image = Some(IW { img: image });
+            self.add = add;
+        }
+
+        for e in element {
+            if !filter(e) {
+                continue;
+            }
+            self.image = Some(e.draw(self.image.unwrap(), self.add, shape));
+        }
+        self
     }
 }
 
