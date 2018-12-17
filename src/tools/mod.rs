@@ -284,10 +284,11 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     }
 
     while t > theta {
-        let point = from + Coordinate::new(
-            (r * theta.cos()) as i16,
-            (f64::from(s.y) * r * theta.sin() / 2.0) as i16,
-        );
+        let point = from
+            + Coordinate::new(
+                (r * theta.cos()) as i16,
+                (f64::from(s.y) * r * theta.sin() / 2.0) as i16,
+            );
         println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
         let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);
