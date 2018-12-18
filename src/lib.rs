@@ -401,20 +401,20 @@ impl Node {
     }
 
     /// Returns a specific link if it exists. Returns none if not.
-    pub fn hl(&self, index: usize) -> Option<&HL> {
+    pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() {
-            None
+            Err(std::io::Error::new(std::io::ErrorKind::Other, "index too large"))
         } else {
-            Some(&self.links[index])
+            Ok(&self.links[index])
         }
     }
 
     /// Returns a specific mut link if it exists. Returns none if not.
-    pub fn hl_mut(&mut self, index: usize) -> Option<&mut HL> {
+    pub fn hl_mut(&mut self, index: usize) -> std::io::Result<&mut HL> {
         if index > self.get_link_avail_index() {
-            None
+            Err(std::io::Error::new(std::io::ErrorKind::Other, "index too large"))
         } else {
-            Some(&mut self.links[index])
+            Ok(&mut self.links[index])
         }
     }
 

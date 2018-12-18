@@ -4,11 +4,6 @@ extern crate rand;
 use pathfinder::*;
 use std::path::Path;
 
-/*
-    Creates three groups filled with children randomly position within it's radius.
-    These numbers may need to be lowered depending on the machine.
-*/
-
 fn main() -> std::io::Result<()> {
     let mut groups = Vec::new();
     let coordinates = shape::Circle::new().area(30);
@@ -28,7 +23,7 @@ fn main() -> std::io::Result<()> {
         let mut group = Group::new_simple(c.x * spread, c.y * spread);
         group.radius(radius);
         group.color(tools::seed_rgba((i * 70) as u64));
-        map::network::add_children(&mut group, children);
+        group.add(children);
         groups.push(group);
     }
     Map::new().map(&groups).save(&Path::new("out.jpg"))
