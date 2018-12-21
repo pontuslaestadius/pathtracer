@@ -35,6 +35,8 @@ pub struct Coordinate {
     pub y: i16,
 }
 
+/// Connection between links. HL stands for HashLink, because it uses hashes for
+/// references to other points.
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HL {
     pub style: u8,
@@ -62,6 +64,7 @@ pub struct Group {
     pub nodes: Vec<Node>,
 }
 
+/// High abstraction maps points on to the image.
 #[derive(Clone, Debug, Default)]
 pub struct Map {
     image: Option<IW>,
@@ -75,6 +78,7 @@ pub struct Network<T: Draw + Hash + std::marker::Copy> {
 
 // ------------------------------------------------------------------
 
+/// Provides the functions to create the shape.
 pub trait Shape {
     fn new() -> Self;
     fn area(&self, size: u32) -> Vec<Coordinate>;
@@ -126,13 +130,12 @@ impl IW {
     /// Wraps around Image put_pixel but indicates failed positions.
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         if l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height() {
-            println!(
+            panic!(
                 "({}) out of bound of image ({}, {})",
                 l.position(),
                 self.img.width(),
                 self.img.height()
             );
-            return;
         }
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
@@ -403,7 +406,10 @@ impl Node {
     /// Returns a specific link if it exists. Returns none if not.
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() {
-            Err(std::io::Error::new(std::io::ErrorKind::Other, "index too large"))
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "index too large",
+            ))
         } else {
             Ok(&self.links[index])
         }
@@ -412,7 +418,10 @@ impl Node {
     /// Returns a specific mut link if it exists. Returns none if not.
     pub fn hl_mut(&mut self, index: usize) -> std::io::Result<&mut HL> {
         if index > self.get_link_avail_index() {
-            Err(std::io::Error::new(std::io::ErrorKind::Other, "index too large"))
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "index too large",
+            ))
         } else {
             Ok(&mut self.links[index])
         }
