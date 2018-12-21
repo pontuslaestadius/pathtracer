@@ -8,5 +8,8 @@ out.build
 *~
 *.log
 *.lock
+*.txt
+.*.png
+examples/out.*
 src/*.png
 src/*.jpg

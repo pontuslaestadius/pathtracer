@@ -128,6 +128,7 @@ pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: 
         let diff = p.geo - axis;
         let base = f64::from(diff.x).atan2(f64::from(diff.y));
         let angle = base + (deg * f64::consts::PI / 180.0);
+
         p.geo.y = axis.y + f64::round(angle.cos() * radius) as i16;
         p.geo.x = axis.x + f64::round(angle.sin() * radius) as i16;
     }

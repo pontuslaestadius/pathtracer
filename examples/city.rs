@@ -27,6 +27,6 @@ fn main() -> Result<(), std::io::Error> {
     });
 
     Map::new()
-        .map_filter(&pos, &|node: &Node| node.get_link_avail_index() > 0)
+        .map_filter(&pos, &|node: &Node| node.hl(0).is_ok())
         .save(&Path::new("out.png"))
 }

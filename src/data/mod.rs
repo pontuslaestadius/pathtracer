@@ -1,4 +1,4 @@
-use super::{coordinate, tools, Coordinate, Group};
+use super::{consts, coordinate, tools, Coordinate, Group};
 use std::{
     collections::hash_map::DefaultHasher,
     fs::OpenOptions,
@@ -11,10 +11,8 @@ pub struct CustomConverter<'a> {
     pub split: char,
     pub node_range: u32,
     pub radius: u32,
-    pub size: u64,
     pub lambda_tag: &'a Fn(&str) -> bool,
     pub link_groups: bool,
-    pub ignore_empty_lines: bool,
 }
 
 /// Reads from the provided file, and converts to a path network using default
@@ -36,8 +34,8 @@ fn content(path: &str) -> Result<String, io::Error> {
 /// Initializes a CustomConverter a converts the content to a vector of groups
 /// and links.
 pub fn convert(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
-    let cct = CustomConverter::new('\n', 120, 120, &lambda);
-    convert_inner(&content, &cct)
+    let cct = CustomConverter::new('\n', 30, 120, &lambda);
+    convert_inner(&content, &cct).unwrap()
 }
 
 impl<'a> CustomConverter<'a> {
@@ -53,9 +51,7 @@ impl<'a> CustomConverter<'a> {
             split,
             node_range,
             radius,
-            size: 500,
             lambda_tag,
-            ignore_empty_lines: true,
             link_groups: true,
         }
     }
@@ -63,44 +59,45 @@ impl<'a> CustomConverter<'a> {
 
 /// Constructs a vector of groups and links using a CustomConverter and the
 /// string to analyze.
-pub fn convert_inner(content: &str, cct: &CustomConverter) -> Vec<Group> {
-    let mut groups: Vec<Group> = Vec::new();
-    let lines = content.split(cct.split);
-    let coordinates = Coordinate::new(0, 0);
-    let mut gr_bool_arr: [bool; 500] = [false; 500];
+pub fn convert_inner(content: &str, cct: &CustomConverter) -> io::Result<Vec<Group>> {
+    let mut gr_bool_arr: [bool; consts::NETWORK_REM] = [false; consts::NETWORK_REM];
 
-    for line in lines {
-        if (cct.ignore_empty_lines && line == "") || !(cct.lambda_tag)(line) {
-            continue;
-        };
+    let lines = content
+        .split(cct.split)
+        .filter(|x| !x.is_empty() && (cct.lambda_tag)(x))
+        .collect::<Vec<_>>();
 
-        let hashed_line = calculate_hash(&line);
-        // Checks the boolean array position for the groups existence.
-        if gr_bool_arr[(hashed_line % cct.size) as usize] {
-            // Add a new node to the existing group.
-            let index = groups
-                .iter()
-                .position(|ref g| g.settings.hash == hashed_line)
-                .expect("Group located, but no hash matching.");
-            groups[index].new_node_min_max(index as u32, cct.node_range);
+    let lines = lines.iter().fold(vec![], |acc, hash| {
+        let hash = calculate_hash(hash);
+        let pos = (hash % consts::NETWORK_REM as u64) as usize;
+        if !gr_bool_arr[pos] {
+            gr_bool_arr[pos] = true;
+            push_group(acc, hash)
         } else {
-            gr_bool_arr[(hashed_line % cct.size) as usize] = true;
-            let mut group = Group::new(&line, coordinate::gen_radius(coordinates, 0, cct.radius));
-            group.settings.color = tools::seed_rgba(hashed_line);
-
-            if cct.link_groups && !groups.is_empty() {
-                let tmp = &groups[groups.len() - 1];
-                let n = if tmp.nodes.is_empty() {
-                    &tmp.settings
-                } else {
-                    &tmp.nodes[tmp.nodes.len() - 1]
-                };
-                group.settings.link(n);
-            }
-
-            groups.push(group);
+            push_node(acc, hash)
         }
+    });
+    Ok(lines)
+}
+
+fn push_group(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
+    let mut group = Group::new("", coordinate::gen_radius(Coordinate::new(1, 0), 0, 100));
+    group.settings.hash = hash;
+    group.settings.color = tools::seed_rgba(hash);
+    group.new_node_min_max(groups.len() as u32, 40);
+    if !groups.is_empty() {
+        group.nodes[0].link(groups.last().unwrap().nodes.last().unwrap());
     }
+    groups.push(group);
+    groups
+}
+
+fn push_node(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
+    let index = groups
+        .iter()
+        .position(|ref g| g.settings.hash == hash)
+        .expect("Group located, but no hash matching.");
+    groups[index].new_node_min_max(index as u32, 40);
     groups
 }
 
@@ -121,9 +118,9 @@ mod tests {
 
     fn eval_result(res: Vec<Group>) {
         assert_eq!(res.len(), 3);
-        assert_eq!(res[0].nodes.len(), 1);
-        assert_eq!(res[1].nodes.len(), 4);
-        assert_eq!(res[2].nodes.len(), 2);
+        assert_eq!(res[0].nodes.len(), 2);
+        assert_eq!(res[1].nodes.len(), 5);
+        assert_eq!(res[2].nodes.len(), 3);
     }
 
     #[test]
@@ -132,14 +129,12 @@ mod tests {
             split: '-',
             node_range: 10,
             radius: 50,
-            size: 50,
             lambda_tag: &|_x| true,
-            ignore_empty_lines: true,
             link_groups: true,
         };
 
         let content = "a-b-c-a-b-c-b--b-b-c";
-        let res = convert_inner(content, &cct);
+        let res = convert_inner(content, &cct).unwrap();
         eval_result(res);
     }
 
@@ -171,7 +166,7 @@ mod tests {
             if i == 0 {
                 break;
             }
-            let left = g.links()[0].t;
+            let left = g.nodes[0].hl(0).unwrap().t;
             assert_ne!(left, 0, "Result did not link forward. ({:?})", g.links());
         }
     }
