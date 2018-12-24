@@ -28,7 +28,9 @@ mod consts {
 
 // ------------------------------------------------------------------
 
-/// Holds a position used for Nodes and Groups.
+/// Holds a Coordinate on a x and y plane.
+/// It's implemented in Nodes, Groups, HL and the Location trait to enable differennt structures to
+/// be drawn.
 #[derive(Debug, Eq, Copy, Clone, Default)]
 pub struct Coordinate {
     pub x: i16,
@@ -46,7 +48,7 @@ pub struct HL {
     pub to: Option<Coordinate>,
 }
 
-/// A positioned object that can be drawn on an image::ImageBuffer.
+/// A Location object that can be drawn on an image, along with set size and color.
 #[derive(Copy, Clone, Debug)]
 pub struct Node {
     pub hash: u64,
@@ -58,19 +60,22 @@ pub struct Node {
 
 /// Holds a set of nodes and applies properties to all child nodes when drawn.
 /// The group itself has no displayed output and is not visible.
+/// It contains a Node used for Group meta data.
 #[derive(Clone, Debug)]
 pub struct Group {
     settings: Node,
     pub nodes: Vec<Node>,
 }
 
-/// High abstraction maps points on to the image.
+/// High abstraction Map which helps position objects.
 #[derive(Clone, Debug, Default)]
 pub struct Map {
     image: Option<IW>,
     add: Coordinate,
 }
 
+/// Enables traversing through a network of connected nodes.
+/// Checking if a path is valid and setting new paths.
 #[derive(Clone, Copy)]
 pub struct Network<T: Draw + Hash + std::marker::Copy> {
     pub hash_map: [Option<T>; consts::NETWORK_REM],
@@ -78,7 +83,7 @@ pub struct Network<T: Draw + Hash + std::marker::Copy> {
 
 // ------------------------------------------------------------------
 
-/// Provides the functions to create the shape.
+/// Provides the functions to create a generic shape.
 pub trait Shape {
     fn new() -> Self;
     fn area(&self, size: u32) -> Vec<Coordinate>;
@@ -86,6 +91,7 @@ pub trait Shape {
 
 // ------------------------------------------------------------------
 
+/// Provides the function to retrieve a hash from a structure.
 pub trait Hash {
     fn hash(&self) -> u64;
 }
@@ -118,16 +124,20 @@ impl std::fmt::Display for HL {
 
 // ------------------------------------------------------------------
 
-/// Image wrapper around the Image crate
+/// Image wrapper around the Image crate to enable better debugging panics.
 #[derive(Clone, Debug)]
 pub struct IW {
     img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
 }
 
 impl IW {
+    /// Retrieves the private image field.
     pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> { &self.img }
 
     /// Wraps around Image put_pixel but indicates failed positions.
+    /// ```
+    /// 
+    /// ```
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         if l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height() {
             panic!(
@@ -147,7 +157,9 @@ impl IW {
 
 // ------------------------------------------------------------------
 
+/// Makes it possible to find connected nodes in networks.
 pub trait Find: Hash + Location {
+    /// Matches the Hashes and returns Some if it matches.
     fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
         if self.hash() == hash.hash() {
             return Some(self.position());
@@ -161,6 +173,7 @@ impl Find for HL {}
 impl Find for Node {}
 
 impl Find for Group {
+    /// Recursively calls find as the group contains sets of Nodes.
     fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
         let f = tools::find(hash.hash(), &self.nodes);
         f.and_then(|x| Some(x.position()))
@@ -169,6 +182,7 @@ impl Find for Group {
 
 // ------------------------------------------------------------------
 
+/// Enables retrieving the minimum and maximum position for the structure.
 pub trait MinMax {
     fn min_max(&self) -> (Coordinate, Coordinate);
 }
@@ -200,11 +214,21 @@ impl MinMax for Group {
 
 // ------------------------------------------------------------------
 
+/// Enables the structure to be located by X or Y.
 pub trait Location {
+
+    /// Retrieves the position Coordinates.
     fn position(&self) -> Coordinate;
 
+    /// Returns if the positions are equal or not.
+    fn eq<L: Location>(&self, other: &L) -> bool {
+        self.position() == other.position()
+    }
+
+    /// Retrieves the X coordinate.
     fn x(&self) -> i16 { self.position().x }
 
+    /// Retrieves the Y coordinate.
     fn y(&self) -> i16 { self.position().y }
 }
 
@@ -229,6 +253,7 @@ impl Location for Coordinate {
 
 // ------------------------------------------------------------------
 
+/// Functions required to draw the structure on the image.
 pub trait Draw {
     fn draw<S: Shape>(&self, image: IW, offset: Coordinate, shape: &S) -> IW;
     fn size(&self) -> u32;
@@ -338,9 +363,19 @@ impl Coordinate {
     }
 
     /// Returns true if either x or y is less than the input.
+    /// ```
+    /// # use pathfinder::Coordinate;
+    /// let c = Coordinate::new(10, 10);
+    /// assert!(c.lt(11));
+    /// ```
     pub fn lt(self, lt: i16) -> bool { self.x < lt || self.y < lt }
 
-    /// Returns the absolute i.e. the positive equivilent.
+    /// Returns the absolute/positive equivilent.
+    /// ```
+    /// # use pathfinder::Coordinate;
+    /// let c = Coordinate::new(-10, 10);
+    /// assert_eq!(c.abs(), Coordinate::new(10, 10));
+    /// ```
     pub fn abs(self) -> Coordinate { Coordinate::new(self.x.abs(), self.y.abs()) }
 
     /// Creates a list of coordinates from a list of tuples with x and y
@@ -373,7 +408,6 @@ impl Node {
 
     /// Converts a list of tuples (x,y) to a Vector of Nodes.
     /// Names are assigned from "A" and upwards automatically.
-    ///
     /// ```
     /// use pathfinder::Node;
     /// let list = [(0, 0), (10, 10), (15, 15)];
@@ -393,9 +427,8 @@ impl Node {
 
     /// Links a list of nodes together in the order they are indexed.
     /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
-    ///
     /// ```
-    /// use pathfinder::Node;
+    /// # use pathfinder::Node;
     /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     /// let linked_list = Node::linked_list(nodes);
     /// ```
@@ -404,8 +437,21 @@ impl Node {
     }
 
     /// Returns a specific link if it exists. Returns none if not.
+    /// ```
+    /// # use pathfinder::{Coordinate, Node};
+    /// let node = Node::new("", Coordinate::new(0, 0));
+    /// let hl = node.hl(0);
+    /// assert!(hl.is_err());
+    /// ```
+    /// ```
+    /// # use pathfinder::{Coordinate, Node};
+    /// let a = Node::new("A", Coordinate::new(0, 0));
+    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// b.link(&a);
+    /// assert!(b.hl(0).is_ok());
+    /// ```
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
-        if index > self.get_link_avail_index() {
+        if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "index too large",
@@ -415,9 +461,9 @@ impl Node {
         }
     }
 
-    /// Returns a specific mut link if it exists. Returns none if not.
+    /// See Node::hl for examples. Returns a mutable variant.
     pub fn hl_mut(&mut self, index: usize) -> std::io::Result<&mut HL> {
-        if index > self.get_link_avail_index() {
+        if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "index too large",
@@ -429,7 +475,6 @@ impl Node {
 
     /// Links a list of nodes together in the order they are indexed.
     /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
-    ///
     /// ```
     /// use pathfinder::Node;
     /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
@@ -457,22 +502,34 @@ impl Node {
     }
 
     /// Returns the next point which is available to link.
+    /// ```
+    /// # use pathfinder::{Coordinate, Node};
+    /// let a = Node::new("A", Coordinate::new(0, 0));
+    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// assert_eq!(b.get_link_avail_index(), 0);
+    /// b.link(&a);
+    /// assert_eq!(b.get_link_avail_index(), 1);
+    /// ```
     pub fn get_link_avail_index(&self) -> usize {
-        for (i, link) in self.links().iter().enumerate() {
-            if !link.is_connected() {
-                return i;
-            }
-        }
-        consts::MAX_LINKS - 1
+        self.links().iter().position(|x| !x.is_connected()).or(Some(consts::MAX_LINKS - 1)).unwrap()
     }
 
-    /// Removes all connects leaving this node.
+    /// Removes all connects leaving this node. This still leaves connections going towards this
+    /// node.
+    /// ```
+    /// # use pathfinder::{Coordinate, Node};
+    /// let a = Node::new("A", Coordinate::new(0, 0));
+    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// b.link(&a);
+    /// assert!(b.hl(0).is_ok());
+    /// b.disconnect();
+    /// assert!(b.hl(0).is_err());
+    /// ```
     pub fn disconnect(&mut self) { self.links = [HL::new(0, 0); consts::MAX_LINKS]; }
 
     /// Links Node self to another point that has Hash and Location implemented.
-    ///
     /// ```
-    /// use pathfinder::{Coordinate, Location, Node};
+    /// # use pathfinder::{Coordinate, Location, Node};
     /// let b: Node = Node::new("B", Coordinate::new(100, 100));
     /// let mut a: Node = Node::new("A", Coordinate::new(0, 0));
     /// a.link(&b);
@@ -502,16 +559,18 @@ impl HL {
     }
 
     /// Style setter. Values are:
-    /// 0: Default value, bresenhem lines.
+    /// 0: Bresenhem.
     /// 1: Straight.
-    /// 2: Coming in 0.5.6. Ellipse
+    /// 2: Ellipse.
     pub fn style(&mut self, s: u8) { self.style = s; }
 
+    /// Checks if the HL has two endpoint hashes.
     pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
+    /// Draws the HL on an Image Wrapper.
     fn draw(&self, mut image: IW, mut offset: Coordinate, size: u32) -> IW {
         let (mut from, mut to) = self.min_max();
-        if self.f == 0 || self.t == 0 || from == to {
+        if !self.is_connected() || from == to {
             return image;
         }
         let s = (size / 2) as i16;
@@ -551,16 +610,19 @@ impl Group {
     /// Adds a Node dynamically to the Group.
     pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
 
+    /// Set the radius for the group's meta-data.
     pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
 
+    /// Retrieves the nodes drawing in the group. Positions are relative to the group.
     pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
-    pub fn node(&self) -> &Node { &self.settings }
+    /// Retrieves a mutable group meta data.
+    pub fn set(&mut self) -> &mut Node { &mut self.settings }
 
     /// Adds a set of nodes randomly located inside the group.
     pub fn add(&mut self, nr: u32) { map::network::add_children(self, nr); }
 
-    /// Applies the lambda function over each mutable child node.
+    /// Applies the closure over each mutable child node.
     pub fn each(&mut self, func: &Fn(&mut Node)) {
         for node in self.nodes.iter_mut() {
             func(node);
@@ -571,7 +633,7 @@ impl Group {
     pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
 
     /// Plots node according to the fn provided.
-    /// The provided function value is the number of children the group has.
+    /// The closure parameter is the number of children the group has.
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
         let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
@@ -624,7 +686,6 @@ impl Group {
 
     /// Converts a list of tuples (x,y) to a Vector of Groups.
     /// Names are assigned from "A" and upwards automatically.
-    ///
     /// ```
     /// use pathfinder::Group;
     /// let list = [(0, 0), (10, 10), (15, 15)];
@@ -672,7 +733,6 @@ impl Map {
     }
 
     /// Saves the image to disk. Can be absolute or relative path.
-    ///
     /// # Examples
     /// ```
     /// # use pathfinder::*;
@@ -691,7 +751,6 @@ impl Map {
     pub fn consume(self) -> IW { self.image.unwrap() }
 
     /// Maps any struct that has implemented Draw, on to an ImageBuffer.
-    ///
     /// # Examples
     /// ```
     /// # use pathfinder::*;
@@ -760,7 +819,6 @@ impl Map {
 
 impl Network<Node> {
     /// Calculates the path from node A to node B.
-    ///
     /// # Examples
     /// ```
     /// use pathfinder::{Coordinate, Network, Node};
@@ -782,7 +840,6 @@ impl Network<Node> {
     }
 
     /// Returns if the given hash exists in the network.
-    ///
     /// # Examples
     /// ```
     /// use pathfinder::{Coordinate, Network, Node};

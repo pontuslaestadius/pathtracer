@@ -7,6 +7,7 @@
 
 
 # Pathfinder
+
 > Easily create large number of Connected points mapped on to an Image or Gif.
 
 
@@ -26,18 +27,9 @@ Properties like width and height are internally managed.
 * [Gifs](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world_gif.rs)
 
 
-### Major structs
-
-Coordinate - Holds the position and performs low-level calculations for positioning.
-
-Node - Includes Coordinate, and adds customizations like color, size and connecting to other Nodes.
-
-Group - Includes Nodes in larger numbers which normalizes around it's axis.
-
-
 ## Example
 
-Easily manipulate large number of Nodes with less accuracy.
+Easily manipulate large number of Nodes with less accuracy through Groups.
 
 ```rust
 use pathfinder::{Group, map};
