@@ -321,6 +321,50 @@ impl Draw for Group {
 
 // ------------------------------------------------------------------
 
+impl From<Coordinate> for Node {
+    fn from(c: Coordinate) -> Self {
+        let mut node = Node::new("", c);
+        node.hash = (c.x + c.y) as u64;
+        node
+    }
+}
+
+impl From<Group> for Node {
+    fn from(group: Group) -> Self {
+        group.settings
+    }
+}
+
+impl From<Coordinate> for Group {
+    fn from(c: Coordinate) -> Self {
+        let mut group = Group::new_simple(c.x, c.y);
+        group.set().hash = (c.x + c.y) as u64;
+        group
+    }
+}
+
+impl From<Node> for Group {
+    fn from(node: Node) -> Self {
+        let mut group = Group::new_simple(node.x(), node.y());
+        group.settings = node;
+        group
+    }
+}
+
+impl From<Node> for Coordinate {
+    fn from(node: Node) -> Self {
+        node.position()
+    }
+}
+
+impl From<Group> for Coordinate {
+    fn from(group: Group) -> Self {
+        group.position()
+    }
+}
+
+// ------------------------------------------------------------------
+
 impl std::ops::Add for Coordinate {
     type Output = Coordinate;
 

@@ -1,5 +1,8 @@
+mod from;
+
 #[cfg(test)]
 mod tests {
+
 
     // Seperate from other tests, since it tests from_list for all
     // classes that have it.
