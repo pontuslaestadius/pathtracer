@@ -231,6 +231,11 @@ pub trait Location {
 
     /// Retrieves the Y coordinate.
     fn y(&self) -> i16 { self.position().y }
+
+    /// Returns the sum of the x and y value.
+    fn sum(&self) -> i16 {
+        self.x() + self.y()
+    }
 }
 
 impl Location for HL {

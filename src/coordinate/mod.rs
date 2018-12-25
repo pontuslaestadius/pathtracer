@@ -23,7 +23,6 @@ pub fn gen() -> Coordinate {
 }
 
 /// Get a coordinate based of a function.
-///
 /// # Examples
 /// ```
 /// use pathfinder::{coordinate::*, Coordinate};
@@ -41,13 +40,12 @@ pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) 
 }
 
 /// Get difference in distance.
-///
 /// # Examples
 /// ```
-/// use pathfinder::{coordinate::*, Coordinate};
+/// # use pathfinder::{coordinate::*, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
 /// let c2 = Coordinate::new(100, 100);
-/// let difference = c1.diff(&c2);
+/// let difference = diff(c1, c2);
 /// assert_eq!(difference, (100, 100));
 /// ```
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
@@ -56,13 +54,12 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 }
 
 /// Get the distance between two Coordinates'.
-///
 /// # Examples
 /// ```
-/// use pathfinder::{coordinate::distance, Coordinate};
+/// # use pathfinder::{coordinate, Coordinate};
 /// let a = Coordinate::new(0, 0);
 /// let b = Coordinate::new(3, 4);
-/// let distance = distance(a, b);
+/// let distance = coordinate::distance(a, b);
 /// assert_eq!(distance, 5);
 /// ```
 pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
@@ -72,7 +69,6 @@ pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within
 /// a radius.
-///
 /// # Examples
 /// ```
 /// use pathfinder::{coordinate::*, Coordinate};
@@ -85,12 +81,11 @@ pub fn gen_within_radius(coord: Coordinate, radius: u32) -> Coordinate {
 
 /// Generate a Coordinate from a given Coordinate and randomly places it within
 /// a min and max radius.
-///
 /// # Examples
 /// ```
-/// use pathfinder::{coordinate::*, Coordinate};
+/// # use pathfinder::{coordinate, Coordinate};
 /// let c1 = Coordinate::new(0, 0);
-/// let c2 = gen_radius(c1, 50, 100);
+/// let c2 = coordinate::gen_radius(c1, 50, 100);
 /// ```
 pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     // Randomly gets the radius of the circle.
@@ -110,7 +105,6 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
 }
 
 /// Rotates the provide Vec around the axis inplace.
-///
 /// # Examples
 /// ```
 /// # use pathfinder::{coordinate::*, Coordinate, Node};
