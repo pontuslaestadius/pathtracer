@@ -1,11 +1,38 @@
-use super::super::{Map, IW};
+use super::super::*;
 use gif::{self, *};
 use std::{fs::File, io};
+
+struct Cycle<T: Draw + Location + Hash + MinMax + Copy> {
+    interval: u8,
+    count: u8,
+    map: Vec<T>
+}
+
+impl<T: Draw + Location + Hash + MinMax + Copy> Cycle<T> {
+    pub fn new(interval: u8, map: Vec<T>) -> Self {
+        Cycle {
+            interval,
+            map,
+            count: interval,
+        }
+    }
+
+    pub fn then(&mut self) -> Option<Vec<T>> {
+        self.count -= 1;
+        if self.count == 0 {
+            self.count = self.interval;
+            Some(self.map.clone())
+        } else {
+            None
+        }
+    }
+}
 
 pub struct Gif {
     pub encoder: Option<gif::Encoder<File>>,
     pub width: u16,
     pub height: u16,
+    cycles: Vec<Cycle<Node>>,
 }
 
 impl Gif {
@@ -16,7 +43,25 @@ impl Gif {
             encoder: None,
             width,
             height,
+            cycles: Vec::new()
         }
+    }
+
+    /// Adds in a repeating patttern every interval frame on to the gif image.
+    pub fn add_cycle(&mut self, interval: u8, map: Vec<Node>) {
+        self.cycles.push(Cycle::new(interval, map));
+    }
+
+    /// Advances the cycles and returns the patterns it matched.
+    pub fn advance_cycle(&mut self) -> Vec<Node> {
+        let mut result = Vec::new();
+        for cycle in self.cycles.iter_mut() {
+            match cycle.then() {
+                Some(mut e) => result.append(&mut e),
+                None => (),
+            }
+        }
+        result
     }
 
     /// Initializes image encoder and creates output file.
@@ -29,7 +74,8 @@ impl Gif {
     }
 
     /// Pushes a frame using a map struct.
-    pub fn push_map(&mut self, map: Map) -> Result<(), io::Error> {
+    pub fn push_map(&mut self, mut map: Map) -> Result<(), io::Error> {
+        map = map.map(&self.advance_cycle());
         self.push_frame(&map.consume())
     }
 
