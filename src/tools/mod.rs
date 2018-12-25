@@ -53,9 +53,9 @@ pub fn range_color(
     base_geo: Coordinate,
     to_geo: Coordinate,
 ) -> image::Rgba<u8> {
-    let (x_dif, y_dif) = base_geo.diff(&to_geo);
-    let x_scale: f64 = f64::from(x_dif) / f64::from(falloff);
-    let y_scale: f64 = f64::from(y_dif) / f64::from(falloff);
+    let diff = (base_geo - to_geo).abs();
+    let x_scale: f64 = f64::from(diff.x) / f64::from(falloff);
+    let y_scale: f64 = f64::from(diff.y) / f64::from(falloff);
     let max_multi: f64 =
         f64::from(i32::from(base[0]) + i32::from(base[1]) + i32::from(base[2]) / 3);
     let modify = (-max_multi * (x_scale + y_scale) / 2.0) as i32;
@@ -284,11 +284,8 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     }
 
     while t > theta {
-        let point = from
-            + Coordinate::new(
-                (r * theta.cos()) as i16,
-                (f64::from(s.y) * r * theta.sin() / 2.0) as i16,
-            );
+        let point =
+            from + Coordinate::new((r * theta.cos()) as i16, (f64::from(s.y) * r * theta.sin() / 2.0) as i16);
         println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
         let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);

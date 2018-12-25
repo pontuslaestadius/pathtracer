@@ -13,6 +13,7 @@ pub mod node;
 pub mod shape;
 pub mod tools;
 
+#[cfg(test)]
 mod tests;
 
 mod consts {
@@ -400,11 +401,6 @@ impl std::ops::SubAssign for Coordinate {
 impl Coordinate {
     /// Constructs a Coordinate struct.
     pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
-
-    /// Calculates the different in x and y of two Coordinates.
-    pub fn diff<L: Location>(self, other: &L) -> (i16, i16) {
-        coordinate::diff(self, other.position())
-    }
 
     /// Returns true if either x or y is less than the input.
     /// ```
