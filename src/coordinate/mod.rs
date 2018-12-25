@@ -51,8 +51,8 @@ pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) 
 /// assert_eq!(difference, (100, 100));
 /// ```
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
-    let d = c1 - c2;
-    (d.x.abs(), d.y.abs())
+    let c = (c1 - c2).abs();
+    (c.x, c.y)
 }
 
 /// Get the distance between two Coordinates'.
@@ -257,10 +257,10 @@ mod tests {
         let co2: Coordinate = Coordinate::new(102, 102);
         let co3: Coordinate = Coordinate::new(-102, -102);
 
-        assert!(co1.diff(&co2) == (101, 101));
-        assert!(co1.diff(&co3) == (103, 103));
-        assert!(co2.diff(&co3) == (204, 204));
-        assert!(co1.diff(&co1) == (0, 0));
+        assert!(diff(co1, co2) == (101, 101));
+        assert!(diff(co1, co3) == (103, 103));
+        assert!(diff(co2, co3) == (204, 204));
+        assert!(diff(co1, co1) == (0, 0));
     }
 
     #[test]

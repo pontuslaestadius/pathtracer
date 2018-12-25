@@ -1,7 +1,7 @@
 cache: cargo
 language: rust
 rust:
-  - nightly
+  - beta
 before_script:
   - rustup component add rustfmt-preview
   - rustup component add clippy-preview
