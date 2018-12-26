@@ -57,32 +57,35 @@ impl<'a> Gif<'a> {
 
     /// Adds in a repeating patttern every interval frame on to the gif image.
     pub fn cycle(&mut self, interval: u8, map: Vec<Node>) {
-        self.cycles.push(Cycle::new(interval, map, &|x|*x));
+        self.cycles.push(Cycle::new(interval, map, &|x| *x));
     }
 
     /// Adds in a repeating patttern every interval frame on to the gif image.
-    pub fn cycle_predicate(&mut self, interval: u8, map: Vec<Node>, predicate: &'a Fn(&Node) -> Node) {
+    pub fn cycle_predicate(
+        &mut self,
+        interval: u8,
+        map: Vec<Node>,
+        predicate: &'a Fn(&Node) -> Node,
+    ) {
         self.cycles.push(Cycle::new(interval, map, predicate));
     }
 
     /// Removes all cycles from the gif.
-    pub fn remove_cycles(&mut self) {
-        self.cycles = Vec::new();
-    }
+    pub fn remove_cycles(&mut self) { self.cycles = Vec::new(); }
 
     /// Advances the cycles and returns the patterns it matched.
     pub fn advance_cycle(&mut self) -> Vec<Node> {
         let mut result = Vec::new();
         for cycle in self.cycles.iter_mut() {
-            if let Some(mut e) = cycle.then() { result.append(&mut e) }
+            if let Some(mut e) = cycle.then() {
+                result.append(&mut e)
+            }
         }
         result
     }
 
     /// Returns the number of frames that has been written.
-    pub fn frames(&self) -> u16 {
-        self.frames
-    }
+    pub fn frames(&self) -> u16 { self.frames }
 
     /// Pushes a frame using a map struct.
     pub fn push(&mut self, mut map: Map) -> Result<(), io::Error> {
@@ -110,7 +113,10 @@ impl<'a> Gif<'a> {
 
     /// Appends a blank frame to the gif.
     pub fn blank(&mut self) -> Result<(), io::Error> {
-        let mut node = Node::new("", Coordinate::new(self.width as i16 -1, self.height as i16 -1));
+        let mut node = Node::new(
+            "",
+            Coordinate::new(self.width as i16 - 1, self.height as i16 - 1),
+        );
         node.radius = Some(0);
         self.push(Map::new().map(&[node]))
     }

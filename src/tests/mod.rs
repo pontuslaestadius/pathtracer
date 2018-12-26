@@ -1,5 +1,5 @@
-mod from;
 mod examples;
+mod from;
 mod from_list;
 
 #[cfg(test)]
@@ -96,7 +96,7 @@ mod integration {
             a.settings.link(&b);
             b.set().link(&a);
             b.settings.link(&a);
-            
+
             assert!(a.settings.hl(0).is_ok());
             assert!(b.settings.hl(0).is_ok());
 
@@ -109,22 +109,25 @@ mod integration {
         fn max_links() {
             let mut a = Node::new("A", Coordinate::new(0, 0));
             let nodes = Node::linked_list(Node::from_list(&[
-                (0,0),
-                (1,1),
-                (2,2),
-                (3,3),
-                (4,4),
-                (5,5),
-                (6,6),
-                (7,7),
-                (8,8),
-                (9,9)
+                (0, 0),
+                (1, 1),
+                (2, 2),
+                (3, 3),
+                (4, 4),
+                (5, 5),
+                (6, 6),
+                (7, 7),
+                (8, 8),
+                (9, 9),
             ]));
 
             for (i, node) in nodes.iter().enumerate() {
                 a.link(node);
                 if i < 5 {
-                    assert!(a.hl(i).is_ok(), format!("expected {}, got {}", i, a.get_link_avail_index()));
+                    assert!(
+                        a.hl(i).is_ok(),
+                        format!("expected {}, got {}", i, a.get_link_avail_index())
+                    );
                 } else {
                     assert!(a.hl(i).is_err(), "Exceeding max_link should return Err");
                 }
