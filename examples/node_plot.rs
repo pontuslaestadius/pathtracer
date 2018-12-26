@@ -11,8 +11,7 @@ fn main() -> std::io::Result<()> {
     let x_max: i16 = (width / radius) as i16;
     let frame_rot = f64::from(90 / (frames - 1));
     let count = x_max * (height / radius) as i16;
-    let mut gif = Gif::new(width, height + 10);
-    let _ = gif.init("out.gif")?;
+    let mut gif = Gif::new("out.gif", width, height + 10);
 
     let f = |i: usize, d: f64| -> Coordinate {
         let i = i as f64;
@@ -45,7 +44,7 @@ fn main() -> std::io::Result<()> {
             g.rotate(frame_rot);
         }
 
-        gif.push_map(Map::new().map(&groups))?;
+        gif.push(Map::new().map(&groups))?;
     }
     Ok(())
 }
