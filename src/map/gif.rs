@@ -126,51 +126,62 @@ impl<'a> Gif<'a> {
 mod tests {
     use super::*;
 
+    fn define(case: &Fn(Gif) -> std::io::Result<()>) {
+        let gif = Gif::new("test_gif_new.gif", 50, 50);
+        case(gif).unwrap();
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+    }
+
     #[test]
     fn test_gif_new() {
-        let _ = Gif::new("test_gif_new.gif", 50, 50);
-        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+        define(&|_| {
+            Ok(())
+        });
     }
 
     #[test]
     fn blank_frames() {
-        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
-        assert_eq!(gif.frames(), 0);
-        gif.blank().unwrap();
-        assert_eq!(gif.frames(), 1);
-        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+        define(&|mut gif| {
+            assert_eq!(gif.frames(), 0);
+            gif.blank()?;
+            assert_eq!(gif.frames(), 1);
+            Ok(())
+        });
     }
 
     #[test]
     fn cycles_predicate() {
-        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
-        gif.cycle_predicate(1, vec![Node::new("", Coordinate::new(25, 25))], &|x| {
-            let mut x = x.clone();
-            x.geo.x += 5;
-            x
+        define(&|mut gif| {
+            gif.cycle_predicate(1, vec![Node::new("", Coordinate::new(25, 25))], &|x| {
+                let mut x = x.clone();
+                x.geo.x += 5;
+                x
+            });
+            assert_eq!(gif.advance_cycle()[0].x(), 30);
+            assert_eq!(gif.advance_cycle()[0].x(), 35);
+            assert_eq!(gif.advance_cycle()[0].x(), 40);
+            Ok(())
         });
-        assert_eq!(gif.advance_cycle()[0].x(), 30);
-        assert_eq!(gif.advance_cycle()[0].x(), 35);
-        assert_eq!(gif.advance_cycle()[0].x(), 40);
-        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
     }
 
     #[test]
     fn cycles_every_frame() {
-        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
-        gif.cycle(1, vec![Node::new("", Coordinate::new(25, 25))]);
-        assert_eq!(gif.advance_cycle().len(), 1);
-        assert_eq!(gif.advance_cycle().len(), 1);
-        assert_eq!(gif.advance_cycle().len(), 1);
-        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+        define(&|mut gif| {
+            gif.cycle(1, vec![Node::new("", Coordinate::new(25, 25))]);
+            assert_eq!(gif.advance_cycle().len(), 1);
+            assert_eq!(gif.advance_cycle().len(), 1);
+            assert_eq!(gif.advance_cycle().len(), 1);
+            Ok(())
+        });
     }
 
     #[test]
     fn cycles_every_other() {
-        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
-        gif.cycle(2, vec![Node::new("", Coordinate::new(25, 25))]);
-        assert!(gif.advance_cycle().is_empty());
-        assert_eq!(gif.advance_cycle().len(), 1);
-        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+        define(&|mut gif| {
+            gif.cycle(2, vec![Node::new("", Coordinate::new(25, 25))]);
+            assert!(gif.advance_cycle().is_empty());
+            assert_eq!(gif.advance_cycle().len(), 1);
+            Ok(())
+        });
     }
 }
