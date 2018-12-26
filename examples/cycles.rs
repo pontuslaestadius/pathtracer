@@ -13,19 +13,19 @@ fn main() -> std::io::Result<()> {
         (70, 70),
         (40, 70),
         (49, 78),
-        (37, 62),
         (27, 82),
         (15, 92),
         (30, 71),
         (60, 100),
         (50, 92),
+        (25, 85)
     ]);
 
     for n in balls.iter_mut() {
         n.color = image::Rgba([255, 50, 50, 255]);
     }
 
-    gif.add_cycle(2, balls);
+    gif.cycle(2, balls);
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("Can't plant nodes without config file.");
@@ -36,8 +36,9 @@ fn main() -> std::io::Result<()> {
         n.color = image::Rgba([0, 100, 0, 255]);
     }
 
+    gif.cycle(1, nodes);
     for _ in 0..10 {
-        gif.push(Map::new().map(&nodes))?
+        gif.blank()?;
     }
     Ok(())
 }
