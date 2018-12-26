@@ -7,8 +7,7 @@ use pathfinder::{map::gif::*, *};
 use std::env;
 
 fn main() -> std::io::Result<()> {
-    let mut gif = Gif::new(150, 200);
-    let _ = gif.init("out.gif")?;
+    let mut gif = Gif::new("out.gif", 150, 200);
     let mut balls = Node::from_list(&[
         (50, 55),
         (70, 70),
@@ -38,7 +37,7 @@ fn main() -> std::io::Result<()> {
     }
 
     for _ in 0..10 {
-        gif.push_map(Map::new().map(&nodes))?
+        gif.push(Map::new().map(&nodes))?
     }
     Ok(())
 }

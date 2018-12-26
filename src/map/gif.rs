@@ -29,27 +29,33 @@ impl<T: Draw + Location + Hash + MinMax + Copy> Cycle<T> {
 }
 
 pub struct Gif {
-    pub encoder: Option<gif::Encoder<File>>,
-    pub width: u16,
-    pub height: u16,
+    encoder: gif::Encoder<File>,
     cycles: Vec<Cycle<Node>>,
+    frames: u16,
 }
 
 impl Gif {
     /// Constructs a Gif struct and initializes a file on the system for the
     /// Gif to be stored.
-    pub fn new(width: u16, height: u16) -> Self {
+    pub fn new(filename: &str, width: u16, height: u16) -> Self {
+        let file = File::create(filename).unwrap();
+        let mut encoder = Encoder::new(file, width, height, &[]).unwrap();
+        encoder.set(Repeat::Infinite).unwrap();
         Gif {
-            encoder: None,
-            width,
-            height,
-            cycles: Vec::new()
+            encoder,
+            cycles: Vec::new(),
+            frames: 0
         }
     }
 
     /// Adds in a repeating patttern every interval frame on to the gif image.
     pub fn add_cycle(&mut self, interval: u8, map: Vec<Node>) {
         self.cycles.push(Cycle::new(interval, map));
+    }
+
+    /// Removes all cycles from the gif.
+    pub fn remove_cycles(&mut self) {
+        self.cycles = Vec::new();
     }
 
     /// Advances the cycles and returns the patterns it matched.
@@ -64,17 +70,13 @@ impl Gif {
         result
     }
 
-    /// Initializes image encoder and creates output file.
-    pub fn init(&mut self, output: &str) -> Result<(), io::Error> {
-        let file = File::create(output)?;
-        let mut encoder = Encoder::new(file, self.width, self.height, &[])?;
-        encoder.set(Repeat::Infinite)?;
-        let _ = self.encoder.get_or_insert(encoder);
-        Ok(())
+    /// Returns the number of frames that has been written.
+    pub fn frames(&self) -> u16 {
+        self.frames
     }
 
     /// Pushes a frame using a map struct.
-    pub fn push_map(&mut self, mut map: Map) -> Result<(), io::Error> {
+    pub fn push(&mut self, mut map: Map) -> Result<(), io::Error> {
         map = map.map(&self.advance_cycle());
         self.push_frame(&map.consume())
     }
@@ -87,30 +89,40 @@ impl Gif {
                 pixels.push(pix.data[i]);
             }
         }
+
         let dim = image.dimensions();
         let mut frame = Frame::from_rgba(dim.x as u16, dim.y as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
         frame.delay = 20;
-        let mut e = self.encoder.take().unwrap();
-        e.write_frame(&frame)?;
-        let _ = self.encoder.get_or_insert(e);
+        self.encoder.write_frame(&frame)?;
+        self.frames += 1;
         Ok(())
+    }
+
+    /// Appends a blank frame to the gif.
+    pub fn blank(&mut self) -> Result<(), io::Error> {
+        let mut node = Node::new("", Coordinate::new(0, 0));
+        node.radius = Some(0);
+        self.push(Map::new().map(&[node]))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
 
     #[test]
     fn test_gif_new() {
-        let mut gif = Gif::new(50, 50);
-        let output = "test_gif_new.gif";
-        let init_res = gif.init(output);
-        assert!(init_res.is_ok());
-        assert!(gif.width == 50 && gif.height == 50);
-        let _ = fs::remove_file(output).unwrap();
+        let gif = Gif::new("test_gif_new.gif", 50, 50);
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
     }
 
+    #[test]
+    fn blank_frames() {
+        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
+        assert_eq!(gif.frames(), 0);
+        gif.blank();
+        assert_eq!(gif.frames(), 1);
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+    }
 }
