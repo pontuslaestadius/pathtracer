@@ -18,7 +18,7 @@ fn main() -> std::io::Result<()> {
         (30, 71),
         (60, 100),
         (50, 92),
-        (25, 85)
+        (25, 85),
     ]);
 
     for n in balls.iter_mut() {

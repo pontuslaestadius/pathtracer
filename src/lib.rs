@@ -30,8 +30,8 @@ mod consts {
 // ------------------------------------------------------------------
 
 /// Holds a Coordinate on a x and y plane.
-/// It's implemented in Nodes, Groups, HL and the Location trait to enable differennt structures to
-/// be drawn.
+/// It's implemented in Nodes, Groups, HL and the Location trait to enable
+/// differennt structures to be drawn.
 #[derive(Debug, Eq, Copy, Clone, Default)]
 pub struct Coordinate {
     pub x: i16,
@@ -49,7 +49,8 @@ pub struct HL {
     pub to: Option<Coordinate>,
 }
 
-/// A Location object that can be drawn on an image, along with set size and color.
+/// A Location object that can be drawn on an image, along with set size and
+/// color.
 #[derive(Copy, Clone, Debug)]
 pub struct Node {
     pub hash: u64,
@@ -218,14 +219,11 @@ impl MinMax for Group {
 
 /// Enables the structure to be located by X or Y.
 pub trait Location {
-
     /// Retrieves the position Coordinates.
     fn position(&self) -> Coordinate;
 
     /// Returns if the positions are equal or not.
-    fn eq<L: Location>(&self, other: &L) -> bool {
-        self.position() == other.position()
-    }
+    fn eq<L: Location>(&self, other: &L) -> bool { self.position() == other.position() }
 
     /// Retrieves the X coordinate.
     fn x(&self) -> i16 { self.position().x }
@@ -234,9 +232,7 @@ pub trait Location {
     fn y(&self) -> i16 { self.position().y }
 
     /// Returns the sum of the x and y value.
-    fn sum(&self) -> i16 {
-        self.x() + self.y()
-    }
+    fn sum(&self) -> i16 { self.x() + self.y() }
 }
 
 impl Location for HL {
@@ -337,9 +333,7 @@ impl From<Coordinate> for Node {
 }
 
 impl From<Group> for Node {
-    fn from(group: Group) -> Self {
-        group.settings
-    }
+    fn from(group: Group) -> Self { group.settings }
 }
 
 impl From<Coordinate> for Group {
@@ -359,15 +353,11 @@ impl From<Node> for Group {
 }
 
 impl From<Node> for Coordinate {
-    fn from(node: Node) -> Self {
-        node.position()
-    }
+    fn from(node: Node) -> Self { node.position() }
 }
 
 impl From<Group> for Coordinate {
-    fn from(group: Group) -> Self {
-        group.position()
-    }
+    fn from(group: Group) -> Self { group.position() }
 }
 
 // ------------------------------------------------------------------
@@ -557,11 +547,15 @@ impl Node {
     /// assert_eq!(b.get_link_avail_index(), 1);
     /// ```
     pub fn get_link_avail_index(&self) -> usize {
-        self.links().iter().position(|x| !x.is_connected()).or(Some(consts::MAX_LINKS - 1)).unwrap()
+        self.links()
+            .iter()
+            .position(|x| !x.is_connected())
+            .or(Some(consts::MAX_LINKS - 1))
+            .unwrap()
     }
 
-    /// Removes all connects leaving this node. This still leaves connections going towards this
-    /// node.
+    /// Removes all connects leaving this node. This still leaves connections
+    /// going towards this node.
     /// ```
     /// # use pathfinder::{Coordinate, Node};
     /// let a = Node::new("A", Coordinate::new(0, 0));
@@ -659,7 +653,8 @@ impl Group {
     /// Set the radius for the group's meta-data.
     pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
 
-    /// Retrieves the nodes drawing in the group. Positions are relative to the group.
+    /// Retrieves the nodes drawing in the group. Positions are relative to the
+    /// group.
     pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
     /// Retrieves a mutable group meta data.
