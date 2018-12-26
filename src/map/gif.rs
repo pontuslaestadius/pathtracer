@@ -2,17 +2,19 @@ use super::super::*;
 use gif::{self, *};
 use std::{fs::File, io};
 
-struct Cycle<T: Draw + Location + Hash + MinMax + Copy> {
+struct Cycle<'a, T: Draw + Location + Hash + MinMax + Copy> {
     interval: u8,
     count: u8,
-    map: Vec<T>
+    map: Vec<T>,
+    predicate: &'a Fn(&T) -> T,
 }
 
-impl<T: Draw + Location + Hash + MinMax + Copy> Cycle<T> {
-    pub fn new(interval: u8, map: Vec<T>) -> Self {
+impl<'a, T: Draw + Location + Hash + MinMax + Copy> Cycle<'a, T> {
+    pub fn new(interval: u8, map: Vec<T>, predicate: &'a Fn(&T) -> T) -> Self {
         Cycle {
             interval,
             map,
+            predicate,
             count: interval,
         }
     }
@@ -21,6 +23,7 @@ impl<T: Draw + Location + Hash + MinMax + Copy> Cycle<T> {
         self.count -= 1;
         if self.count == 0 {
             self.count = self.interval;
+            self.map = self.map.iter().map(self.predicate).collect::<_>();
             Some(self.map.clone())
         } else {
             None
@@ -28,13 +31,15 @@ impl<T: Draw + Location + Hash + MinMax + Copy> Cycle<T> {
     }
 }
 
-pub struct Gif {
+pub struct Gif<'a> {
     encoder: gif::Encoder<File>,
-    cycles: Vec<Cycle<Node>>,
+    cycles: Vec<Cycle<'a, Node>>,
     frames: u16,
+    width: u16,
+    height: u16,
 }
 
-impl Gif {
+impl<'a> Gif<'a> {
     /// Constructs a Gif struct and initializes a file on the system for the
     /// Gif to be stored.
     pub fn new(filename: &str, width: u16, height: u16) -> Self {
@@ -44,13 +49,20 @@ impl Gif {
         Gif {
             encoder,
             cycles: Vec::new(),
-            frames: 0
+            frames: 0,
+            width,
+            height,
         }
     }
 
     /// Adds in a repeating patttern every interval frame on to the gif image.
-    pub fn add_cycle(&mut self, interval: u8, map: Vec<Node>) {
-        self.cycles.push(Cycle::new(interval, map));
+    pub fn cycle(&mut self, interval: u8, map: Vec<Node>) {
+        self.cycles.push(Cycle::new(interval, map, &|x|*x));
+    }
+
+    /// Adds in a repeating patttern every interval frame on to the gif image.
+    pub fn cycle_predicate(&mut self, interval: u8, map: Vec<Node>, predicate: &'a Fn(&Node) -> Node) {
+        self.cycles.push(Cycle::new(interval, map, predicate));
     }
 
     /// Removes all cycles from the gif.
@@ -62,10 +74,7 @@ impl Gif {
     pub fn advance_cycle(&mut self) -> Vec<Node> {
         let mut result = Vec::new();
         for cycle in self.cycles.iter_mut() {
-            match cycle.then() {
-                Some(mut e) => result.append(&mut e),
-                None => (),
-            }
+            if let Some(mut e) = cycle.then() { result.append(&mut e) }
         }
         result
     }
@@ -101,7 +110,7 @@ impl Gif {
 
     /// Appends a blank frame to the gif.
     pub fn blank(&mut self) -> Result<(), io::Error> {
-        let mut node = Node::new("", Coordinate::new(0, 0));
+        let mut node = Node::new("", Coordinate::new(self.width as i16 -1, self.height as i16 -1));
         node.radius = Some(0);
         self.push(Map::new().map(&[node]))
     }
@@ -113,7 +122,7 @@ mod tests {
 
     #[test]
     fn test_gif_new() {
-        let gif = Gif::new("test_gif_new.gif", 50, 50);
+        let _ = Gif::new("test_gif_new.gif", 50, 50);
         let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
     }
 
@@ -121,8 +130,41 @@ mod tests {
     fn blank_frames() {
         let mut gif = Gif::new("test_gif_new.gif", 50, 50);
         assert_eq!(gif.frames(), 0);
-        gif.blank();
+        gif.blank().unwrap();
         assert_eq!(gif.frames(), 1);
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+    }
+
+    #[test]
+    fn cycles_predicate() {
+        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
+        gif.cycle_predicate(1, vec![Node::new("", Coordinate::new(25, 25))], &|x| {
+            let mut x = x.clone();
+            x.geo.x += 5;
+            x
+        });
+        assert_eq!(gif.advance_cycle()[0].x(), 30);
+        assert_eq!(gif.advance_cycle()[0].x(), 35);
+        assert_eq!(gif.advance_cycle()[0].x(), 40);
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+    }
+
+    #[test]
+    fn cycles_every_frame() {
+        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
+        gif.cycle(1, vec![Node::new("", Coordinate::new(25, 25))]);
+        assert_eq!(gif.advance_cycle().len(), 1);
+        assert_eq!(gif.advance_cycle().len(), 1);
+        assert_eq!(gif.advance_cycle().len(), 1);
+        let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
+    }
+
+    #[test]
+    fn cycles_every_other() {
+        let mut gif = Gif::new("test_gif_new.gif", 50, 50);
+        gif.cycle(2, vec![Node::new("", Coordinate::new(25, 25))]);
+        assert!(gif.advance_cycle().is_empty());
+        assert_eq!(gif.advance_cycle().len(), 1);
         let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
     }
 }

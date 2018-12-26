@@ -4,14 +4,13 @@ extern crate pathfinder;
 use pathfinder::{map::gif::*, *};
 
 fn main() -> std::io::Result<()> {
-    let frames = 6;
-    let width = 300;
+    let frames = 4;
+    let width = 290;
     let height = 90;
     let radius = 38;
     let x_max: i16 = (width / radius) as i16;
-    let frame_rot = f64::from(90 / (frames - 1));
     let count = x_max * (height / radius) as i16;
-    let mut gif = Gif::new("out.gif", width, height + 10);
+    let mut gif = Gif::new("out.gif", width, height + 5);
 
     let f = |i: usize, d: f64| -> Coordinate {
         let i = i as f64;
@@ -30,18 +29,15 @@ fn main() -> std::io::Result<()> {
 
         for _ in 5..radius as usize {
             for k in 1..(4 + c / 5) {
-                let f1 = |i: usize| -> Coordinate { f(i, 4.5 * k as f64) };
-                group.node_plot(&f1);
+                group.node_plot(&|i: usize| -> Coordinate { f(i, 4.5 * k as f64) });
             }
         }
         groups.push(group);
     }
 
-    // For each frame, we rotate the nodes in the group.
-    // Always creates a seemless infinite spin.
-    for _ in 1..(frames + 1) {
+    for _ in 0..frames {
         for g in groups.iter_mut() {
-            g.rotate(frame_rot);
+            g.rotate(20.0);
         }
 
         gif.push(Map::new().map(&groups))?;

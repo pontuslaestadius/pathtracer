@@ -136,9 +136,6 @@ impl IW {
     pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> { &self.img }
 
     /// Wraps around Image put_pixel but indicates failed positions.
-    /// ```
-    /// 
-    /// ```
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         if l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height() {
             panic!(
@@ -148,6 +145,10 @@ impl IW {
                 self.img.height()
             );
         }
+        self.put_unsafe(l, color);
+    }
+
+    pub fn put_unsafe<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
@@ -288,7 +289,7 @@ impl Draw for Node {
                 self.color
             };
             let c = pos + o;
-            image.put(&c, color);
+            image.put_unsafe(&c, color);
         }
         image
     }
@@ -635,7 +636,7 @@ impl HL {
                 };
                 let _ = plot
                     .iter()
-                    .map(|c| image.put(c, image::Rgba([col, col, col, u8::max_value()])))
+                    .map(|c| image.put_unsafe(c, image::Rgba([col, col, col, u8::max_value()])))
                     .collect::<Vec<_>>();
             }
         }
