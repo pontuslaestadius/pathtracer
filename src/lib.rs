@@ -857,9 +857,11 @@ impl Map {
 
         let add = self.add;
         self.image = Some(
-            element.iter().filter(|x| filter(x)).fold(self.image.unwrap(), |img, x| {
-                x.draw(img, add, shape)
-        }));
+            element
+                .iter()
+                .filter(|x| filter(x))
+                .fold(self.image.unwrap(), |img, x| x.draw(img, add, shape)),
+        );
         self
     }
 }
