@@ -17,7 +17,7 @@ fn main() -> std::io::Result<()> {
         for (j, ref mut group) in groups.iter_mut().enumerate() {
             group.radius(radius[j]);
             group.color(Rgba { data: color[j] });
-            map::network::add_children(group, 100);
+            group.add(100);
         }
 
         gif.push(Map::new().map(&groups))?

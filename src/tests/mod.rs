@@ -6,12 +6,12 @@ mod from_list;
 mod integration {
 
     mod rotate {
-        use crate::{coordinate::diff, map::network::*, Group, Location, Node};
+        use crate::{coordinate::diff, Group, Location, Node};
 
         #[test]
         fn group() {
             let mut g = Group::new_simple(0, 0);
-            add_children(&mut g, 100);
+            g.add(100);
             for _ in 0..36 {
                 let before = g.position();
                 g.rotate(10.0);
@@ -22,7 +22,7 @@ mod integration {
         fn setup_group() -> Group {
             let mut g = Group::new_simple(0, 0);
             g.radius(100);
-            add_children(&mut g, 100);
+            g.add(100);
             g
         }
 

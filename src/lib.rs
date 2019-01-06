@@ -661,7 +661,14 @@ impl Group {
     pub fn set(&mut self) -> &mut Node { &mut self.settings }
 
     /// Adds a set of nodes randomly located inside the group.
-    pub fn add(&mut self, nr: u32) { map::network::add_children(self, nr); }
+    pub fn add(&mut self, nr: u32) {
+        for _ in 0..nr {
+            let co = coordinate::gen_within_radius(self.position(), self.size());
+            let mut node = Node::new("", co);
+            node.color = self.gen_color(co);
+            self.push(node);
+        }
+    }
 
     /// Applies the closure over each mutable child node.
     pub fn each(&mut self, func: &Fn(&mut Node)) {
@@ -848,12 +855,11 @@ impl Map {
             self.add = add;
         }
 
-        for e in element {
-            if !filter(e) {
-                continue;
-            }
-            self.image = Some(e.draw(self.image.unwrap(), self.add, shape));
-        }
+        let add = self.add;
+        self.image = Some(
+            element.iter().filter(|x| filter(x)).fold(self.image.unwrap(), |img, x| {
+                x.draw(img, add, shape)
+        }));
         self
     }
 }

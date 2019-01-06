@@ -8,7 +8,7 @@ use std::cmp;
 /// use pathfinder::{group, map::network, Group};
 /// let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
 /// for group in groups.iter_mut() {
-///     network::add_children(group, 50);
+///     group.add(50);
 /// }
 /// assert_eq!(group::count(&groups), 100);
 /// ```
