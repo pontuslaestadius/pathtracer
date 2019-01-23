@@ -5,12 +5,25 @@ extern crate image;
 extern crate pythagoras;
 extern crate rand;
 
-pub mod coordinate;
+/// Converts data in to Nodes and Groups.
 pub mod data;
+
+/// Extra functionality for groups.
 pub mod group;
-pub mod map;
+
+/// Extra functionality for nodes.
 pub mod node;
+
+/// Extra functionality for coordinates.
+pub mod coordinate;
+
+/// Functions to manage large numbers of placable entities.
+pub mod map;
+
+/// Shapes used to calculate areas.
 pub mod shape;
+
+/// Useful functions not bound to any specific functionality.
 pub mod tools;
 
 #[cfg(test)]
@@ -138,7 +151,9 @@ impl IW {
 
     /// Wraps around Image put_pixel but indicates failed positions.
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
-        if l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height() {
+        if cfg!(debug_assertions)
+            && (l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height())
+        {
             panic!(
                 "({}) out of bound of image ({}, {})",
                 l.position(),
