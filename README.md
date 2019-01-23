@@ -44,7 +44,17 @@ Map::new()
     .save(&Path::new("out.png"));
 ```
 
-Produces an image with 2 Groups, each with 100 children Nodes.
+Path through a listed of connected nodes.
+
+```rust
+let pos = [(0, 0), (100, 100), (150, 50), (2000, 4000), (400, 600)];
+let nodes = Node::from_list(&pos); // Nodes are named in sequence: A-Z.
+let nodes = Node::linked_list(nodes);
+let net = Network::new(nodes);
+let path = net.path("A", "E");
+let rev_path = net.path_rev("E", "A");
+node::path_print(&path?);
+```
 
 
 ### Example output
