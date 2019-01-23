@@ -1,7 +1,6 @@
 ![Logo of the project](examples/out/hello_world.png)
 
 ![crates.io](https://img.shields.io/crates/d/pathfinder.svg)
-
 [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
 [![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/)
 [![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-64-yellow.svg)](https://github.com/xd009642/tarpaulin)
