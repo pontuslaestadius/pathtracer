@@ -1,6 +1,9 @@
 use super::*;
 use std::io::{self, Error, ErrorKind};
 
+/// Paths between two different points that are connected.
+/// Will return an Error if the provided A and B don't exist in the network,
+/// or if the path could not be found.
 pub fn path<'a>(
     network: &'a Network<Node>,
     a: &str,
@@ -23,6 +26,7 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     None
 }
 
+/// Creates a path using the 'shortest leg' in the journey at each stop.
 pub fn path_shortest_leg<'a>(
     network: &'a Network<Node>,
     start: Node,

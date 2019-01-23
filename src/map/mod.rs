@@ -4,9 +4,13 @@ use super::*;
 use image::Rgba;
 use std::cmp;
 
+/// Gif wrapper for managing frames with pathfinder
 pub mod gif;
+
+/// Connecting Nodes logic
 pub mod network;
 
+/// Returns the underlaying image used for the Map struct.
 pub fn gen_map<T: Location + Draw + MinMax>(
     list: &[T],
 ) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (Coordinate)) {

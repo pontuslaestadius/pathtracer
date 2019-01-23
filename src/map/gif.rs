@@ -31,6 +31,7 @@ impl<'a, T: Draw + Location + Hash + MinMax + Copy> Cycle<'a, T> {
     }
 }
 
+/// Wrapper around the Gif crate with pathfinder support.
 pub struct Gif<'a> {
     encoder: gif::Encoder<File>,
     cycles: Vec<Cycle<'a, Node>>,
