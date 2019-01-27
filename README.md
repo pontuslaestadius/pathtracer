@@ -9,7 +9,7 @@
 
 # Pathfinder
 
-> Easily create large number of Connected points mapped on to an Image or Gif.
+> Graph large number of Connected nodes mapped on to an Image or Gif.
 
 
 Placing positioned objects on to an Image can cause many issue. This library is meant 
@@ -53,7 +53,6 @@ let nodes = Node::from_list(&pos); // Nodes are named in sequence: A-Z.
 let nodes = Node::linked_list(nodes);
 let net = Network::new(nodes);
 let path = net.path("A", "E");
-let rev_path = net.path_rev("E", "A");
 node::path_print(&path?);
 ```
 
