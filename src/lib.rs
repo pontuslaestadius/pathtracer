@@ -517,7 +517,13 @@ impl Node {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                "index too large",
+                format!(
+                    "index {} too large or not connected. Index: {} expected. Connection status: \
+                     {}",
+                    index,
+                    self.get_link_avail_index(),
+                    self.links[index].is_connected()
+                ),
             ))
         } else {
             Ok(&mut self.links[index])
