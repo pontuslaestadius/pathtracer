@@ -8,11 +8,7 @@ fn city() {
 
     for y in 0..city_size / 2 {
         for x in 0..city_size * 2 {
-            let mut node = Node::new(
-                &format!("{},{}", x, y),
-                Coordinate::new(spread * x as i16, spread * y as i16),
-            );
-
+            let mut node = node!(spread * x as i16, spread * y as i16);
             node.color = tools::seed_rgba((city_size * x + spread * y) as u64);
             pos.push(node);
         }

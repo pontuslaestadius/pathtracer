@@ -5,6 +5,10 @@ extern crate image;
 extern crate pythagoras;
 extern crate rand;
 
+/// Collection of helper macros.
+#[macro_use]
+pub mod macros;
+
 /// Converts data in to Nodes and Groups.
 pub mod data;
 
@@ -341,7 +345,7 @@ impl Draw for Group {
 
 impl From<Coordinate> for Node {
     fn from(c: Coordinate) -> Self {
-        let mut node = Node::new("", c);
+        let mut node = node!(c);
         node.hash = (c.x + c.y) as u64;
         node
     }
@@ -459,6 +463,7 @@ impl Node {
 
     /// Converts a list of tuples (x,y) to a Vector of Nodes.
     /// Names are assigned from "A" and upwards automatically.
+    ///
     /// ```
     /// use pathfinder::Node;
     /// let list = [(0, 0), (10, 10), (15, 15)];
@@ -478,6 +483,7 @@ impl Node {
 
     /// Links a list of nodes together in the order they are indexed.
     /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    ///
     /// ```
     /// # use pathfinder::Node;
     /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
@@ -488,18 +494,26 @@ impl Node {
     }
 
     /// Returns a specific link if it exists. Returns none if not.
+    ///
     /// ```
+    /// # #[macro_use] extern crate pathfinder;
     /// # use pathfinder::{Coordinate, Node};
-    /// let node = Node::new("", Coordinate::new(0, 0));
+    /// # fn main() {
+    /// let node = node!();
     /// let hl = node.hl(0);
     /// assert!(hl.is_err());
+    /// # }
     /// ```
+    ///
     /// ```
+    /// # #[macro_use] extern crate pathfinder;
     /// # use pathfinder::{Coordinate, Node};
-    /// let a = Node::new("A", Coordinate::new(0, 0));
-    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// # fn main() {
+    /// let a = node!("A", 0, 0);
+    /// let mut b = node!("B", 50, 50);
     /// b.link(&a);
     /// assert!(b.hl(0).is_ok());
+    /// # }
     /// ```
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
@@ -560,12 +574,15 @@ impl Node {
 
     /// Returns the next point which is available to link.
     /// ```
+    /// # #[macro_use] extern crate pathfinder;
     /// # use pathfinder::{Coordinate, Node};
-    /// let a = Node::new("A", Coordinate::new(0, 0));
-    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// # fn main() {
+    /// let a = node!("A", 0, 0);
+    /// let mut b = node!("B", 50, 50);
     /// assert_eq!(b.get_link_avail_index(), 0);
     /// b.link(&a);
     /// assert_eq!(b.get_link_avail_index(), 1);
+    /// # }
     /// ```
     pub fn get_link_avail_index(&self) -> usize {
         self.links()
@@ -578,23 +595,29 @@ impl Node {
     /// Removes all connects leaving this node. This still leaves connections
     /// going towards this node.
     /// ```
+    /// # #[macro_use] extern crate pathfinder;
     /// # use pathfinder::{Coordinate, Node};
-    /// let a = Node::new("A", Coordinate::new(0, 0));
-    /// let mut b = Node::new("B", Coordinate::new(50, 50));
+    /// # fn main() {
+    /// let a = node!(0, 0);
+    /// let mut b = node!(50, 50);
     /// b.link(&a);
     /// assert!(b.hl(0).is_ok());
     /// b.disconnect();
     /// assert!(b.hl(0).is_err());
+    /// # }
     /// ```
     pub fn disconnect(&mut self) { self.links = [HL::new(0, 0); consts::MAX_LINKS]; }
 
     /// Links Node self to another point that has Hash and Location implemented.
     /// ```
+    /// # #[macro_use] extern crate pathfinder;
     /// # use pathfinder::{Coordinate, Location, Node};
-    /// let b: Node = Node::new("B", Coordinate::new(100, 100));
-    /// let mut a: Node = Node::new("A", Coordinate::new(0, 0));
+    /// # fn main() {
+    /// let b: Node = node!("B", 100, 100);
+    /// let mut a: Node = node!("A", 0, 0);
     /// a.link(&b);
     /// assert!(a.is_directly_connected(&b));
+    /// # }
     /// ```
     pub fn link<P: Hash + Location>(&mut self, other: &P) {
         let i = self.get_link_avail_index();
@@ -685,7 +708,7 @@ impl Group {
     pub fn add(&mut self, nr: u32) {
         for _ in 0..nr {
             let co = coordinate::gen_within_radius(self.position(), self.size());
-            let mut node = Node::new("", co);
+            let mut node = node!(co);
             node.color = self.gen_color(co);
             self.push(node);
         }
@@ -706,7 +729,7 @@ impl Group {
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
         let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
-        let mut node = Node::new("", c);
+        let mut node = node!(c);
         node.color = color;
         self.push(node);
     }
@@ -823,10 +846,7 @@ impl Map {
     /// # Examples
     /// ```
     /// # use pathfinder::*;
-    /// let nodes: Vec<Node> = vec![
-    ///     Node::new("1", Coordinate::new(0, 0)),
-    ///     Node::new("2", Coordinate::new(100, 100)),
-    /// ];
+    /// let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
     /// // Add content to vectors.
     /// let mut map = Map::new();
     /// map = map.map(&nodes);
