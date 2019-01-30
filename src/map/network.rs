@@ -17,7 +17,7 @@ pub fn path<'a>(
 
 /// Retrieves a node from a network.
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
-    let tmp = Node::new(element, Coordinate::new(0, 0));
+    let tmp = node!(element, 0, 0);
     for (i, elem) in network.hash_map.iter().enumerate() {
         if elem.is_some() && i == tmp.hash as usize % consts::NETWORK_REM {
             return network.hash_map[i];

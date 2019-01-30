@@ -104,14 +104,21 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     Coordinate { x, y }
 }
 
-/// Rotates the provide Vec around the axis inplace.
-/// # Examples
-/// ```
-/// # use pathfinder::{coordinate::*, Coordinate, Node};
-/// let mut v = vec![Node::new("", Coordinate::new(0, 100))];
-/// rotate_around_axis(Coordinate::new(0, 0), &mut v, 90.0);
-/// assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
-/// ```
+/**
+Rotates the provide Vec around the axis in place.
+
+## Examples
+
+```
+# #[macro_use] extern crate pathfinder;
+# use pathfinder::{coordinate::*, Coordinate, Node};
+# fn main() {
+let mut v = vec![node!(0, 100)];
+rotate_around_axis(Coordinate::new(0, 0), &mut v, 90.0);
+assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
+# }
+```
+*/
 pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: f64) {
     if deg == 0.0 {
         return;

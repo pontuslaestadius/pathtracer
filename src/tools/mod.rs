@@ -16,37 +16,38 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
     list.iter().find(|&x| x.hash() == element)
 }
 
-/// Returns a Rgba with a modified value depending on how close it is to it's
-/// falloff point.
-///
-/// # Examples
-/// First declare the colors and the range at which it becomes darker.
-/// ```
-/// extern crate image;
-/// # extern crate pathfinder;
-/// use pathfinder::{tools, Coordinate};
-///
-/// let falloff = 100;
-/// let color = image::Rgba {
-///     data: [100, 100, 100, 255],
-/// };
-/// ```
-/// Evaluate that based on the modified distance, in the small sense it is
-/// modified from the defined color above.
-/// ```
-/// # extern crate image;
-/// # extern crate pathfinder;
-/// # use pathfinder::{tools, Coordinate};
-///
-/// # let falloff = 100;
-/// # let color = image::Rgba([100, 100, 100, 255]);
-/// let base = Coordinate::new(0, 0);
-/// let to = Coordinate::new(10, 10);
-/// assert_eq!(
-///     tools::range_color(falloff, color, base, to),
-///     image::Rgba([77, 77, 77, 255])
-/// );
-/// ```
+/**
+Returns a Rgba with a modified value depending on how close it is to it's falloff point.
+
+## Examples
+
+First declare the colors and the range at which it becomes darker.
+
+```
+extern crate image;
+use pathfinder::{tools, Coordinate};
+let falloff = 100;
+let color = image::Rgba {
+     data: [100, 100, 100, 255],
+};
+```
+
+Evaluate that based on the modified distance, in the small sense it is modified from the defined color above.
+
+```
+# extern crate image;
+# use pathfinder::{tools, Coordinate};
+# let falloff = 100;
+# let color = image::Rgba([100, 100, 100, 255]);
+let base = Coordinate::new(0, 0);
+let to = Coordinate::new(10, 10);
+
+assert_eq!(
+    tools::range_color(falloff, color, base, to),
+    image::Rgba([77, 77, 77, 255])
+);
+```
+*/
 pub fn range_color(
     falloff: i16,
     base: image::Rgba<u8>,
