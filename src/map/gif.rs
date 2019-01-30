@@ -114,10 +114,7 @@ impl<'a> Gif<'a> {
 
     /// Appends a blank frame to the gif.
     pub fn blank(&mut self) -> Result<(), io::Error> {
-        let mut node = Node::new(
-            "",
-            Coordinate::new(self.width as i16 - 1, self.height as i16 - 1),
-        );
+        let mut node = node!(self.width as i16 - 1, self.height as i16 - 1);
         node.radius = Some(0);
         self.push(Map::new().map(&[node]))
     }
@@ -150,7 +147,7 @@ mod tests {
     #[test]
     fn cycles_predicate() {
         define(&|mut gif| {
-            gif.cycle_predicate(1, vec![Node::new("", Coordinate::new(25, 25))], &|x| {
+            gif.cycle_predicate(1, vec![node!(25, 25)], &|x| {
                 let mut x = x.clone();
                 x.geo.x += 5;
                 x
@@ -165,7 +162,7 @@ mod tests {
     #[test]
     fn cycles_every_frame() {
         define(&|mut gif| {
-            gif.cycle(1, vec![Node::new("", Coordinate::new(25, 25))]);
+            gif.cycle(1, vec![node!(25, 25)]);
             assert_eq!(gif.advance_cycle().len(), 1);
             assert_eq!(gif.advance_cycle().len(), 1);
             assert_eq!(gif.advance_cycle().len(), 1);
@@ -176,7 +173,7 @@ mod tests {
     #[test]
     fn cycles_every_other() {
         define(&|mut gif| {
-            gif.cycle(2, vec![Node::new("", Coordinate::new(25, 25))]);
+            gif.cycle(2, vec![node!(25, 25)]);
             assert!(gif.advance_cycle().is_empty());
             assert_eq!(gif.advance_cycle().len(), 1);
             Ok(())

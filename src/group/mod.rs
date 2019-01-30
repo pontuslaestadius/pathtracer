@@ -14,17 +14,26 @@ use std::cmp;
 /// ```
 pub fn count(list: &[Group]) -> usize { list.iter().fold(0, |acc, x| acc + x.nodes.len()) }
 
-/// Returns the the largest and smallest x and y position.
-///
-/// # Examples
-/// ```
-/// use pathfinder::{group, Coordinate, Group, Node};
-/// let mut group = Group::new_simple(0, 0);
-/// group.push(Node::new("", Coordinate::new(100, 100)));
-/// let (min, max) = group::parameters(&group);
-/// assert_eq!(min.x, 0); // y values are identical
-/// assert_eq!(max.x, 102);
-/// ```
+/**
+Returns the the largest and smallest x and y position found in the group.
+
+## Examples
+
+```
+# #[macro_use] extern crate pathfinder;
+# use pathfinder::{group, Coordinate, Group, Node};
+
+# fn main() {
+
+let mut group = Group::new_simple(0, 0);
+group.push(node!(100, 100));
+let (min, max) = group::parameters(&group);
+assert_eq!(min.x, 0);
+assert_eq!(max.x, 102);
+
+# }
+```
+*/
 pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
     let mut min = Coordinate::new(0, 0);
     let mut max = Coordinate::new(0, 0);
