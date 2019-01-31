@@ -173,7 +173,7 @@ impl IW {
     }
 
     pub fn dimensions(&self) -> Coordinate {
-        Coordinate::new(self.img.width() as i16, self.img.height() as i16)
+        coordinate!(self.img.width(), self.img.height())
     }
 }
 
@@ -211,7 +211,7 @@ pub trait MinMax {
 
 impl MinMax for HL {
     fn min_max(&self) -> (Coordinate, Coordinate) {
-        let zero = Coordinate::new(0, 0);
+        let zero = coordinate!();
         let to = self.to.unwrap_or(zero);
         (self.position(), to)
     }
@@ -219,10 +219,7 @@ impl MinMax for HL {
 
 impl MinMax for Node {
     fn min_max(&self) -> (Coordinate, Coordinate) {
-        let mut max = Coordinate::new(
-            consts::DEFAULT_SIZE as i16 / 2,
-            consts::DEFAULT_SIZE as i16 / 2,
-        );
+        let mut max = coordinate!(consts::DEFAULT_SIZE);
         let mut min = self.position();
         min -= max;
         max += self.geo;
@@ -256,7 +253,7 @@ pub trait Location {
 
 impl Location for HL {
     fn position(&self) -> Coordinate {
-        let zero = Coordinate::new(0, 0);
+        let zero = coordinate!();
         self.from.unwrap_or(zero)
     }
 }
@@ -285,7 +282,7 @@ pub trait Draw {
 impl Draw for Node {
     fn draw<S: Shape>(&self, mut image: IW, offset: Coordinate, shape: &S) -> IW {
         let s = consts::DEFAULT_LINK_SIZE / 2;
-        let pos = self.geo + offset - Coordinate::new(s as i16, s as i16);
+        let pos = self.geo + offset - coordinate!(s, s);
 
         for link in &self.links {
             image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
@@ -457,7 +454,7 @@ impl Node {
 
     /// Gets the center position of the node accounting for size.
     pub fn center(&self) -> Coordinate {
-        let half = Coordinate::new(self.size() as i16 / 2, self.size() as i16 / 2);
+        let half = coordinate!(self.size() / 2, self.size() / 2);
         self.position() + half
     }
 
@@ -555,7 +552,7 @@ impl Node {
         mut list: Vec<Node>,
         f: &Fn(Coordinate, Coordinate) -> bool,
     ) -> Vec<Self> {
-        let mut prev = Coordinate::new(0, 0);
+        let mut prev = coordinate!();
         let mut prev_h = 0;
         for node in &mut list {
             if prev_h != 0 && f(prev, node.geo) {
@@ -658,13 +655,13 @@ impl HL {
             return image;
         }
         let s = (size / 2) as i16;
-        offset += Coordinate::new(s, s);
+        offset += coordinate!(s);
         from += offset;
         to += offset;
 
         for i in 0..size {
             for j in 0..size {
-                let add = Coordinate::new(j as i16 - s, i as i16 - s);
+                let add = coordinate!(j, i) - coordinate!(s);
                 let col = (size - i) as u8 * consts::DEFAULT_SHADE as u8;
                 let plot = match self.style {
                     0 => tools::plot_type(from + add, to + add, &tools::plot_bresenham),
@@ -762,7 +759,7 @@ impl Group {
     /// Rotates all the nodes inside the group.
     pub fn rotate(&mut self, rad: f64) {
         // Use 0, 0 because the self.nodes positions relative.
-        coordinate::rotate_around_axis(Coordinate::new(0, 0), &mut self.nodes, rad);
+        coordinate::rotate_around_axis(coordinate!(), &mut self.nodes, rad);
     }
 
     /// Generates an image::Rgba based on the color of the Group and the
@@ -820,7 +817,7 @@ impl Map {
     pub fn new() -> Self {
         Map {
             image: None,
-            add: Coordinate::new(0, 0),
+            add: coordinate!(),
         }
     }
 
