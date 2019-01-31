@@ -80,11 +80,7 @@ fn ellipse() {
 #[test]
 fn cycles() -> std::io::Result<()> {
     let mut gif = map::gif::Gif::new("out.gif", 50, 50);
-    let balls = Node::from_list(&[
-        (20, 20),
-        (30, 30),
-        (40, 40)
-    ]);
+    let balls = Node::from_list(&[(20, 20), (30, 30), (40, 40)]);
 
     gif.cycle(2, balls);
 

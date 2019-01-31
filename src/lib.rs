@@ -172,9 +172,7 @@ impl IW {
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
-    pub fn dimensions(&self) -> Coordinate {
-        coordinate!(self.img.width(), self.img.height())
-    }
+    pub fn dimensions(&self) -> Coordinate { coordinate!(self.img.width(), self.img.height()) }
 }
 
 // ------------------------------------------------------------------

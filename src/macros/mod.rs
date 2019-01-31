@@ -1,4 +1,3 @@
-
 #[macro_export]
 macro_rules! coordinate {
     () => {
@@ -50,7 +49,6 @@ macro_rules! cluster {
     ($name:expr, $x:expr, $y:expr) => {
         Group::new($name, coordinate!($x, $y));
     };
-
 }
 
 #[cfg(test)]
