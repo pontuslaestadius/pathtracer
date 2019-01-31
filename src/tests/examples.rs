@@ -79,28 +79,19 @@ fn ellipse() {
 
 #[test]
 fn cycles() -> std::io::Result<()> {
-    let mut gif = map::gif::Gif::new("out.gif", 150, 200);
-    let mut balls = Node::from_list(&[
-        (50, 55),
-        (70, 70),
-        (40, 70),
-        (49, 78),
-        (27, 82),
-        (15, 92),
-        (30, 71),
-        (60, 100),
-        (50, 92),
-        (25, 85),
+    let mut gif = map::gif::Gif::new("out.gif", 50, 50);
+    let balls = Node::from_list(&[
+        (20, 20),
+        (30, 30),
+        (40, 40)
     ]);
 
-    for n in balls.iter_mut() {
-        n.color = image::Rgba([255, 50, 50, 255]);
-    }
     gif.cycle(2, balls);
 
-    for _ in 0..10 {
+    for _ in 0..4 {
         gif.blank()?;
     }
+
     Ok(())
 }
 

@@ -29,7 +29,7 @@ let mut group = Group::new_simple(0, 0);
 group.push(node!(100, 100));
 let (min, max) = group::parameters(&group);
 assert_eq!(min.x, 0);
-assert_eq!(max.x, 102);
+assert_eq!(max.x, 104);
 
 # }
 ```
@@ -45,6 +45,10 @@ pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
         min.y = std::cmp::min(min.y, min2.y);
     }
     (min + group.position(), max + group.position())
+}
+
+impl<'a> PartialEq for Group {
+    fn eq(&self, other: &Group) -> bool { self.hash() == other.hash() }
 }
 
 /// Adds a node to a given group, All parameters are optional except the group.

@@ -61,7 +61,7 @@ mod tests {
     fn test_min_max() {
         let nodes = Node::from_list(&[(-50, 50), (50, -50), (0, 25), (25, 0)]);
         let (min, max) = min_max(&nodes);
-        assert_eq!(min, Coordinate::new(-53, -53));
-        assert_eq!(max, Coordinate::new(53, 53));
+        assert_eq!(min, Coordinate::new(-55, -55));
+        assert_eq!(max, Coordinate::new(55, 55));
     }
 }
