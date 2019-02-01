@@ -35,8 +35,8 @@ assert_eq!(max.x, 104);
 ```
 */
 pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
-    let mut min = Coordinate::new(0, 0);
-    let mut max = Coordinate::new(0, 0);
+    let mut min = coordinate!(0, 0);
+    let mut max = coordinate!(0, 0);
     for node in &group.nodes {
         let (min2, max2) = node.min_max();
         max.x = std::cmp::max(max.x, max2.x);
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_add_node() {
-        let mut group = Group::new_simple(0, 0);
+        let mut group = cluster!();
         add_node(&mut group, None, None, None);
         add_node(&mut group, Some("name"), Some(50), Some(20));
         assert_eq!(group.nodes.len(), 2);
