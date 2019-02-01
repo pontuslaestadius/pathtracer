@@ -1,3 +1,23 @@
+
+/**
+  initalize Coordinates using a range of parameters.
+
+
+  ## Examples
+
+  These are all equal.
+
+  ```
+  # #![macro_use] use pathfinder::*;
+  # fn main() {
+
+  coordinate!();
+  coordinate!(0);
+  coordinate!(0, 0);
+
+  # }
+  ```
+*/
 #[macro_export]
 macro_rules! coordinate {
     () => {
@@ -13,6 +33,26 @@ macro_rules! coordinate {
     };
 }
 
+/**
+  initalize Nodes using a range of parameters.
+
+
+  ## Examples
+
+  These are all equal.
+
+  ```
+  # #![macro_use] use pathfinder::*;
+  # fn main() {
+
+  node!();
+  node!(coordinate!());
+  node!(0, 0);
+  node!("0,0", 0, 0);
+
+  # }
+  ```
+*/
 #[macro_export]
 macro_rules! node {
     () => {
@@ -32,6 +72,26 @@ macro_rules! node {
     };
 }
 
+/**
+  initalize Groups using a range of parameters.
+
+
+  ## Examples
+
+  These are all equal.
+
+  ```
+  # #![macro_use] use pathfinder::*;
+  # fn main() {
+
+  cluster!();
+  cluster!(coordinate!());
+  cluster!(0, 0);
+  cluster!("0,0", 0, 0);
+
+  # }
+  ```
+*/
 #[macro_export]
 macro_rules! cluster {
     () => {

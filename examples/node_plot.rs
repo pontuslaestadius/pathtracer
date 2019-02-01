@@ -9,7 +9,7 @@ fn main() -> std::io::Result<()> {
     let height = 90;
     let radius = 38;
     let x_max: i16 = (width / radius) as i16;
-    let count = x_max * (height / radius) as i16;
+    let count: i16 = x_max * (height / radius) as i16;
     let mut gif = Gif::new("out.gif", width, height + 5);
 
     let f = |i: usize, d: f64| -> Coordinate {
@@ -21,9 +21,9 @@ fn main() -> std::io::Result<()> {
     };
 
     let mut groups = Vec::new();
-    for c in 0..count {
-        let c = c as i16;
-        let mut group = Group::new_simple((c % x_max) * radius as i16, (c / x_max) * radius as i16);
+    for c in 0i16..count {
+        let rad = radius as i16;
+        let mut group = cluster!((c % x_max) * rad, (c / x_max) * rad);
         group.radius(radius as u32);
         group.color(tools::seed_rgba(c as u64 * 32));
 

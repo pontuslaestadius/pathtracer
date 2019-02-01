@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()> {
     );
 
     for (i, c) in coordinates.iter().enumerate() {
-        let mut group = Group::new_simple(c.x * spread, c.y * spread);
+        let mut group = cluster!(c.x * spread, c.y * spread);
         group.radius(radius);
         group.color(tools::seed_rgba((i * 70) as u64));
         group.add(children);

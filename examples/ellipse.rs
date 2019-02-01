@@ -4,7 +4,7 @@ use pathfinder::*;
 use std::path::Path;
 
 fn main() -> Result<(), std::io::Error> {
-    let mut group = Group::new("", Coordinate::new(0, 0));
+    let mut group = cluster!();
     group.radius(200);
     group.add(50);
     group.radius(400);
