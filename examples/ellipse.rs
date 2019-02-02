@@ -11,7 +11,7 @@ fn main() -> Result<(), std::io::Error> {
     group.nodes = Node::linked_list(group.nodes);
     group.each(&|node: &mut Node| {
         match node.hl_mut(0) {
-            Ok(e) => e.style(2),
+            Ok(e) => e.style(EdgeStyle::Ellipse),
             Err(_) => (),
         }
     });

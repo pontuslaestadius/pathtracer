@@ -1,4 +1,3 @@
-
 /**
   initalize Coordinates using a range of parameters.
 
