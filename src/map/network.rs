@@ -1,9 +1,16 @@
 use super::*;
 use std::io::{self, Error, ErrorKind};
 
-/// Paths between two different points that are connected.
-/// Will return an Error if the provided A and B don't exist in the network,
-/// or if the path could not be found.
+/**
+ Paths between two different points that are connected.
+
+
+## Errors
+
+ The provided A and B don't exist in the network.
+
+ The path could not be found.
+ */
 pub fn path<'a>(
     network: &'a Network<Node>,
     a: &str,
@@ -15,7 +22,9 @@ pub fn path<'a>(
     algorithm(&network, start, goal)
 }
 
-/// Retrieves a node from a network.
+/**
+Retrieves a node from a network.
+*/
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     let tmp = node!(element, 0, 0);
     for (i, elem) in network.hash_map.iter().enumerate() {
@@ -26,7 +35,21 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
     None
 }
 
-/// Creates a path using the 'shortest leg' in the journey at each stop.
+/**
+ Creates a path using the 'shortest leg' in the journey at each stop.
+
+ The shorest leg means that for every occurence of a path, the alternatives are sorted and the shortest is always selected.
+
+
+## Errors
+
+ The path could not be found.
+
+
+ ## Panics
+
+ The provided A and B don't exist in the network.
+ */
 pub fn path_shortest_leg<'a>(
     network: &'a Network<Node>,
     start: Node,

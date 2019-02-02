@@ -10,7 +10,9 @@ pub mod gif;
 /// Connecting Nodes logic
 pub mod network;
 
-/// Returns the underlaying image used for the Map struct.
+/**
+Returns the underlaying image used for the Map struct.
+*/
 pub fn gen_map<T: Location + Draw + MinMax>(
     list: &[T],
 ) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (Coordinate)) {
@@ -21,11 +23,15 @@ pub fn gen_map<T: Location + Draw + MinMax>(
     (image, add)
 }
 
-/// Finds the min and max of a list and returns (min, max).
+/**
+Finds the min and max of a list and returns (min, max).
+
+the min and max use the size of the Draw trait to enlarge the are the min, max occupy.
+*/
 fn min_max<T: Location + Draw + MinMax>(list: &[T]) -> (Coordinate, Coordinate) {
     let mut size: i16 = consts::DEFAULT_SIZE as i16;
-    let mut min = Coordinate::new(0, 0);
-    let mut max = Coordinate::new(0, 0);
+    let mut min = coordinate!();
+    let mut max = coordinate!();
 
     for item in list {
         size = cmp::max(size, item.size() as i16);
@@ -37,12 +43,13 @@ fn min_max<T: Location + Draw + MinMax>(list: &[T]) -> (Coordinate, Coordinate) 
         min.y = cmp::min(min.y, imin.y);
     }
 
-    // We add a safety border using size.
-    let size = Coordinate::new(size / 4, size / 4);
+    let size = coordinate!(size / 4);
     (min - size, max + size)
 }
 
-/// Generates a canvas from the image crate.
+/**
+Generates a canvas from the image crate.
+*/
 fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
     image::DynamicImage::new_rgba8(w, h).to_rgba()
 }
