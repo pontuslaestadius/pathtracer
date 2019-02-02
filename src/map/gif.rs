@@ -31,7 +31,11 @@ impl<'a, T: Draw + Location + Hash + MinMax + Copy> Cycle<'a, T> {
     }
 }
 
-/// Wrapper around the Gif crate with pathfinder support.
+/**
+Wrapper around the Gif struct found in the gif crate.
+
+With additions for pathfinder support, and cycling features.
+*/
 pub struct Gif<'a> {
     encoder: gif::Encoder<File>,
     cycles: Vec<Cycle<'a, Node>>,
@@ -41,8 +45,21 @@ pub struct Gif<'a> {
 }
 
 impl<'a> Gif<'a> {
-    /// Constructs a Gif struct and initializes a file on the system for the
-    /// Gif to be stored.
+    /**
+    Constructs a Gif struct and initializes a file on the system for the Gif to be stored.
+
+
+    ## Errors
+
+    If it is unable to create the Encoder, or if the file can not be created.
+
+
+    ## See also
+
+    examples/hello_world_gif.rs
+    example/cycles.rs
+
+    */
     pub fn new(filename: &str, width: u16, height: u16) -> Self {
         let file = File::create(filename).unwrap();
         let mut encoder = Encoder::new(file, width, height, &[]).unwrap();
@@ -56,12 +73,21 @@ impl<'a> Gif<'a> {
         }
     }
 
-    /// Adds in a repeating patttern every interval frame on to the gif image.
+    /**
+    Adds in a repeating patttern every interval frame on to the gif image.
+
+
+    ## See also
+
+    examples/cycles.rs
+    */
     pub fn cycle(&mut self, interval: u8, map: Vec<Node>) {
         self.cycles.push(Cycle::new(interval, map, &|x| *x));
     }
 
-    /// Adds in a repeating patttern every interval frame on to the gif image.
+    /**
+    Adds in a repeating patttern every interval frame on to the gif image.
+    */
     pub fn cycle_predicate(
         &mut self,
         interval: u8,
@@ -71,10 +97,14 @@ impl<'a> Gif<'a> {
         self.cycles.push(Cycle::new(interval, map, predicate));
     }
 
-    /// Removes all cycles from the gif.
+    /**
+    Removes all cycles from the gif.
+    */
     pub fn remove_cycles(&mut self) { self.cycles = Vec::new(); }
 
-    /// Advances the cycles and returns the patterns it matched.
+    /**
+    Advances the cycles and returns the patterns it matched.
+    */
     pub fn advance_cycle(&mut self) -> Vec<Node> {
         let mut result = Vec::new();
         for cycle in self.cycles.iter_mut() {
@@ -85,16 +115,26 @@ impl<'a> Gif<'a> {
         result
     }
 
-    /// Returns the number of frames that has been written.
+    /**
+    Returns the number of frames that has been written.
+    */
     pub fn frames(&self) -> u16 { self.frames }
 
-    /// Pushes a frame using a map struct.
+    /**
+    Pushes a frame using a map struct.
+    */
     pub fn push(&mut self, mut map: Map) -> Result<(), io::Error> {
         map = map.map(&self.advance_cycle());
         self.push_frame(&map.consume())
     }
 
-    /// Pushes a frame to the structure, This also immediately saves it to disk.
+    /**
+    Pushes a frame to the structure, This also immediately saves it to disk.
+
+    ## Errors
+
+    If the encoder fails to write the frame to disk.
+    */
     pub fn push_frame(&mut self, image: &IW) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
         for pix in image.image().pixels() {
@@ -112,7 +152,11 @@ impl<'a> Gif<'a> {
         Ok(())
     }
 
-    /// Appends a blank frame to the gif.
+    /**
+    Appends a blank frame to the gif.
+
+    This will also advance Gif cycles.
+    */
     pub fn blank(&mut self) -> Result<(), io::Error> {
         let mut node = node!(self.width as i16 - 1, self.height as i16 - 1);
         node.radius = Some(0);

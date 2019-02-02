@@ -11,13 +11,16 @@ use std::{
     mem::swap,
 };
 
-/// Finds an element using their hashes.
+/**
+Finds an element using their hashes.
+*/
 pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
     list.iter().find(|&x| x.hash() == element)
 }
 
 /**
 Returns a Rgba with a modified value depending on how close it is to it's falloff point.
+
 
 ## Examples
 
@@ -69,42 +72,59 @@ pub fn range_color(
     ])
 }
 
-/// Returns a random number between the min and maximum.
-/// # Examples
-/// ```
-/// # use pathfinder::tools;
-/// let nr = tools::roll(50u32, 60);
-/// assert!(nr >= 50 && nr <= 60);
-/// ```
+/**
+ Returns a random number between the min and maximum.
+
+
+## Examples
+
+```
+# use pathfinder::tools;
+let nr = tools::roll(50u32, 60);
+assert!(nr >= 50 && nr <= 60);
+```
+ */
 pub fn roll<T: Into<u32>>(min: T, max: T) -> u32 {
     let mut rng = rand::thread_rng();
     rng.sample(Uniform::new(min.into(), max.into()))
 }
 
-/// Returns a random item from a given list.
+/**
+Returns a random item from a given list.
+*/
 pub fn random_item(list: &[String]) -> &String {
     let roll = roll(0, list.len() as u32);
     &list[roll as usize]
 }
 
-/// Checks so that the applied adjustments stay within a u8.
-/// # Examples
-/// ```
-/// use pathfinder::tools;
-/// let a = 50;
-/// let b = 250;
-/// assert_eq!(tools::border(a, b), 255);
-/// assert_eq!(tools::border(a, -b), 0);
-/// ```
+/**
+ Checks so that the applied adjustments stay within a u8.
+
+
+## Examples
+
+ ```
+ use pathfinder::tools;
+ let a = 50;
+ let b = 250;
+ assert_eq!(tools::border(a, b), 255);
+ assert_eq!(tools::border(a, -b), 0);
+ ```
+ */
 pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) as u8 }
 
-/// Returns a random Rgb color. the opacity is always 255.
-/// # Examples
-/// ```
-/// # use pathfinder::tools;
-/// let rgba = tools::gen_rgba();
-/// println!("{:?}", rgba.data);
-/// ```
+/**
+Returns a random Rgb color. the opacity is always 255.
+
+
+## Examples
+
+```
+# use pathfinder::tools;
+let rgba = tools::gen_rgba();
+println!("{:?}", rgba.data);
+```
+*/
 pub fn gen_rgba() -> Rgba<u8> {
     (0..4).fold(super::consts::DEFAULT_RGBA, |mut acc, x| {
         acc.data[x] = acc.data[x].saturating_add(roll(0u8, u8::max_value()) as u8);
@@ -112,7 +132,9 @@ pub fn gen_rgba() -> Rgba<u8> {
     })
 }
 
-/// Returns a Rgb color based on a seed value. the opacity is always 255.
+/**
+Returns a Rgb color based on a seed value. the opacity is always 255.
+*/
 pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     let r = seed % 254;
     let g = (seed + 75) % 254;
@@ -121,38 +143,36 @@ pub fn seed_rgba(seed: u64) -> Rgba<u8> {
     Rgba([r as u8, g as u8, b as u8, 255])
 }
 
-/// Implemented according to
-/// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-///
-/// Plots the pixels between two coordinate points.
-/// Checks so that the applied adjustments stay within a u8.
-///
-/// # Examples
-///
-/// First we create a simple path between two coordinates.
-///
-/// ```
-/// use pathfinder::{tools, Coordinate};
-/// let a = Coordinate::new(0, 0);
-/// let b = Coordinate::new(1, 1);
-/// let path = tools::plot(a, b);
-/// ```
-///
-/// To confirm the small path created. Larger paths are more difficult to
-/// manually test.
-///
-/// ```
-/// # use pathfinder::{tools, Coordinate};
-/// # let a = Coordinate::new(0, 0);
-/// # let b = Coordinate::new(1, 1);
-/// # let path = tools::plot(a, b);
-/// let correct_path = vec![
-///     Coordinate::new(0, 0),
-///     Coordinate::new(1, 0),
-///     Coordinate::new(1, 1),
-/// ];
-/// assert_eq!(path, correct_path);
-/// ```
+/**
+Generates a list of Coordinates between two points. Required for drawing direct edges.
+
+Implemented according to bresenham's 4 way line algorithm.
+
+More information can be found here.
+
+https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+
+## Examples
+
+First we create a simple path between two coordinates.
+
+```
+use pathfinder::{tools, Coordinate};
+let a = Coordinate::new(0, 0);
+let b = Coordinate::new(1, 1);
+let path = tools::plot(a, b);
+```
+
+Paths can also be used from macro invocations.
+
+```
+# #[macro_use] use pathfinder::*;
+# fn main() {
+let path = tools::plot(coordinate!(), coordinate!(100, 100));
+# }
+```
+*/
 pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> { plot_type(a, b, &plot_bresenham) }
 
 pub fn plot_type(
@@ -182,11 +202,15 @@ pub fn plot_type(
     }
 }
 
-/// Draws a line between two coordinate points.
-/// Derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
-/// # Panics
-///
-/// delta_x == 0.00
+/**
+Draws a line between two coordinate points.
+Derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+
+
+## Panics
+
+from.x == to.x
+*/
 pub fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let delta = to - from;
     let delta_x = f64::from(delta.x);
@@ -216,8 +240,9 @@ pub fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     plot
 }
 
-/// Draws a line between two coordinate points in straight horizontal or
-/// vertical lines.
+/**
+Draws a line between two coordinate points in straight horizontal or vertical lines.
+*/
 pub fn plot_rectangle(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let mut plot: Vec<Coordinate> = Vec::new();
     let mut delta = Coordinate::new(1, 1);
@@ -243,23 +268,36 @@ pub fn plot_rectangle(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     plot
 }
 
-/// Gives the midpoint between two points.
-/// # Examples
-/// First declare the colors and the range at which it becomes darker.
-/// ```
-/// use pathfinder::{tools, Coordinate};
-/// let a = Coordinate::new(0, 0);
-/// let b = Coordinate::new(100, 100);
-/// let mid = tools::midpoint(a, b);
-/// assert_eq!(mid, Coordinate::new(50, 50));
-/// ```
+/**
+Gives the midpoint between two points.
+
+
+## Examples
+
+Declare the colors and the range at which it becomes darker.
+
+```
+# use pathfinder::{tools, Coordinate};
+let a = Coordinate::new(0, 0);
+let b = Coordinate::new(100, 100);
+let mid = tools::midpoint(a, b);
+assert_eq!(mid, Coordinate::new(50, 50));
+```
+*/
 pub fn midpoint(a: Coordinate, b: Coordinate) -> Coordinate {
     Coordinate::new((a.x + b.x) / 2, (a.y + b.y) / 2)
 }
 
-/// # Experimental! Work in progress.
-/// Draws a line between two coordinate points in the form on a ellipse.
-/// Derived from: https://en.wikipedia.org/wiki/Ellipse
+/**
+Draws a line between two coordinate points in the form on a ellipse.
+
+Derived from: https://en.wikipedia.org/wiki/Ellipse
+
+
+## Experimental
+
+This functionality is heavily a work in progress and it's behaviour is unreliable.
+*/
 pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let min = Coordinate::new(min(from.x, to.x), min(from.y, to.y));
     let _max = Coordinate::new(max(from.x, to.x), max(from.y, to.y));
@@ -285,11 +323,7 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     }
 
     while t > theta {
-        let point = from
-            + Coordinate::new(
-                (r * theta.cos()) as i16,
-                (f64::from(s.y) * r * theta.sin() / 2.0) as i16,
-            );
+        let point = from + coordinate!(r * theta.cos(), f64::from(s.y) * r * theta.sin() / 2.0);
         println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
         let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);
@@ -297,7 +331,7 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
         theta += step;
     }
     result.append(&mut plot_type(from, to, &plot_bresenham));
-    //println!("{:#?}", result);
+    println!("{:#?}", result);
     result
 }
 
