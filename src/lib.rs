@@ -59,7 +59,7 @@ pub struct Coordinate {
 /// references to other points.
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HL {
-    pub style: u8,
+    pub style: EdgeStyle,
     pub f: u64,
     pub t: u64,
     pub from: Option<Coordinate>,
@@ -98,6 +98,39 @@ pub struct Map {
 #[derive(Clone, Copy)]
 pub struct Network<T: Draw + Hash + std::marker::Copy> {
     pub hash_map: [Option<T>; consts::NETWORK_REM],
+}
+
+// ------------------------------------------------------------------
+
+/**
+  Style setter for Edges.
+  Decides what algorithm will be performed to generate the edge on the image.
+
+
+  ## Straight
+
+  Sharp L shape
+
+
+  ## Ellipse
+
+  Curves the connection
+
+
+  ## Direct
+
+  Uses Brasehem's line algorithm to directly correct the nodes.
+
+*/
+#[derive(Copy, PartialEq, Eq, Clone, Debug)]
+pub enum EdgeStyle {
+    Direct,
+    Ellipse,
+    Straight,
+}
+
+impl std::default::Default for EdgeStyle {
+    fn default() -> Self { EdgeStyle::Direct }
 }
 
 // ------------------------------------------------------------------
@@ -168,10 +201,12 @@ impl IW {
         self.put_unsafe(l, color);
     }
 
+    /// Places a pixel without verifying it's position.
     pub fn put_unsafe<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
+    /// Returns a coordinate with the width and height of the image buffer.
     pub fn dimensions(&self) -> Coordinate { coordinate!(self.img.width(), self.img.height()) }
 }
 
@@ -488,28 +523,36 @@ impl Node {
         Node::linked_list_predicate(list, &|_, _| true)
     }
 
-    /// Returns a specific link if it exists. Returns none if not.
-    ///
-    /// ```
-    /// # #[macro_use] extern crate pathfinder;
-    /// # use pathfinder::{Coordinate, Node};
-    /// # fn main() {
-    /// let node = node!();
-    /// let hl = node.hl(0);
-    /// assert!(hl.is_err());
-    /// # }
-    /// ```
-    ///
-    /// ```
-    /// # #[macro_use] extern crate pathfinder;
-    /// # use pathfinder::{Coordinate, Node};
-    /// # fn main() {
-    /// let a = node!("A", 0, 0);
-    /// let mut b = node!("B", 50, 50);
-    /// b.link(&a);
-    /// assert!(b.hl(0).is_ok());
-    /// # }
-    /// ```
+    /**
+          Returns a specific link if it exists. Returns none if not.
+
+    ## Examples
+
+    If the Node has not been linked.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Node};
+          # fn main() {
+          let node = node!();
+          let hl = node.hl(0);
+          assert!(hl.is_err());
+          # }
+          ```
+
+    Linking Nodes makes us able to interface with Edges.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Node};
+          # fn main() {
+          let a = node!("A", 0, 0);
+          let mut b = node!("B", 50, 50);
+          b.link(&a);
+          assert!(b.hl(0).is_ok());
+          # }
+          ```
+         */
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
@@ -539,13 +582,20 @@ impl Node {
         }
     }
 
-    /// Links a list of nodes together in the order they are indexed.
-    /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
-    /// ```
-    /// use pathfinder::Node;
-    /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
-    /// let linked_list = Node::linked_list(nodes);
-    /// ```
+    /**
+     Links a list of nodes together in the order they are indexed.
+
+     A list of A, B, C. Will result in them being linked as: A -> B -> C.
+
+
+     ## Examples
+
+    ```
+     # use pathfinder::Node;
+     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+     let linked_list = Node::linked_list(nodes);
+     ```
+     */
     pub fn linked_list_predicate(
         mut list: Vec<Node>,
         f: &Fn(Coordinate, Coordinate) -> bool,
@@ -587,37 +637,77 @@ impl Node {
             .unwrap()
     }
 
-    /// Removes all connects leaving this node. This still leaves connections
-    /// going towards this node.
-    /// ```
-    /// # #[macro_use] extern crate pathfinder;
-    /// # use pathfinder::{Coordinate, Node};
-    /// # fn main() {
-    /// let a = node!(0, 0);
-    /// let mut b = node!(50, 50);
-    /// b.link(&a);
-    /// assert!(b.hl(0).is_ok());
-    /// b.disconnect();
-    /// assert!(b.hl(0).is_err());
-    /// # }
-    /// ```
+    /**
+          Removes all connects leaving this node. This still leaves connections going towards this node.
+
+
+          ## Examples
+
+          Connects two nodes and then disconnects it.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Node};
+          # fn main() {
+          let a = node!(0, 0);
+          let mut b = node!(50, 50);
+          b.link(&a);
+          assert!(b.hl(0).is_ok());
+          b.disconnect();
+          assert!(b.hl(0).is_err());
+          # }
+          ```
+
+          A node does not need to be connected, before attempted to disconnect it.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Node};
+          # fn main() {
+          let mut a = node!(0, 0);
+          a.disconnect();
+          # }
+          ```
+
+    */
     pub fn disconnect(&mut self) { self.links = [HL::new(0, 0); consts::MAX_LINKS]; }
 
-    /// Links Node self to another point that has Hash and Location implemented.
-    /// ```
-    /// # #[macro_use] extern crate pathfinder;
-    /// # use pathfinder::{Coordinate, Location, Node};
-    /// # fn main() {
-    /// let b: Node = node!("B", 100, 100);
-    /// let mut a: Node = node!("A", 0, 0);
-    /// a.link(&b);
-    /// assert!(a.is_directly_connected(&b));
-    /// # }
-    /// ```
+    /**
+          Links Node self to another point that has Hash and Location implemented.
+
+
+          ## Examples
+
+          Connects two nodes, and verifies that they are connected.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Location, Node};
+          # fn main() {
+          let b = node!();
+          let mut a = node!();
+          a.link(&b);
+          assert!(a.is_directly_connected(&b));
+          # }
+          ```
+
+          Connects a node with a group.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Location, Node, Group};
+          # fn main() {
+          let b = cluster!();
+          let mut a = node!();
+          a.link(&b);
+          # }
+          ```
+
+    */
     pub fn link<P: Hash + Location>(&mut self, other: &P) {
         let i = self.get_link_avail_index();
         self.links[i] = HL {
-            style: 0,
+            style: EdgeStyle::default(),
             f: self.hash,
             t: other.hash(),
             from: Some(self.geo),
@@ -629,7 +719,7 @@ impl Node {
 impl HL {
     pub fn new(f: u64, t: u64) -> Self {
         HL {
-            style: 0,
+            style: EdgeStyle::default(),
             f,
             t,
             from: None,
@@ -637,16 +727,37 @@ impl HL {
         }
     }
 
-    /// Style setter. Values are:
-    /// 0: Bresenhem.
-    /// 1: Straight.
-    /// 2: Ellipse.
-    pub fn style(&mut self, s: u8) { self.style = s; }
+    /**
+          Sets the algorithm the edge will use to be drawn.
 
-    /// Checks if the HL has two endpoint hashes.
+
+          ## Examples
+
+          Sets the style to be 'straight' meaning sharp like an L shape.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{Coordinate, Location, Node, Group, EdgeStyle};
+          # fn main() -> std::io::Result<()> {
+          let b = cluster!();
+          let mut a = node!();
+          a.link(&b);
+          a.hl_mut(0)?.style(EdgeStyle::Straight);
+          # Ok(())
+          # }
+          ```
+
+    */
+    pub fn style(&mut self, style: EdgeStyle) { self.style = style; }
+
+    /**
+    Checks if the HL has two endpoint hashes.
+    */
     pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
-    /// Draws the HL on an Image Wrapper.
+    /**
+    Draws the HL on an Image Wrapper.
+    */
     fn draw(&self, mut image: IW, mut offset: Coordinate, size: u32) -> IW {
         let (mut from, mut to) = self.min_max();
         if !self.is_connected() || from == to {
@@ -662,10 +773,15 @@ impl HL {
                 let add = coordinate!(j, i) - coordinate!(s);
                 let col = (size - i) as u8 * consts::DEFAULT_SHADE as u8;
                 let plot = match self.style {
-                    0 => tools::plot_type(from + add, to + add, &tools::plot_bresenham),
-                    1 => tools::plot_type(from + add, to + add, &tools::plot_rectangle),
-                    2 => tools::plot_type(from + add, to + add, &tools::plot_ellipse),
-                    _ => tools::plot(from + add, to + add),
+                    EdgeStyle::Direct => {
+                        tools::plot_type(from + add, to + add, &tools::plot_bresenham)
+                    },
+                    EdgeStyle::Straight => {
+                        tools::plot_type(from + add, to + add, &tools::plot_rectangle)
+                    },
+                    EdgeStyle::Ellipse => {
+                        tools::plot_type(from + add, to + add, &tools::plot_ellipse)
+                    },
                 };
                 let _ = plot
                     .iter()
@@ -678,7 +794,9 @@ impl HL {
 }
 
 impl Group {
-    /// Constructs a new Group
+    /**
+    Constructs a new Group
+    */
     pub fn new(name: &str, coordinates: Coordinate) -> Self {
         Group {
             settings: Node::new(name, coordinates),
@@ -686,20 +804,29 @@ impl Group {
         }
     }
 
-    /// Adds a Node dynamically to the Group.
+    /**
+    Adds a Node dynamically to the Group.
+    */
     pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
 
-    /// Set the radius for the group's meta-data.
+    /**
+    Set the radius for the group's meta-data.
+    */
     pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
 
-    /// Retrieves the nodes drawing in the group. Positions are relative to the
-    /// group.
+    /**
+    Retrieves the nodes drawing in the group. Positions are relative to the group.
+    */
     pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
 
-    /// Retrieves a mutable group meta data.
+    /**
+    Retrieves a mutable group meta data.
+    */
     pub fn set(&mut self) -> &mut Node { &mut self.settings }
 
-    /// Adds a set of nodes randomly located inside the group.
+    /**
+    Adds a set of nodes randomly located inside the group.
+    */
     pub fn add(&mut self, nr: u32) {
         for _ in 0..nr {
             let co = coordinate::gen_within_radius(self.position(), self.size());
@@ -709,18 +836,25 @@ impl Group {
         }
     }
 
-    /// Applies the closure over each mutable child node.
+    /**
+    Applies the closure over each mutable child node.
+    */
     pub fn each(&mut self, func: &Fn(&mut Node)) {
         for node in self.nodes.iter_mut() {
             func(node);
         }
     }
 
-    /// Sets the color of the Group.
+    /**
+    Sets the color of the Group.
+    */
     pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
 
-    /// Plots node according to the fn provided.
-    /// The closure parameter is the number of children the group has.
+    /**
+    Plots node according to the fn provided.
+
+    The closure parameter is the number of children the group has.
+    */
     pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
         let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
@@ -729,24 +863,31 @@ impl Group {
         self.push(node);
     }
 
-    /// Adds a Node with a specific minimum and maximum distance from the
-    /// center of the Group.
+    /**
+    Adds a Node with a specific minimum and maximum distance from the center of the Group.
+    */
     pub fn new_node_min_max(&mut self, min: u32, max: u32) {
         group::add_node(self, None, Some(min), Some(max));
     }
 
-    /// Removes all non-essentials from the standard implementation.
+    /**
+    Removes all non-essentials from the standard implementation.
+    */
     pub fn new_simple(x: i16, y: i16) -> Self {
         Group::new(&(x + y).to_string(), Coordinate::new(x, y))
     }
 
-    /// Pushes a Node to the Group.
+    /**
+    Pushes a Node to the Group.
+    */
     pub fn push(&mut self, mut node: Node) {
         node.geo -= self.position();
         self.nodes.push(node);
     }
 
-    /// Returns a dynamic radius based on the number of Nodes in the Group.
+    /**
+    Returns a dynamic radius based on the number of Nodes in the Group.
+    */
     pub fn dynamic_radius(&self) -> u32 {
         match self.settings.radius {
             Some(x) => x,
@@ -754,14 +895,17 @@ impl Group {
         }
     }
 
-    /// Rotates all the nodes inside the group.
+    /**
+    Rotates all the nodes inside the group.
+    */
     pub fn rotate(&mut self, rad: f64) {
         // Use 0, 0 because the self.nodes positions relative.
         coordinate::rotate_around_axis(coordinate!(), &mut self.nodes, rad);
     }
 
-    /// Generates an image::Rgba based on the color of the Group and the
-    /// distance from center.
+    /**
+    Generates an image::Rgba based on the color of the Group and the distance from center.
+    */
     pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
         tools::range_color(
             self.dynamic_radius() as i16,
@@ -771,27 +915,38 @@ impl Group {
         )
     }
 
-    /// Converts a list of tuples (x,y) to a Vector of Groups.
-    /// Names are assigned from "A" and upwards automatically.
-    /// ```
-    /// use pathfinder::Group;
-    /// let list = [(0, 0), (10, 10), (15, 15)];
-    /// let groups = Group::from_list(&list);
-    /// assert_eq!(groups.len(), 3);
-    /// ```
+    /**
+     Converts a list of tuples (x,y) to a Vector of Groups.
+    Names are assigned from "A" and upwards automatically.
+
+    ## Examples
+
+    ```
+     # use pathfinder::Group;
+     let list = [(0, 0), (10, 10), (15, 15)];
+     let groups = Group::from_list(&list);
+     assert_eq!(groups.len(), 3);
+     ```
+     */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
         coordinate::from_list(&list, &|c, i| {
             Group::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
     }
 
-    /// Links together two groups.
-    /// ```
-    /// use pathfinder::{Coordinate, Group, Location};
-    /// let b: Group = Group::new("B", Coordinate::new(100, 100));
-    /// let mut a: Group = Group::new("A", Coordinate::new(0, 0));
-    /// a.link(&b);
-    /// ```
+    /**
+    Link together groups.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::{Coordinate, Group, Location};
+    let b: Group = Group::new("B", Coordinate::new(100, 100));
+    let mut a: Group = Group::new("A", Coordinate::new(0, 0));
+    a.link(&b);
+    ```
+    */
     pub fn link(&mut self, other: &Group) { self.settings.link(&other.settings); }
 }
 
@@ -810,8 +965,9 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
 // ------------------------------------------------------------------
 
 impl Map {
-    /// Creates a new map, no min_max are intially required and are
-    /// generated automatically when calling Map::map.
+    /**
+    Creates a new map, no min_max are intially required and are generated automatically when calling Map::map.
+    */
     pub fn new() -> Self {
         Map {
             image: None,
@@ -819,39 +975,54 @@ impl Map {
         }
     }
 
-    /// Saves the image to disk. Can be absolute or relative path.
-    /// # Examples
-    /// ```
-    /// # use pathfinder::*;
-    /// # use std::path::Path;
-    /// let nodes = Node::from_list(&[(0, 0), (10, 10)]);
-    /// Map::new()
-    ///     .map(&nodes)
-    ///     .save(Path::new("/tmp/example.png"))
-    ///     .unwrap();
-    /// ```
+    /**
+      Saves the image to disk at the given Path.
+
+
+      ## Examples
+
+      ```
+      # use pathfinder::*;
+      # use std::path::Path;
+      # fn main() -> std::io::Result<()> {
+      let nodes = Node::from_list(&[(0, 0), (10, 10)]);
+      Map::new()
+      .map(&nodes)
+      .save(Path::new("/tmp/example.png"))?;
+      # Ok(())
+      # }
+      ```
+    */
     pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
         self.image.unwrap().image().save(path)
     }
 
-    /// Unwraps the image wrapper
+    /**
+    Consumes the Map and returns the ImageWrapper.
+    */
     pub fn consume(self) -> IW { self.image.unwrap() }
 
-    /// Maps any struct that has implemented Draw, on to an ImageBuffer.
-    /// # Examples
-    /// ```
-    /// # use pathfinder::*;
-    /// let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
-    /// // Add content to vectors.
-    /// let mut map = Map::new();
-    /// map = map.map(&nodes);
-    /// ```
+    /**
+     Maps any struct that has implemented Draw, on to an ImageBuffer.
+
+
+    ## Examples
+
+     ```
+     # use pathfinder::*;
+     let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
+     // Add content to vectors.
+     let mut map = Map::new();
+     map = map.map(&nodes);
+     ```
+     */
     pub fn map<T: Draw + Location + Hash + MinMax>(self, element: &[T]) -> Self {
         self.map_filter(&element, &|_| true)
     }
 
-    /// Maps the elements but with an added filter parameter to exclude
-    /// elements.
+    /**
+    Maps the elements but with an added filter parameter to exclude elements.
+    */
     pub fn map_filter<T: Draw + Location + Hash + MinMax>(
         self,
         element: &[T],
@@ -860,7 +1031,9 @@ impl Map {
         self.map_params(&element, &filter, &shape::Square::new())
     }
 
-    /// Maps the elements with a specified shape struct.
+    /**
+    Maps the elements with a specified shape struct.
+    */
     pub fn map_shape<T: Draw + Location + Hash + MinMax, S: Shape>(
         self,
         element: &[T],
@@ -869,7 +1042,9 @@ impl Map {
         self.map_params(&element, &|_| true, shape)
     }
 
-    /// Maps the elements without stabalizing the positions on the canvas.
+    /**
+    Maps the elements without stabalizing the positions on the canvas.
+    */
     pub fn map_absolute<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
             let (image, _) = map::gen_map(&element);
@@ -878,7 +1053,9 @@ impl Map {
         self.map(element)
     }
 
-    /// Maps the elements but with all added parameters.
+    /**
+    Maps the elements but with all added parameters.
+    */
     pub fn map_params<T: Draw + Location + Hash + MinMax, S: Shape>(
         mut self,
         element: &[T],
@@ -903,36 +1080,46 @@ impl Map {
 }
 
 impl Network<Node> {
-    /// Calculates the path from node A to node B.
-    /// # Examples
-    /// ```
-    /// use pathfinder::{Coordinate, Network, Node};
-    /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
-    /// let mut nodes = Node::linked_list(nodes);
-    /// let path = Network::new(nodes).path("A", "D").unwrap();
-    /// assert_eq!(path.len(), 4);
-    /// ```
+    /**
+    Calculates the path from node A to node B.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::{Coordinate, Network, Node};
+    let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
+    let mut nodes = Node::linked_list(nodes);
+    let path = Network::new(nodes).path("A", "D").unwrap();
+    assert_eq!(path.len(), 4);
+    ```
+    */
     pub fn path<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         let mut path = map::network::path(self, b, a, &map::network::path_shortest_leg)?;
         path.reverse();
         Ok(path)
     }
 
-    /// Mimics path behaviour but works in reverse, Meaning stepping back in
-    /// the links.
+    /**
+    Mimics path behaviour but works in reverse, Meaning stepping back in the links.
+    */
     pub fn path_rev<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         map::network::path(self, a, b, &map::network::path_shortest_leg)
     }
 
-    /// Returns if the given hash exists in the network.
-    /// # Examples
-    /// ```
-    /// use pathfinder::{Coordinate, Network, Node};
-    /// let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
-    /// let network = Network::new(nodes.clone());
-    /// assert!(network.get("A").is_some());
-    /// assert!(network.get("E").is_some());
-    /// assert!(network.get("F").is_none());
-    /// ```
+    /**
+    Returns if the given hash exists in the network.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::{Coordinate, Network, Node};
+    let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
+    let network = Network::new(nodes.clone());
+    assert!(network.get("A").is_some());
+    assert!(network.get("F").is_none());
+    ```
+    */
     pub fn get(&self, element: &str) -> Option<Node> { map::network::get(self, element) }
 }
