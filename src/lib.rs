@@ -530,7 +530,7 @@ impl Node {
 
     If the Node has not been linked.
 
-          ```
+    ```
           # #[macro_use] extern crate pathfinder;
           # use pathfinder::{Coordinate, Node};
           # fn main() {
@@ -538,11 +538,11 @@ impl Node {
           let hl = node.hl(0);
           assert!(hl.is_err());
           # }
-          ```
+    ```
 
     Linking Nodes makes us able to interface with Edges.
 
-          ```
+    ```
           # #[macro_use] extern crate pathfinder;
           # use pathfinder::{Coordinate, Node};
           # fn main() {
@@ -551,7 +551,7 @@ impl Node {
           b.link(&a);
           assert!(b.hl(0).is_ok());
           # }
-          ```
+    ```
          */
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
