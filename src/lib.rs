@@ -411,38 +411,6 @@ impl From<Group> for Coordinate {
 
 // ------------------------------------------------------------------
 
-impl std::ops::Add for Coordinate {
-    type Output = Coordinate;
-
-    fn add(self, other: Coordinate) -> Coordinate {
-        Coordinate::new(self.x + other.x, self.y + other.y)
-    }
-}
-
-impl std::ops::Sub for Coordinate {
-    type Output = Coordinate;
-
-    fn sub(self, other: Coordinate) -> Coordinate {
-        Coordinate::new(self.x - other.x, self.y - other.y)
-    }
-}
-
-impl std::ops::AddAssign for Coordinate {
-    fn add_assign(&mut self, other: Coordinate) {
-        self.x += other.x;
-        self.y += other.y;
-    }
-}
-
-impl std::ops::SubAssign for Coordinate {
-    fn sub_assign(&mut self, other: Coordinate) {
-        self.x -= other.x;
-        self.y -= other.y;
-    }
-}
-
-// ------------------------------------------------------------------
-
 impl Coordinate {
     /// Constructs a Coordinate struct.
     pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
@@ -763,14 +731,14 @@ impl HL {
         if !self.is_connected() || from == to {
             return image;
         }
-        let s = (size / 2) as i16;
-        offset += coordinate!(s);
+        let s = coordinate!(size / 2);
+        offset += s;
         from += offset;
         to += offset;
 
         for i in 0..size {
             for j in 0..size {
-                let add = coordinate!(j, i) - coordinate!(s);
+                let add = coordinate!(j, i) - s - s;
                 let col = (size - i) as u8 * consts::DEFAULT_SHADE as u8;
                 let plot = match self.style {
                     EdgeStyle::Direct => {
