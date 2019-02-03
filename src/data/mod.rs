@@ -6,7 +6,9 @@ use std::{
     io::{self, prelude::*},
 };
 
-/// Holds configurations for converting a content String to a path network.
+/**
+Holds configurations for converting a content String to a path network.
+*/
 pub struct CustomConverter<'a> {
     pub split: char,
     pub node_range: u32,
@@ -15,14 +17,17 @@ pub struct CustomConverter<'a> {
     pub link_groups: bool,
 }
 
-/// Reads from the provided file, and converts to a path network using default
-/// settings.
+/**
+Reads from the provided file, and converts to a path network using default settings.
+*/
 pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = content(path)?;
     Ok(convert(&content, &lambda))
 }
 
-/// Reads from the provided file, and returns content.
+/**
+Reads from the provided file, and returns content.
+*/
 fn content(path: &str) -> Result<String, io::Error> {
     let mut file = OpenOptions::new().read(true).open(path)?;
 
@@ -31,16 +36,18 @@ fn content(path: &str) -> Result<String, io::Error> {
     Ok(contents)
 }
 
-/// Initializes a CustomConverter a converts the content to a vector of groups
-/// and links.
+/**
+Initializes a CustomConverter a converts the content to a vector of groups and links.
+*/
 pub fn convert(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 30, 120, &lambda);
     convert_inner(&content, &cct).unwrap()
 }
 
 impl<'a> CustomConverter<'a> {
-    /// Constructs a new CustomConverter configuration for data interpretation
-    /// for a path network.
+    /**
+    Constructs a new CustomConverter configuration for data interpretation for a path network.
+    */
     pub fn new(
         split: char,
         node_range: u32,
@@ -57,8 +64,9 @@ impl<'a> CustomConverter<'a> {
     }
 }
 
-/// Constructs a vector of groups and links using a CustomConverter and the
-/// string to analyze.
+/**
+Constructs a vector of groups and links using a CustomConverter and the string to analyze.
+*/
 pub fn convert_inner(content: &str, cct: &CustomConverter) -> io::Result<Vec<Group>> {
     let mut gr_bool_arr: [bool; consts::NETWORK_REM] = [false; consts::NETWORK_REM];
 
@@ -101,7 +109,9 @@ fn push_node(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
     groups
 }
 
-/// Calculates a default hash.
+/**
+Calculates a default hash.
+*/
 pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);

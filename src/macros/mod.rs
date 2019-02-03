@@ -9,13 +9,24 @@
   ```
   # #![macro_use] use pathfinder::*;
   # fn main() {
-
   coordinate!();
   coordinate!(0);
   coordinate!(0, 0);
-
   # }
   ```
+
+  Type conversion is performed to make invocation easier.
+
+  If you are not sure if the value you pass can be converted to a i16, do not use this macro as values could overflow.
+
+  ```
+  # #![macro_use] use pathfinder::*;
+  # fn main() {
+  coordinate!(0.0);
+  coordinate!(0u8, 0i128);
+  # }
+  ```
+
 */
 #[macro_export]
 macro_rules! coordinate {
@@ -35,6 +46,7 @@ macro_rules! coordinate {
 /**
   initalize Nodes using a range of parameters.
 
+  Since the macro calls coordinate! it allows for type conversion, be aware that if your values can not be cast to i16. it is better to avoid these macro invocations.
 
   ## Examples
 
@@ -73,6 +85,8 @@ macro_rules! node {
 
 /**
   initalize Groups using a range of parameters.
+
+  Since the macro calls coordinate! it allows for type conversion, be aware that if your values can not be cast to i16. it is better to avoid these macro invocations.
 
 
   ## Examples

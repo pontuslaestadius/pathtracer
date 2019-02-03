@@ -4,8 +4,14 @@ extern crate rand;
 use super::{tools::roll, Coordinate};
 use std::{cmp::Ordering, f64};
 
-/// Constructs a vector of generic structs from a given list convered to
-/// Coordinates.
+/**
+Constructs a vector of generic structs from a given list convered to Coordinates.
+
+## See also
+
+examples/city.rs
+
+*/
 pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Vec<T> {
     let mut result: Vec<T> = Vec::new();
     for (i, &(x, y)) in list.iter().enumerate() {
@@ -14,7 +20,9 @@ pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Ve
     result
 }
 
-/// Constructs a randomly positioned coordinate.
+/**
+Constructs a randomly positioned coordinate.
+*/
 pub fn gen() -> Coordinate {
     Coordinate {
         x: rand::random::<i16>(),
@@ -22,71 +30,100 @@ pub fn gen() -> Coordinate {
     }
 }
 
-/// Get a coordinate based of a function.
-/// # Examples
-/// ```
-/// use pathfinder::{coordinate::*, Coordinate};
-/// let c1 = Coordinate::new(0, 0);
-/// let f = |i: usize| -> Coordinate { Coordinate::new(i as i16, i as i16) };
-/// let c2 = calc(c1, 5, &f);
-/// assert_eq!(c2, Coordinate { x: 5, y: 5 });
-/// ```
+/**
+Calculate a coordinate based on another coordinate and a function.
+
+
+## Examples
+
+```
+# use pathfinder::{coordinate::*, Coordinate};
+let c1 = Coordinate::new(0, 0);
+let f = |i: usize| -> Coordinate { Coordinate::new(i as i16, i as i16) };
+let c2 = calc(c1, 5, &f);
+assert_eq!(c2, Coordinate { x: 5, y: 5 });
+```
+
+## See also
+
+examples/node_plot.rs
+
+*/
 pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) -> Coordinate {
-    let res = call(variable);
-    Coordinate {
-        x: start.x + res.x,
-        y: start.y + res.y,
-    }
+    start + call(variable)
 }
 
-/// Get difference in distance.
-/// # Examples
-/// ```
-/// # use pathfinder::{coordinate::*, Coordinate};
-/// let c1 = Coordinate::new(0, 0);
-/// let c2 = Coordinate::new(100, 100);
-/// let difference = diff(c1, c2);
-/// assert_eq!(difference, (100, 100));
-/// ```
+/**
+get difference in distance.
+
+
+## Examples
+
+```
+# #[macro_use] use pathfinder::*;
+# use pathfinder::coordinate::*;
+# fn main() {
+let difference = diff(coordinate!(), coordinate!(100));
+assert_eq!(difference, (100, 100));
+# }
+```
+*/
 pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
     let c = (c1 - c2).abs();
     (c.x, c.y)
 }
 
-/// Get the distance between two Coordinates'.
-/// # Examples
-/// ```
-/// # use pathfinder::{coordinate, Coordinate};
-/// let a = Coordinate::new(0, 0);
-/// let b = Coordinate::new(3, 4);
-/// let distance = coordinate::distance(a, b);
-/// assert_eq!(distance, 5);
-/// ```
+/**
+ Get the distance between two Coordinates'.
+
+
+## Examples
+
+```
+# #[macro_use] use pathfinder::*;
+# use pathfinder::coordinate::*;
+# fn main() {
+let distance = distance(coordinate!(), coordinate!(3, 4));
+assert_eq!(distance, 5);
+# }
+```
+*/
 pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
     let diff = diff(a, b);
     pythagoras::theorem(diff.0, diff.1) as u32
 }
 
-/// Generate a Coordinate from a given Coordinate and randomly places it within
-/// a radius.
-/// # Examples
-/// ```
-/// use pathfinder::{coordinate::*, Coordinate};
-/// let c1 = Coordinate::new(0, 0);
-/// let c2 = gen_within_radius(c1, 100);
-/// ```
+/**
+ Generate a Coordinate from a given Coordinate and randomly places it within a radius.
+
+
+## Examples
+
+```
+# #[macro_use] use pathfinder::*;
+# use pathfinder::coordinate::*;
+# fn main() {
+let c2 = gen_within_radius(coordinate!(), 100);
+# }
+```
+*/
 pub fn gen_within_radius(coord: Coordinate, radius: u32) -> Coordinate {
     gen_radius(coord, 0, radius)
 }
 
-/// Generate a Coordinate from a given Coordinate and randomly places it within
-/// a min and max radius.
-/// # Examples
-/// ```
-/// # use pathfinder::{coordinate, Coordinate};
-/// let c1 = Coordinate::new(0, 0);
-/// let c2 = coordinate::gen_radius(c1, 50, 100);
-/// ```
+/**
+Generate a Coordinate from a given Coordinate and randomly places it within
+a min and max radius.
+
+
+## Examples
+
+```
+# use pathfinder::{coordinate, Coordinate};
+let c1 = Coordinate::new(0, 0);
+let c2 = coordinate::gen_radius(c1, 50, 100);
+```
+*/
 pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
     // Randomly gets the radius of the circle.
     let r = f64::from(roll(min, max));
@@ -107,6 +144,7 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
 /**
 Rotates the provide Vec around the axis in place.
 
+
 ## Examples
 
 ```
@@ -114,10 +152,16 @@ Rotates the provide Vec around the axis in place.
 # use pathfinder::{coordinate::*, Coordinate, Node};
 # fn main() {
 let mut v = vec![node!(0, 100)];
-rotate_around_axis(Coordinate::new(0, 0), &mut v, 90.0);
+rotate_around_axis(coordinate!(), &mut v, 90.0);
 assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
 # }
 ```
+
+
+## See also
+
+examples/node_plot.rs
+
 */
 pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: f64) {
     if deg == 0.0 {
@@ -145,6 +189,47 @@ impl PartialOrd for Coordinate {
 
 impl PartialEq for Coordinate {
     fn eq(&self, other: &Coordinate) -> bool { (self.x == other.x) && (self.y == other.y) }
+}
+
+impl std::ops::Add for Coordinate {
+    type Output = Coordinate;
+
+    fn add(self, other: Coordinate) -> Coordinate {
+        Coordinate::new(self.x + other.x, self.y + other.y)
+    }
+}
+
+impl std::ops::Sub for Coordinate {
+    type Output = Self;
+
+    fn sub(self, other: Coordinate) -> Coordinate {
+        Coordinate::new(self.x - other.x, self.y - other.y)
+    }
+}
+
+impl std::ops::AddAssign for Coordinate {
+    fn add_assign(&mut self, other: Coordinate) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
+impl std::ops::SubAssign for Coordinate {
+    fn sub_assign(&mut self, other: Coordinate) {
+        self.x -= other.x;
+        self.y -= other.y;
+    }
+}
+
+impl std::ops::Mul for Coordinate {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self {
+        Coordinate {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+        }
+    }
 }
 
 #[cfg(test)]

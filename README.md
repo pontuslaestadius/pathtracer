@@ -1,21 +1,15 @@
 ![Logo of the project](examples/out/hello_world.png)
 
-![crates.io](https://img.shields.io/crates/d/pathfinder.svg)
-[![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
-[![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/)
-[![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-64-yellow.svg)](https://github.com/xd009642/tarpaulin)
-[![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathfinder.svg)](https://github.com/pontuslaestadius/pathfinder/blob/master/LICENSE)
-
-
-# Pathfinder
+| ![crates.io](https://img.shields.io/crates/d/pathfinder.svg) | [![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder) |
+|[![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/) | [![Test coverage](https://img.shields.io/badge/Tarpaulin%20Coverage-64-yellow.svg)](https://github.com/xd009642/tarpaulin) |
+|[![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathfinder.svg)](https://github.com/pontuslaestadius/pathfinder/blob/master/LICENSE)| |
 
 > Graph large number of Connected nodes mapped on to an Image or Gif.
 
 
 Placing positioned objects on to an Image can cause many issue. This library is meant 
-to ease the pain of interacting with pixel data and create higher abstractions which
-makes it easy to populate larger Image surfaces with large number of surface objects.
-Properties like width and height are internally managed.
+to ease interacting with images and create higher order abstractions which makes it 
+easy to populate larger Image surfaces with large number of surface objects.
 
 
 ### Features
@@ -26,6 +20,7 @@ Properties like width and height are internally managed.
 * [Large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/random.rs)
 * [Plot large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/node_plot.rs)
 * [Gifs](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world_gif.rs)
+* [Invocation macros for structures](https://docs.rs/pathfinder/latest/pathfinder/#macros)
 
 
 ## Example
@@ -57,7 +52,7 @@ node::path_print(&path?);
 ```
 
 
-### Example output
+### Output
 
 ![Node plot](examples/out/node_plot.gif "Gif")
 
