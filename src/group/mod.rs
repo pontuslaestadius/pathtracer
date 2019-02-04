@@ -1,3 +1,11 @@
+/*!
+Extensively parameterized group features.
+
+These can be interacted with via group function implementations.
+
+Here they also can be used for pre precise control.
+ */
+
 use super::*;
 use std::cmp;
 

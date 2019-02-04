@@ -1,3 +1,7 @@
+/*!
+Shapes used to calculate areas.
+ */
+
 use super::{tools::plot, Coordinate, Shape};
 
 #[derive(Debug, Clone)]

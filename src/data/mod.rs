@@ -1,3 +1,7 @@
+/*!
+Converts strings to mapped Nodes and Groups.
+*/
+
 use super::{consts, coordinate, tools, Coordinate, Group};
 use std::{
     collections::hash_map::DefaultHasher,

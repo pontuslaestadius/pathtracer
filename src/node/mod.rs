@@ -1,3 +1,7 @@
+/*!
+Extra functionality for Nodes.
+*/
+
 use super::*;
 use std::{
     cmp::PartialEq,

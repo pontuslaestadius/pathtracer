@@ -1,3 +1,7 @@
+/*!
+Extra functionality for coordinates.
+ */
+
 extern crate pythagoras;
 extern crate rand;
 
