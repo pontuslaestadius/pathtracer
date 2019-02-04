@@ -46,17 +46,21 @@ mod consts {
 
 // ------------------------------------------------------------------
 
-/// Holds a Coordinate on a x and y plane.
-/// It's implemented in Nodes, Groups, HL and the Location trait to enable
-/// differennt structures to be drawn.
+/*
+Holds a Coordinate on a x and y plane.
+It's implemented in Nodes, Groups, HL and the Location trait to enable
+differennt structures to be drawn.
+*/
 #[derive(Debug, Eq, Copy, Clone, Default)]
 pub struct Coordinate {
     pub x: i16,
     pub y: i16,
 }
 
-/// Connection between links. HL stands for HashLink, because it uses hashes for
-/// references to other points.
+/*
+Connection between links. HL stands for HashLink, because it uses hashes for
+references to other points.
+*/
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HL {
     pub style: EdgeStyle,
@@ -66,8 +70,9 @@ pub struct HL {
     pub to: Option<Coordinate>,
 }
 
-/// A Location object that can be drawn on an image, along with set size and
-/// color.
+/**
+A Location object that can be drawn on an image, along with set size and color.
+*/
 #[derive(Copy, Clone, Debug)]
 pub struct Node {
     pub hash: u64,
@@ -77,24 +82,34 @@ pub struct Node {
     links: [HL; consts::MAX_LINKS],
 }
 
-/// Holds a set of nodes and applies properties to all child nodes when drawn.
-/// The group itself has no displayed output and is not visible.
-/// It contains a Node used for Group meta data.
+/**
+Holds a set of nodes and applies properties to all child nodes when drawn.
+
+The group itself has no displayed output and is not visible.
+
+It contains a Node used for Group meta data.
+*/
 #[derive(Clone, Debug)]
 pub struct Group {
     settings: Node,
     pub nodes: Vec<Node>,
 }
 
-/// High abstraction Map which helps position objects.
+/**
+High abstraction Map which helps position objects.
+*/
 #[derive(Clone, Debug, Default)]
 pub struct Map {
     image: Option<IW>,
     add: Coordinate,
 }
 
-/// Enables traversing through a network of connected nodes.
-/// Checking if a path is valid and setting new paths.
+/**
+Enables traversing through a network of connected nodes.
+
+
+Checking if a path is valid and setting new paths.
+*/
 #[derive(Clone, Copy)]
 pub struct Network<T: Draw + Hash + std::marker::Copy> {
     pub hash_map: [Option<T>; consts::NETWORK_REM],
@@ -135,7 +150,9 @@ impl std::default::Default for EdgeStyle {
 
 // ------------------------------------------------------------------
 
-/// Provides the functions to create a generic shape.
+/**
+Provides the functions to create a generic shape.
+*/
 pub trait Shape {
     fn new() -> Self;
     fn area(&self, size: u32) -> Vec<Coordinate>;
@@ -143,7 +160,9 @@ pub trait Shape {
 
 // ------------------------------------------------------------------
 
-/// Provides the function to retrieve a hash from a structure.
+/**
+Provides the function to retrieve a hash from a structure.
+*/
 pub trait Hash {
     fn hash(&self) -> u64;
 }
@@ -176,7 +195,9 @@ impl std::fmt::Display for HL {
 
 // ------------------------------------------------------------------
 
-/// Image wrapper around the Image crate to enable better debugging panics.
+/**
+Image wrapper around the Image crate to enable better debugging panics.
+*/
 #[derive(Clone, Debug)]
 pub struct IW {
     img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
@@ -212,9 +233,13 @@ impl IW {
 
 // ------------------------------------------------------------------
 
-/// Makes it possible to find connected nodes in networks.
+/**
+Makes it possible to find connected nodes in networks.
+*/
 pub trait Find: Hash + Location {
-    /// Matches the Hashes and returns Some if it matches.
+    /**
+    Matches the Hashes and returns Some if it matches.
+    */
     fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
         if self.hash() == hash.hash() {
             return Some(self.position());
@@ -228,7 +253,9 @@ impl Find for HL {}
 impl Find for Node {}
 
 impl Find for Group {
-    /// Recursively calls find as the group contains sets of Nodes.
+    /**
+    Recursively calls find as the group contains sets of Nodes.
+    */
     fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
         let f = tools::find(hash.hash(), &self.nodes);
         f.and_then(|x| Some(x.position()))
@@ -237,7 +264,9 @@ impl Find for Group {
 
 // ------------------------------------------------------------------
 
-/// Enables retrieving the minimum and maximum position for the structure.
+/**
+Enables retrieving the minimum and maximum position for the structure.
+*/
 pub trait MinMax {
     fn min_max(&self) -> (Coordinate, Coordinate);
 }
@@ -266,7 +295,9 @@ impl MinMax for Group {
 
 // ------------------------------------------------------------------
 
-/// Enables the structure to be located by X or Y.
+/**
+Enables the structure to be located by X or Y.
+*/
 pub trait Location {
     /// Retrieves the position Coordinates.
     fn position(&self) -> Coordinate;
@@ -305,7 +336,9 @@ impl Location for Coordinate {
 
 // ------------------------------------------------------------------
 
-/// Functions required to draw the structure on the image.
+/**
+Functions required to draw the structure on the image.
+*/
 pub trait Draw {
     fn draw<S: Shape>(&self, image: IW, offset: Coordinate, shape: &S) -> IW;
     fn size(&self) -> u32;
@@ -348,7 +381,11 @@ impl Draw for Node {
 }
 
 impl Draw for Group {
-    /// Draws the Nodes inside that Group. If none the Group is draw as blank.
+    /**
+    Draws the Nodes inside that Group.
+
+    If none the Group is draw as blank.
+    */
     fn draw<S: Shape>(&self, mut image: IW, mut offset: Coordinate, shape: &S) -> IW {
         offset += self.position();
         for node in &self.nodes {
@@ -412,34 +449,53 @@ impl From<Group> for Coordinate {
 // ------------------------------------------------------------------
 
 impl Coordinate {
-    /// Constructs a Coordinate struct.
+    /**
+    Constructs a Coordinate struct.
+    */
     pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
 
-    /// Returns true if either x or y is less than the input.
-    /// ```
-    /// # use pathfinder::Coordinate;
-    /// let c = Coordinate::new(10, 10);
-    /// assert!(c.lt(11));
-    /// ```
+    /**
+    Returns true if either x or y is less than the input.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::Coordinate;
+    let c = Coordinate::new(10, 10);
+    assert!(c.lt(11));
+    ```
+    */
     pub fn lt(self, lt: i16) -> bool { self.x < lt || self.y < lt }
 
-    /// Returns the absolute/positive equivilent.
-    /// ```
-    /// # use pathfinder::Coordinate;
-    /// let c = Coordinate::new(-10, 10);
-    /// assert_eq!(c.abs(), Coordinate::new(10, 10));
-    /// ```
+    /**
+    Returns the absolute coordinate equivilent.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::Coordinate;
+    let c = Coordinate::new(-10, 10);
+    assert_eq!(c.abs(), Coordinate::new(10, 10));
+    ```
+    */
     pub fn abs(self) -> Coordinate { Coordinate::new(self.x.abs(), self.y.abs()) }
 
-    /// Creates a list of coordinates from a list of tuples with x and y
-    /// positions.
+    /**
+    Creates a list of coordinates from a list of tuples with x and y positions.
+    */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
         coordinate::from_list(&list, &|c, _i| c)
     }
 }
 
 impl Node {
-    /// Constructs a Node struct.
+    /**
+    Constructs a Node struct.
+
+    The name is converted from a &str to a hash.
+    */
     pub fn new(name: &str, geo: Coordinate) -> Self {
         Node {
             hash: data::calculate_hash(&name),
@@ -450,43 +506,72 @@ impl Node {
         }
     }
 
-    /// Retrive coordinate from a csv format.
+    /**
+    Retrive coordinate from a csv format.
+    */
     pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> { node::from_file(path) }
 
-    /// Gets the center position of the node accounting for size.
+    /**
+    Gets the center position of the node accounting for size.
+    */
     pub fn center(&self) -> Coordinate {
         let half = coordinate!(self.size() / 2, self.size() / 2);
         self.position() + half
     }
 
-    /// Converts a list of tuples (x,y) to a Vector of Nodes.
-    /// Names are assigned from "A" and upwards automatically.
-    ///
-    /// ```
-    /// use pathfinder::Node;
-    /// let list = [(0, 0), (10, 10), (15, 15)];
-    /// let nodes = Node::from_list(&list);
-    /// assert_eq!(nodes.len(), 3);
-    /// ```
+    /**
+    Converts a list of tuples (x,y) to a Vector of Nodes.
+
+    Names are assigned from "A" and upwards automatically.
+
+
+    ## Examples
+
+    Create three nodes from a list.
+
+    ```
+    # use pathfinder::Node;
+    let list = [(0, 0), (10, 10), (15, 15)];
+    let nodes = Node::from_list(&list);
+    assert_eq!(nodes.len(), 3);
+    ```
+
+    Returns an empty array if given an empty list.
+
+    ```
+    # use pathfinder::Node;
+    let nodes = Node::from_list(&[]);
+    assert_eq!(nodes.len(), 0);
+    ```
+    */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
         coordinate::from_list(&list, &|c, i| {
             Node::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
     }
 
-    /// Looks through all connected Nodes and returns if they are connected.
+    /**
+    Looks through all connected Nodes and returns if they are connected.
+    */
     pub fn is_directly_connected(&self, other: &Node) -> bool {
         tools::find(other.hash, self.links()).is_some()
     }
 
-    /// Links a list of nodes together in the order they are indexed.
-    /// A list of A, B, C. Will result in them being linked as: A -> B -> C.
-    ///
-    /// ```
-    /// # use pathfinder::Node;
-    /// let nodes = Node::from_list(&[(0, 0), (20, 20)]);
-    /// let linked_list = Node::linked_list(nodes);
-    /// ```
+    /**
+    Links a list of nodes together in the order they are indexed.
+
+
+    A list of A, B, C. Will result in them being linked as: A -> B -> C.
+
+
+    ## Examples
+
+    ```
+    # use pathfinder::Node;
+    let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+    let linked_list = Node::linked_list(nodes);
+    ```
+    */
     pub fn linked_list(list: Vec<Node>) -> Vec<Self> {
         Node::linked_list_predicate(list, &|_, _| true)
     }
@@ -494,11 +579,12 @@ impl Node {
     /**
           Returns a specific link if it exists. Returns none if not.
 
-    ## Examples
 
-    If the Node has not been linked.
+          ## Examples
 
-    ```
+          If the Node has not been linked.
+
+          ```
           # #[macro_use] extern crate pathfinder;
           # use pathfinder::{Coordinate, Node};
           # fn main() {
@@ -506,11 +592,11 @@ impl Node {
           let hl = node.hl(0);
           assert!(hl.is_err());
           # }
-    ```
+          ```
 
-    Linking Nodes makes us able to interface with Edges.
+          Linking Nodes makes us able to interface with Edges.
 
-    ```
+          ```
           # #[macro_use] extern crate pathfinder;
           # use pathfinder::{Coordinate, Node};
           # fn main() {
@@ -519,8 +605,17 @@ impl Node {
           b.link(&a);
           assert!(b.hl(0).is_ok());
           # }
-    ```
-         */
+          ```
+
+
+          ## Errors
+
+
+          If the index is larger than the available HL.
+
+          You can only retrieve HL which are connected to other nodes.
+
+    */
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
@@ -532,7 +627,37 @@ impl Node {
         }
     }
 
-    /// See Node::hl for examples. Returns a mutable variant.
+    /**
+          Returns a mutable reference to a HL.
+
+
+          ## Examples
+
+          A mutable variant is required when setting Edge styles.
+
+          ```
+          # #[macro_use] extern crate pathfinder;
+          # use pathfinder::{EdgeStyle, Coordinate, Node};
+          # fn main() -> std::io::Result<()> {
+          let mut a = node!("A", 0, 0);
+          let mut b = node!("B", 50, 50);
+          b.link(&a);
+          b.hl_mut(0)?.style(EdgeStyle::Straight);
+
+          a.link(&b);
+          a.hl_mut(0)?.style(EdgeStyle::Ellipse);
+          Ok(())
+          # }
+          ```
+
+
+          ## Errors
+
+          If the index is larger than the available HL.
+
+          You can only retrieve HL which are connected to other nodes.
+
+    */
     pub fn hl_mut(&mut self, index: usize) -> std::io::Result<&mut HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
             Err(std::io::Error::new(
@@ -551,19 +676,19 @@ impl Node {
     }
 
     /**
-     Links a list of nodes together in the order they are indexed.
+    Links a list of nodes together in the order they are indexed.
 
-     A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    A list of A, B, C. Will result in them being linked as: A -> B -> C.
 
 
-     ## Examples
+    ## Examples
 
     ```
-     # use pathfinder::Node;
-     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
-     let linked_list = Node::linked_list(nodes);
-     ```
-     */
+    # use pathfinder::Node;
+    let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+    let linked_list = Node::linked_list(nodes);
+    ```
+    */
     pub fn linked_list_predicate(
         mut list: Vec<Node>,
         f: &Fn(Coordinate, Coordinate) -> bool,
@@ -585,18 +710,26 @@ impl Node {
         list
     }
 
-    /// Returns the next point which is available to link.
-    /// ```
-    /// # #[macro_use] extern crate pathfinder;
-    /// # use pathfinder::{Coordinate, Node};
-    /// # fn main() {
-    /// let a = node!("A", 0, 0);
-    /// let mut b = node!("B", 50, 50);
-    /// assert_eq!(b.get_link_avail_index(), 0);
-    /// b.link(&a);
-    /// assert_eq!(b.get_link_avail_index(), 1);
-    /// # }
-    /// ```
+    /**
+    Returns the next point which is available to link.
+
+    It is a good practice to call this method before attempting to call hl or hl_mut to having to error handle.
+
+
+    ## Examples
+
+    ```
+    # #[macro_use] extern crate pathfinder;
+    # use pathfinder::{Coordinate, Node};
+    # fn main() {
+    let a = node!("A", 0, 0);
+    let mut b = node!("B", 50, 50);
+    assert_eq!(b.get_link_avail_index(), 0);
+    b.link(&a);
+    assert_eq!(b.get_link_avail_index(), 1);
+    # }
+    ```
+    */
     pub fn get_link_avail_index(&self) -> usize {
         self.links()
             .iter()
@@ -698,6 +831,8 @@ impl HL {
     /**
           Sets the algorithm the edge will use to be drawn.
 
+          Check out the EdgeStyle enum for all alternatives.
+
 
           ## Examples
 
@@ -720,11 +855,30 @@ impl HL {
 
     /**
     Checks if the HL has two endpoint hashes.
+
+
+    ## Examples
+
+    ```
+    # #[macro_use] extern crate pathfinder;
+    # use pathfinder::{Coordinate, Location, Node, Group, EdgeStyle};
+    # fn main() -> std::io::Result<()> {
+    let b = cluster!();
+    let mut a = node!();
+    a.link(&b);
+    assert!(a.hl(0)?.is_connected());
+    # Ok(())
+    # }
+    ```
     */
     pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
 
     /**
     Draws the HL on an Image Wrapper.
+
+    Will not draw the Edge if it is not connected, or if the the HL's from and to connections are the same Node.
+
+    Size increases drawing time with a squared factor.
     */
     fn draw(&self, mut image: IW, mut offset: Coordinate, size: u32) -> IW {
         let (mut from, mut to) = self.min_max();
@@ -884,18 +1038,18 @@ impl Group {
     }
 
     /**
-     Converts a list of tuples (x,y) to a Vector of Groups.
+    Converts a list of tuples (x,y) to a Vector of Groups.
     Names are assigned from "A" and upwards automatically.
 
     ## Examples
 
     ```
-     # use pathfinder::Group;
-     let list = [(0, 0), (10, 10), (15, 15)];
-     let groups = Group::from_list(&list);
-     assert_eq!(groups.len(), 3);
-     ```
-     */
+    # use pathfinder::Group;
+    let list = [(0, 0), (10, 10), (15, 15)];
+    let groups = Group::from_list(&list);
+    assert_eq!(groups.len(), 3);
+    ```
+    */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
         coordinate::from_list(&list, &|c, i| {
             Group::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
@@ -944,22 +1098,22 @@ impl Map {
     }
 
     /**
-      Saves the image to disk at the given Path.
+    Saves the image to disk at the given Path.
 
 
-      ## Examples
+    ## Examples
 
-      ```
-      # use pathfinder::*;
-      # use std::path::Path;
-      # fn main() -> std::io::Result<()> {
-      let nodes = Node::from_list(&[(0, 0), (10, 10)]);
-      Map::new()
-      .map(&nodes)
-      .save(Path::new("/tmp/example.png"))?;
-      # Ok(())
-      # }
-      ```
+    ```
+    # use pathfinder::*;
+    # use std::path::Path;
+    # fn main() -> std::io::Result<()> {
+    let nodes = Node::from_list(&[(0, 0), (10, 10)]);
+    Map::new()
+    .map(&nodes)
+    .save(Path::new("/tmp/example.png"))?;
+    # Ok(())
+    # }
+    ```
     */
     pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
         self.image.unwrap().image().save(path)
@@ -971,19 +1125,19 @@ impl Map {
     pub fn consume(self) -> IW { self.image.unwrap() }
 
     /**
-     Maps any struct that has implemented Draw, on to an ImageBuffer.
+      Maps any struct that has implemented Draw, on to an ImageBuffer.
 
 
-    ## Examples
+      ## Examples
 
-     ```
-     # use pathfinder::*;
-     let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
-     // Add content to vectors.
-     let mut map = Map::new();
-     map = map.map(&nodes);
-     ```
-     */
+      ```
+      # use pathfinder::*;
+      let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
+    // Add content to vectors.
+    let mut map = Map::new();
+    map = map.map(&nodes);
+    ```
+    */
     pub fn map<T: Draw + Location + Hash + MinMax>(self, element: &[T]) -> Self {
         self.map_filter(&element, &|_| true)
     }
