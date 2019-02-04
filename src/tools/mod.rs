@@ -1,3 +1,7 @@
+/*!
+Useful functions not bound to any specific functionality.
+ */
+
 extern crate image;
 extern crate rand;
 

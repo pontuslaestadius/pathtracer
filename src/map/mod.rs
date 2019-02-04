@@ -1,3 +1,7 @@
+/*!
+Functions to manage large numbers of placable entities.
+ */
+
 extern crate image;
 
 use super::*;

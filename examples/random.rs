@@ -1,7 +1,9 @@
 extern crate image;
 extern crate pathfinder;
 extern crate rand;
-use pathfinder::*;
+
+use pathfinder::{traits::Shape, *};
+
 use std::path::Path;
 
 fn main() -> std::io::Result<()> {

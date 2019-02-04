@@ -1,3 +1,9 @@
+/*!
+A collection of useful inovcation macros for structs.
+
+These provide a less-strict typed struct versions which lightens the syntax.
+*/
+
 /**
   initalize Coordinates using a range of parameters.
 

@@ -18,7 +18,8 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     pos = Node::linked_list_predicate(pos, &|a, b| {
-        let d = (a - b).abs().sum();
+        let abs = (a - b).abs();
+        let d = abs.x + abs.y;
         d < spread * 3
     });
 
