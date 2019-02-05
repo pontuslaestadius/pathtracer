@@ -39,6 +39,18 @@ pub struct Coordinate {
 /*
 Connection between links. HL stands for HashLink, because it uses hashes for
 references to other points.
+
+## Examples
+
+Given two Nodes, A and B.
+
+A links to B.
+
+This means that B does not know that A is connected to it.
+
+
+Deleting node B in this scenario would impact drawing and pathing.
+But does not have any direct impact on the HL since it only stores a Hash reference to the node it is linked to.
  */
 #[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub struct HL {
@@ -176,6 +188,8 @@ impl IW {
 
     /**
     Wraps around Image put_pixel but indicates failed positions.
+
+    Set debug_assertions flag to panic for out of bounds positions with improved debugging messages.
      */
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         if cfg!(debug_assertions)
@@ -188,13 +202,6 @@ impl IW {
                 self.img.height()
             );
         }
-        self.put_unsafe(l, color);
-    }
-
-    /**
-    Places a pixel without verifying it's position.
-     */
-    pub fn put_unsafe<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
@@ -289,7 +296,7 @@ impl Draw for Node {
                 self.color
             };
             let c = pos + o;
-            image.put_unsafe(&c, color);
+            image.put(&c, color);
         }
         image
     }
@@ -855,7 +862,7 @@ impl HL {
                 };
                 let _ = plot
                     .iter()
-                    .map(|c| image.put_unsafe(c, image::Rgba([col, col, col, u8::max_value()])))
+                    .map(|c| image.put(c, image::Rgba([col, col, col, u8::max_value()])))
                     .collect::<Vec<_>>();
             }
         }
@@ -1304,7 +1311,7 @@ impl Network<Node> {
     ## Examples
 
     ```
-    # use pathfinder::{Coordinate, Network, Node};
+    # use pathfinder::*;
     let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
     let mut nodes = Node::linked_list(nodes);
     let path = Network::new(nodes).path("A", "D").unwrap();
@@ -1331,7 +1338,7 @@ impl Network<Node> {
     ## Examples
 
     ```
-    # use pathfinder::{Coordinate, Network, Node};
+    # use pathfinder::*;
     let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
     let network = Network::new(nodes.clone());
     assert!(network.get("A").is_some());
