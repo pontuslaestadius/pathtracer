@@ -1,3 +1,7 @@
+/*!
+  Connects and paths between different connected Nodes.
+*/
+
 use super::*;
 use std::io::{self, Error, ErrorKind};
 

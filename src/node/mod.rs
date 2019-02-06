@@ -15,6 +15,12 @@ impl<'a> PartialEq for Node {
 
 /**
 Returns a list of Strings split using \n in a Vec.
+
+
+## Errors
+
+Could not open file.
+Could not read content to string.
 */
 pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
     let mut file = File::open(path)?;
@@ -28,6 +34,12 @@ pub fn get_node_names(path: &str) -> Result<Vec<String>, io::Error> {
 
 /**
 Write the positions to a file.
+
+
+## Errors
+
+Could not open file.
+Could not write to file.
  */
 pub fn write_file(path: &str, nodes: &[Node]) -> std::io::Result<()> {
     let mut file = File::create(path)?;
@@ -45,6 +57,13 @@ Reads the positions from a file.
 Expects eact line format to be:
 
 x,y
+
+
+## Errors
+
+Could not open file.
+Could not read to string.
+
 */
 pub fn from_file(path: &str) -> Result<Vec<Node>, io::Error> {
     let mut contents = String::new();
@@ -74,18 +93,18 @@ pub fn path_distances(path: &[Node]) -> u32 { verbose_path(path, false) }
 /**
 Implementation of path_distance and path_print, Use those for interfacing.
 */
-fn verbose_path<L: Location>(path: &[L], side_effects: bool) -> u32 {
+fn verbose_path<L: Location>(path: &[L], stdout: bool) -> u32 {
     let mut prev = Coordinate::new(0, 0);
     let distance = path.iter().fold(0, |sum, x| {
         let dis = coordinate::distance(prev, x.position());
         prev = x.position();
-        if side_effects {
+        if stdout {
             println!("{} - distance: {}", x.position(), dis);
         }
         sum + dis
     });
 
-    if side_effects {
+    if stdout {
         println!("Total distance: {}", distance);
     }
     distance

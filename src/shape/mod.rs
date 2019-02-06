@@ -16,8 +16,10 @@ pub struct Triangle {}
 impl Shape for Square {
     fn new() -> Square { Square {} }
 
-    /// Returns all coordinates that the shape occupies.
-    /// Assume that 0 0 is the center of the node.
+    /**
+     Returns all coordinates that the shape occupies.
+     Assume that 0 0 is the center of the node.
+    */
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let size = size as i16;
         let mut vec = Vec::new();
@@ -33,9 +35,11 @@ impl Shape for Square {
 impl Shape for Circle {
     fn new() -> Circle { Circle {} }
 
-    /// Returns all coordinates that the shape occupies.
-    /// Algorithm is derived from:
-    /// https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+    /**
+        Returns all coordinates that the shape occupies.
+     Algorithm is derived from:
+    https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+    */
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let mut vec = Vec::new();
         let mut pos = Coordinate::new((size - 1) as i16, 0);
@@ -68,8 +72,10 @@ impl Shape for Circle {
 impl Shape for Triangle {
     fn new() -> Triangle { Triangle {} }
 
-    /// Returns all coordinates that the shape occupies.
-    /// Assume that you start at coordinate x: 0, y: 0.
+    /**
+       Returns all coordinates that the shape occupies.
+    Assume that you start at coordinate x: 0, y: 0.
+    */
     fn area(&self, size: u32) -> Vec<Coordinate> {
         let size = size as i16;
         (0..size).fold(vec![], |mut acc, x| {

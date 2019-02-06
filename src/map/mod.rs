@@ -8,10 +8,7 @@ use super::*;
 use image::Rgba;
 use std::cmp;
 
-/// Gif wrapper for managing frames with pathfinder
 pub mod gif;
-
-/// Connecting Nodes logic
 pub mod network;
 
 /**
