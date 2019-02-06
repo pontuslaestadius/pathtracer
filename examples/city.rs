@@ -12,7 +12,7 @@ fn main() -> Result<(), std::io::Error> {
         for x in 0..city_size * 2 {
             let mut node = node!(spread * x, spread * y);
 
-            node.color = tools::seed_rgba((city_size * x + spread * y) as u64);
+            node.color = tools::seed_rgb((city_size * x + spread * y) as u64);
             pos.push(node);
         }
     }

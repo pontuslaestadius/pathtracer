@@ -67,7 +67,7 @@ A Location object that can be drawn on an image, along with set size and color.
 pub struct Node {
     pub hash: u64,
     pub geo: Coordinate,
-    pub color: image::Rgba<u8>,
+    pub color: image::Rgb<u8>,
     pub radius: Option<u32>,
     links: [HL; consts::MAX_LINKS],
 }
@@ -260,21 +260,21 @@ Image wrapper around the Image crate to enable better debugging panics.
  */
 #[derive(Clone, Debug)]
 pub struct IW {
-    img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+    img: image::ImageBuffer<image::Rgb<u8>, Vec<u8>>,
 }
 
 impl IW {
     /**
     Retrieves the private image field.
      */
-    pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> { &self.img }
+    pub fn image(&self) -> &image::ImageBuffer<image::Rgb<u8>, Vec<u8>> { &self.img }
 
     /**
     Wraps around Image put_pixel but indicates failed positions.
 
     Set debug_assertions flag to panic for out of bounds positions with improved debugging messages.
      */
-    pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
+    pub fn put<L: Location>(&mut self, l: &L, color: image::Rgb<u8>) {
         if cfg!(debug_assertions)
             && (l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height())
         {
@@ -403,7 +403,7 @@ impl Draw for Node {
                     .iter()
                     .map(|x| x.saturating_add(consts::DEFAULT_SHADE as u8))
                     .collect::<Vec<_>>();
-                image::Rgba([c[0], c[1], c[2], c[3]])
+                image::Rgb([c[0], c[1], c[2]])
             } else {
                 self.color
             };
@@ -571,7 +571,7 @@ impl Node {
         Node {
             hash: data::calculate_hash(&name),
             geo,
-            color: consts::DEFAULT_RGBA,
+            color: consts::DEFAULT_RGB,
             radius: None,
             links: [HL::new(0, 0); consts::MAX_LINKS],
         }
@@ -974,7 +974,7 @@ impl HL {
                 };
                 let _ = plot
                     .iter()
-                    .map(|c| image.put(c, image::Rgba([col, col, col, u8::max_value()])))
+                    .map(|c| image.put(c, image::Rgb([col, col, col])))
                     .collect::<Vec<_>>();
             }
         }
@@ -1127,7 +1127,7 @@ impl Group {
     /**
     Sets the color of the Group.
      */
-    pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
+    pub fn color(&mut self, rgba: image::Rgb<u8>) { self.settings.color = rgba; }
 
     /**
     Plots node according to the fn provided.
@@ -1235,11 +1235,11 @@ impl Group {
     }
 
     /**
-    Generate a image::Rgba based on the color of the Group and the distance from center.
+    Generate a image::Rgb based on the color of the Group and the distance from center.
 
     This is useful to make nodes places in groups, but outside it's radius or close to it's radius appear as darker.
      */
-    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
+    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgb<u8> {
         tools::range_color(
             self.dynamic_radius() as i16,
             self.settings.color,

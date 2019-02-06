@@ -95,7 +95,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> io::Result<Vec<Gro
 fn push_group(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
     let mut group = Group::new("", coordinate::gen_radius(Coordinate::new(1, 0), 0, 100));
     group.settings.hash = hash;
-    group.settings.color = tools::seed_rgba(hash);
+    group.settings.color = tools::seed_rgb(hash);
     group.new_node_min_max(groups.len() as u32, 40);
     if !groups.is_empty() {
         group.nodes[0].link(groups.last().unwrap().nodes.last().unwrap());

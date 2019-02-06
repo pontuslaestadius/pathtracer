@@ -5,7 +5,7 @@ Functions to manage large numbers of placable entities.
 extern crate image;
 
 use super::*;
-use image::Rgba;
+use image::Rgb;
 use std::cmp;
 
 pub mod gif;
@@ -16,7 +16,7 @@ Returns the underlaying image used for the Map struct.
 */
 pub fn gen_map<T: Location + Draw + MinMax>(
     list: &[T],
-) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (Coordinate)) {
+) -> (image::ImageBuffer<Rgb<u8>, Vec<u8>>, (Coordinate)) {
     let (min, max) = min_max(&list);
     let diff = max - min;
     let add = Coordinate::new(-min.x, -min.y);
@@ -51,8 +51,8 @@ fn min_max<T: Location + Draw + MinMax>(list: &[T]) -> (Coordinate, Coordinate) 
 /**
 Generates a canvas from the image crate.
 */
-fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgba<u8>, Vec<u8>> {
-    image::DynamicImage::new_rgba8(w, h).to_rgba()
+fn gen_canvas(w: u32, h: u32) -> image::ImageBuffer<Rgb<u8>, Vec<u8>> {
+    image::DynamicImage::new_rgb8(w, h).to_rgb()
 }
 
 #[cfg(test)]
