@@ -202,6 +202,7 @@ impl IW {
                 self.img.height()
             );
         }
+
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
@@ -248,7 +249,35 @@ impl MinMax for Node {
 }
 
 impl MinMax for Group {
-    fn min_max(&self) -> (Coordinate, Coordinate) { group::parameters(self) }
+    /**
+    Returns the the largest and smallest x and y position found in the group.
+
+
+    ## Examples
+
+    ```
+    # #[macro_use] use pathfinder::*;
+    # fn main() {
+    let mut group = Group::new_simple(0, 0);
+    group.push(node!(100, 100));
+    let (min, max) = group.min_max();
+    assert_eq!(min.x, 0);
+    assert_eq!(max.x, 104);
+    # }
+    ```
+    */
+    fn min_max(&self) -> (Coordinate, Coordinate) {
+        let mut min = coordinate!(0, 0);
+        let mut max = coordinate!(0, 0);
+        for node in &self.nodes {
+            let (min2, max2) = node.min_max();
+            max.x = std::cmp::max(max.x, max2.x);
+            min.x = std::cmp::min(min.x, min2.x);
+            max.y = std::cmp::max(max.y, max2.y);
+            min.y = std::cmp::min(min.y, min2.y);
+        }
+        (min + self.position(), max + self.position())
+    }
 }
 
 // ------------------------------------------------------------------

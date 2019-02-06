@@ -1,3 +1,9 @@
+/*!
+  Gif wrapper for managing moving images.
+
+  Applied logic for cycles of Nodes.
+*/
+
 use super::super::*;
 use gif::{self, *};
 use std::{fs::File, io};

@@ -9,58 +9,32 @@ Here they also can be used for pre precise control.
 use super::*;
 use std::cmp;
 
-/// Counts the amount of child Nodes in a list of Groups.
-///
-/// # Examples
-/// ```
-/// use pathfinder::{group, map::network, Group};
-/// let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
-/// for group in groups.iter_mut() {
-///     group.add(50);
-/// }
-/// assert_eq!(group::count(&groups), 100);
-/// ```
-pub fn count(list: &[Group]) -> usize { list.iter().fold(0, |acc, x| acc + x.nodes.len()) }
-
 /**
-Returns the the largest and smallest x and y position found in the group.
+Counts the amount of child Nodes in a list of Groups.
+
 
 ## Examples
 
 ```
-# #[macro_use] extern crate pathfinder;
-# use pathfinder::{group, Coordinate, Group, Node};
-
-# fn main() {
-
-let mut group = Group::new_simple(0, 0);
-group.push(node!(100, 100));
-let (min, max) = group::parameters(&group);
-assert_eq!(min.x, 0);
-assert_eq!(max.x, 104);
-
-# }
+# use pathfinder::*;
+let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
+for group in groups.iter_mut() {
+    group.add(50);
+}
+assert_eq!(group::count(&groups), 100);
 ```
 */
-pub fn parameters(group: &Group) -> (Coordinate, Coordinate) {
-    let mut min = coordinate!(0, 0);
-    let mut max = coordinate!(0, 0);
-    for node in &group.nodes {
-        let (min2, max2) = node.min_max();
-        max.x = std::cmp::max(max.x, max2.x);
-        min.x = std::cmp::min(min.x, min2.x);
-        max.y = std::cmp::max(max.y, max2.y);
-        min.y = std::cmp::min(min.y, min2.y);
-    }
-    (min + group.position(), max + group.position())
-}
+pub fn count(list: &[Group]) -> usize { list.iter().fold(0, |acc, x| acc + x.nodes.len()) }
 
 impl<'a> PartialEq for Group {
     fn eq(&self, other: &Group) -> bool { self.hash() == other.hash() }
 }
 
-/// Adds a node to a given group, All parameters are optional except the group.
-/// This is the underlying function used in Group::push(..).
+/**
+Adds a node to a given group, All parameters are optional except the group.
+
+This is the underlying function used in Group::push(..).
+*/
 pub fn add_node(group: &mut Group, name: Option<&str>, min: Option<u32>, max: Option<u32>) {
     let name = name.unwrap_or("");
     let min = min.unwrap_or(0);
