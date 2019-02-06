@@ -46,7 +46,7 @@ fn mvp() -> std::io::Result<()> {
 #[test]
 fn random() {
     let mut groups = Vec::new();
-    let coordinates = shape::Circle::new().area(10);
+    let coordinates = Shape::Circle.area(10);
     let children: u32 = 10;
     let radius: u32 = 5;
     let spread = 5;

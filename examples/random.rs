@@ -8,7 +8,7 @@ use std::path::Path;
 
 fn main() -> std::io::Result<()> {
     let mut groups = Vec::new();
-    let coordinates = shape::Square::new().area(10);
+    let coordinates = Shape::Square.area(10);
     let children: u32 = 100;
     let radius: u32 = 20;
     let spread = 60;
