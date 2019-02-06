@@ -8,7 +8,7 @@ use super::*;
 Functions required to draw the structure on the image.
  */
 pub trait Draw {
-    fn draw<S: Shape>(&self, image: IW, offset: Coordinate, shape: &S) -> IW;
+    fn draw(&self, image: IW, offset: Coordinate, shape: &Shape) -> IW;
     fn size(&self) -> u32;
     fn links(&self) -> &[HL];
 }
@@ -67,12 +67,4 @@ pub trait Find: Hash + Location {
 
 pub trait Hash {
     fn hash(&self) -> u64;
-}
-
-/**
-Provides the functions to create a generic shape.
- */
-pub trait Shape {
-    fn new() -> Self;
-    fn area(&self, size: u32) -> Vec<Coordinate>;
 }

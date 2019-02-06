@@ -8,8 +8,8 @@
 
 
 usage() {
-    echo "Usage: $0 Filter test case: [-filter <test name>] [-d] [-h]" 1>&2; 
-    exit 1; 
+    echo "Usage: $0 Filter test case: [-filter <test name>] [-d] [-h]" 1>&2;
+    exit 1;
 }
 
 while getopts ":s:p:" o; do
@@ -79,7 +79,7 @@ run() {
     shift
     line=$@
 
-    line_ns="$(echo -e ${line} | tr -d '[:space:]')" 
+    line_ns="$(echo -e ${line} | tr -d '[:space:]')"
     if [[ "$(cat $PATH_ignored)" == *"$line_ns"* ]]; then
         echo -e "$file - $IGNORED\n$line" >> $PATH_ignored
         return

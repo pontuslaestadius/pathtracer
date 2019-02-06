@@ -14,7 +14,6 @@ pub mod data;
 pub mod group;
 pub mod map;
 pub mod node;
-pub mod shape;
 pub mod tools;
 pub mod traits;
 
@@ -134,6 +133,90 @@ pub enum EdgeStyle {
     Ellipse,
     Straight,
 }
+
+/**
+ Creates a shape of coordinate points.
+
+ Sampled from a Area.
+*/
+#[derive(Debug, Clone)]
+pub enum Shape {
+    Circle,
+    Square,
+    Triangle,
+}
+
+// ------------------------------------------------------------------
+
+impl Shape {
+    /**
+     Returns all coordinates that the shape occupies.
+
+     Assumes that 0 0 is the top-left of the node.
+
+     ## Circle
+
+     Algorithm is derived from:
+     https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+
+    */
+    pub fn area(&self, area: usize) -> Vec<Coordinate> {
+        match *self {
+            Shape::Circle => Shape::circle_area(area),
+            Shape::Square => Shape::square_area(area),
+            Shape::Triangle => Shape::triangle_area(area),
+        }
+    }
+
+    fn circle_area(area: usize) -> Vec<Coordinate> {
+        let mut vec = Vec::new();
+        let mut pos = coordinate!((area - 1), 0);
+        let mut err: i16 = 1 - (area << 1) as i16;
+        let mut d = Coordinate::new(err, 1);
+
+        let q_plot = |x1, y1, x2, y2| tools::plot(coordinate!(x1, y1), coordinate!(x2, y2));
+
+        while pos.x >= pos.y {
+            vec.append(&mut q_plot(pos.x, pos.y, -pos.x, pos.y));
+            vec.append(&mut q_plot(pos.x, -pos.y, -pos.x, -pos.y));
+            vec.append(&mut q_plot(-pos.y, -pos.x, -pos.y, pos.x));
+            vec.append(&mut q_plot(pos.y, -pos.x, pos.y, pos.x));
+
+            if err <= 0 {
+                pos.y += 1;
+                d.y += 2;
+                err += d.y;
+            } else {
+                pos.x -= 1;
+                d.x += 2;
+                err += d.x;
+            }
+        }
+
+        vec
+    }
+
+    fn square_area(area: usize) -> Vec<Coordinate> {
+        (0..area).fold(vec![], |mut acc, x| {
+            for i in 0..area {
+                acc.push(coordinate!(x, i));
+            }
+            acc
+        })
+    }
+
+    fn triangle_area(area: usize) -> Vec<Coordinate> {
+        (0..area).fold(vec![], |mut acc, x| {
+            acc.append(&mut tools::plot(
+                coordinate!(area / 2, 0),
+                coordinate!(x, area),
+            ));
+            acc
+        })
+    }
+}
+
+// ------------------------------------------------------------------
 
 impl std::default::Default for EdgeStyle {
     fn default() -> Self { EdgeStyle::Direct }
@@ -304,7 +387,7 @@ impl Location for Coordinate {
 // ------------------------------------------------------------------
 
 impl Draw for Node {
-    fn draw<S: Shape>(&self, mut image: IW, offset: Coordinate, shape: &S) -> IW {
+    fn draw(&self, mut image: IW, offset: Coordinate, shape: &Shape) -> IW {
         let s = consts::DEFAULT_LINK_SIZE / 2;
         let pos = self.geo + offset - coordinate!(s, s);
 
@@ -312,7 +395,7 @@ impl Draw for Node {
             image = link.draw(image, offset, u32::from(consts::DEFAULT_LINK_SIZE));
         }
 
-        for o in shape.area(self.size()) {
+        for o in shape.area(self.size() as usize) {
             let color = if o.x == 0 || o.y == 0 {
                 let c = self
                     .color
@@ -344,7 +427,7 @@ impl Draw for Group {
 
     If none the Group is draw as blank.
      */
-    fn draw<S: Shape>(&self, mut image: IW, mut offset: Coordinate, shape: &S) -> IW {
+    fn draw(&self, mut image: IW, mut offset: Coordinate, shape: &Shape) -> IW {
         offset += self.position();
         for node in &self.nodes {
             image = node.draw(image, offset, shape);
@@ -1281,16 +1364,16 @@ impl Map {
         element: &[T],
         filter: &Fn(&T) -> bool,
     ) -> Self {
-        self.map_params(&element, &filter, &shape::Square::new())
+        self.map_params(&element, &filter, &Shape::Square)
     }
 
     /**
     Maps the elements with a specified shape struct.
      */
-    pub fn map_shape<T: Draw + Location + Hash + MinMax, S: Shape>(
+    pub fn map_shape<T: Draw + Location + Hash + MinMax>(
         self,
         element: &[T],
-        shape: &S,
+        shape: &Shape,
     ) -> Self {
         self.map_params(&element, &|_| true, shape)
     }
@@ -1309,11 +1392,11 @@ impl Map {
     /**
     Maps the elements but with all added parameters.
      */
-    pub fn map_params<T: Draw + Location + Hash + MinMax, S: Shape>(
+    pub fn map_params<T: Draw + Location + Hash + MinMax>(
         mut self,
         element: &[T],
         filter: &Fn(&T) -> bool,
-        shape: &S,
+        shape: &Shape,
     ) -> Self {
         if self.image.is_none() {
             let (image, add) = map::gen_map(&element);
