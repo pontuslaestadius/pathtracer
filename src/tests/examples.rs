@@ -9,7 +9,7 @@ fn city() {
     for y in 0..city_size / 2 {
         for x in 0..city_size * 2 {
             let mut node = node!(spread * x as i16, spread * y as i16);
-            node.color = tools::seed_rgba((city_size * x + spread * y) as u64);
+            node.color = tools::seed_rgb((city_size * x + spread * y) as u64);
             pos.push(node);
         }
     }
@@ -54,7 +54,7 @@ fn random() {
     for (i, c) in coordinates.iter().enumerate() {
         let mut group = Group::new_simple(c.x * spread, c.y * spread);
         group.radius(radius);
-        group.color(tools::seed_rgba((i * 70) as u64));
+        group.color(tools::seed_rgb((i * 70) as u64));
         group.add(children);
         groups.push(group);
     }

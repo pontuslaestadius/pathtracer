@@ -25,7 +25,7 @@ fn main() -> std::io::Result<()> {
         let rad = radius as i16;
         let mut group = cluster!((c % x_max) * rad, (c / x_max) * rad);
         group.radius(radius as u32);
-        group.color(tools::seed_rgba(c as u64 * 32));
+        group.color(tools::seed_rgb(c as u64 * 32));
 
         for _ in 5..radius as usize {
             for k in 1..(4 + c / 5) {

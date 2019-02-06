@@ -22,7 +22,7 @@ fn main() -> std::io::Result<()> {
     ]);
 
     for n in balls.iter_mut() {
-        n.color = image::Rgba([255, 50, 50, 255]);
+        n.color = image::Rgb([255, 50, 50]);
     }
 
     gif.cycle(2, balls);
@@ -33,7 +33,7 @@ fn main() -> std::io::Result<()> {
     let nodes = Node::from_file(&args[1])?;
     let mut nodes = Node::linked_list(nodes);
     for n in nodes.iter_mut() {
-        n.color = image::Rgba([0, 100, 0, 255]);
+        n.color = image::Rgb([0, 100, 0]);
     }
 
     gif.cycle(1, nodes);

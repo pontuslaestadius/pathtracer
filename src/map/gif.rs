@@ -137,6 +137,7 @@ impl<'a> Gif<'a> {
     /**
     Pushes a frame to the structure, This also immediately saves it to disk.
 
+
     ## Errors
 
     If the encoder fails to write the frame to disk.
@@ -144,13 +145,13 @@ impl<'a> Gif<'a> {
     pub fn push_frame(&mut self, image: &IW) -> Result<(), io::Error> {
         let mut pixels: Vec<u8> = Vec::new();
         for pix in image.image().pixels() {
-            for i in 0..4 {
+            for i in 0..3 {
                 pixels.push(pix.data[i]);
             }
         }
 
         let dim = image.dimensions();
-        let mut frame = Frame::from_rgba(dim.x as u16, dim.y as u16, &mut pixels);
+        let mut frame = Frame::from_rgb(dim.x as u16, dim.y as u16, &mut pixels);
         frame.dispose = DisposalMethod::Background;
         frame.delay = 20;
         self.encoder.write_frame(&frame)?;

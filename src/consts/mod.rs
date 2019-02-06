@@ -9,6 +9,6 @@ pub const NETWORK_REM: usize = 666;
 pub const DEFAULT_SIZE: u16 = 4;
 pub const DEFAULT_SHADE: u16 = 20;
 pub const DEFAULT_LINK_SIZE: u16 = 2;
-pub const DEFAULT_RGBA: image::Rgba<u8> = image::Rgba {
-    data: [0, 0, 0, 255],
+pub const DEFAULT_RGB: image::Rgb<u8> = image::Rgb {
+    data: [0, 0, 0],
 };
