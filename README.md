@@ -35,7 +35,7 @@ Easily manipulate large number of Nodes with less accuracy through Groups.
 use pathfinder::{Group, map};
 use std::path::Path;
 
-let mut groups = Group::from_list([(0, 0), (100, 100)]);
+let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
 for group in groups.iter_mut() {
     group.add(100);
 }
