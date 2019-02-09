@@ -34,6 +34,17 @@ impl<'a> PartialEq for Group {
 Adds a node to a given group, All parameters are optional except the group.
 
 This is the underlying function used in Group::push(..).
+
+
+## Examples
+
+```
+# use pathfinder::*;
+# let mut group = Group::new("", Coordinate::new(0, 0));
+group::add_node(&mut group, Some("Name"), Some(5), Some(9));
+assert_eq!(group.nodes.len(), 1);
+assert!(group.nodes[0].position().lt(10));
+```
 */
 pub fn add_node(group: &mut Group, name: Option<&str>, min: Option<u32>, max: Option<u32>) {
     let name = name.unwrap_or("");

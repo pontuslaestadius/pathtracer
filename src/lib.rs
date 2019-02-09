@@ -1238,6 +1238,20 @@ impl Group {
     Generate a image::Rgba based on the color of the Group and the distance from center.
 
     This is useful to make nodes places in groups, but outside it's radius or close to it's radius appear as darker.
+
+
+    ## Examples
+
+    ```
+    # #[macro_use] use pathfinder::*;
+    # fn main() {
+    let mut cluster = cluster!();
+    cluster.radius(10);
+    cluster.color(image::Rgba {data: [100, 100, 100, 255]});
+    let rgba = cluster.gen_color(coordinate!(10, 10));
+    assert!(rgba.data[0] < 50);
+    # }
+    ```
      */
     pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
         tools::range_color(

@@ -175,7 +175,7 @@ mod tests {
     use super::*;
 
     fn define(case: &Fn(Gif) -> std::io::Result<()>) {
-        let gif = Gif::new("test_gif_new.gif", 50, 50);
+        let gif = Gif::new("/tmp/test_gif_new.gif", 50, 50);
         case(gif).unwrap();
         // This can break Travis CI. Because the file doesn't get created?
         //let _ = std::fs::remove_file("test_gif_new.gif").unwrap();
