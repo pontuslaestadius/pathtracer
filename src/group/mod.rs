@@ -24,10 +24,14 @@ for group in groups.iter_mut() {
 assert_eq!(group::count(&groups), 100);
 ```
 */
-pub fn count(list: &[Group]) -> usize { list.iter().fold(0, |acc, x| acc + x.nodes.len()) }
+pub fn count(list: &[Group]) -> usize {
+    list.iter().fold(0, |acc, x| acc + x.nodes.len())
+}
 
 impl<'a> PartialEq for Group {
-    fn eq(&self, other: &Group) -> bool { self.hash() == other.hash() }
+    fn eq(&self, other: &Group) -> bool {
+        self.hash() == other.hash()
+    }
 }
 
 /**

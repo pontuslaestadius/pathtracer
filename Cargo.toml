@@ -1,6 +1,6 @@
 [package]
 name = "pathfinder"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["PontusLaestadius <pontus.laestadius@gmail.com>"]
 edition = "2018"
 include = ["src/**/*", "Cargo.toml"]

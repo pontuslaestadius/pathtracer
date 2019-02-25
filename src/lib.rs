@@ -219,7 +219,9 @@ impl Shape {
 // ------------------------------------------------------------------
 
 impl std::default::Default for EdgeStyle {
-    fn default() -> Self { EdgeStyle::Direct }
+    fn default() -> Self {
+        EdgeStyle::Direct
+    }
 }
 
 // ------------------------------------------------------------------
@@ -228,15 +230,21 @@ impl std::default::Default for EdgeStyle {
 Provides the function to retrieve a hash from a structure.
  */
 impl Hash for HL {
-    fn hash(&self) -> u64 { self.t }
+    fn hash(&self) -> u64 {
+        self.t
+    }
 }
 
 impl Hash for Node {
-    fn hash(&self) -> u64 { self.hash }
+    fn hash(&self) -> u64 {
+        self.hash
+    }
 }
 
 impl Hash for Group {
-    fn hash(&self) -> u64 { self.settings.hash() }
+    fn hash(&self) -> u64 {
+        self.settings.hash()
+    }
 }
 
 // ------------------------------------------------------------------
@@ -267,7 +275,9 @@ impl IW {
     /**
     Retrieves the private image field.
      */
-    pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> { &self.img }
+    pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+        &self.img
+    }
 
     /**
     Wraps around Image put_pixel but indicates failed positions.
@@ -292,7 +302,9 @@ impl IW {
     /**
     Returns a coordinate with the width and height of the image buffer.
      */
-    pub fn dimensions(&self) -> Coordinate { coordinate!(self.img.width(), self.img.height()) }
+    pub fn dimensions(&self) -> Coordinate {
+        coordinate!(self.img.width(), self.img.height())
+    }
 }
 
 // ------------------------------------------------------------------
@@ -373,15 +385,21 @@ impl Location for HL {
 }
 
 impl Location for Node {
-    fn position(&self) -> Coordinate { self.geo.position() }
+    fn position(&self) -> Coordinate {
+        self.geo.position()
+    }
 }
 
 impl Location for Group {
-    fn position(&self) -> Coordinate { self.settings.position() }
+    fn position(&self) -> Coordinate {
+        self.settings.position()
+    }
 }
 
 impl Location for Coordinate {
-    fn position(&self) -> Coordinate { *self }
+    fn position(&self) -> Coordinate {
+        *self
+    }
 }
 
 // ------------------------------------------------------------------
@@ -407,8 +425,7 @@ impl Draw for Node {
             } else {
                 self.color
             };
-            let c = pos + o;
-            image.put(&c, color);
+            image.put(&(pos + o), color);
         }
         image
     }
@@ -418,7 +435,9 @@ impl Draw for Node {
             .unwrap_or_else(|| u32::from(consts::DEFAULT_SIZE))
     }
 
-    fn links(&self) -> &[HL] { &self.links }
+    fn links(&self) -> &[HL] {
+        &self.links
+    }
 }
 
 impl Draw for Group {
@@ -427,12 +446,11 @@ impl Draw for Group {
 
     If none the Group is draw as blank.
      */
-    fn draw(&self, mut image: IW, mut offset: Coordinate, shape: &Shape) -> IW {
+    fn draw(&self, image: IW, mut offset: Coordinate, shape: &Shape) -> IW {
         offset += self.position();
-        for node in &self.nodes {
-            image = node.draw(image, offset, shape);
-        }
-        image
+        self.nodes
+            .iter()
+            .fold(image, |acc, node| node.draw(acc, offset, shape))
     }
 
     fn size(&self) -> u32 {
@@ -446,7 +464,9 @@ impl Draw for Group {
             .unwrap_or_else(|| u32::from(consts::DEFAULT_SIZE))
     }
 
-    fn links(&self) -> &[HL] { &self.settings.links() }
+    fn links(&self) -> &[HL] {
+        &self.settings.links()
+    }
 }
 
 // ------------------------------------------------------------------
@@ -460,7 +480,9 @@ impl From<Coordinate> for Node {
 }
 
 impl From<Group> for Node {
-    fn from(group: Group) -> Self { group.settings }
+    fn from(group: Group) -> Self {
+        group.settings
+    }
 }
 
 impl From<Coordinate> for Group {
@@ -480,11 +502,15 @@ impl From<Node> for Group {
 }
 
 impl From<Node> for Coordinate {
-    fn from(node: Node) -> Self { node.position() }
+    fn from(node: Node) -> Self {
+        node.position()
+    }
 }
 
 impl From<Group> for Coordinate {
-    fn from(group: Group) -> Self { group.position() }
+    fn from(group: Group) -> Self {
+        group.position()
+    }
 }
 
 // ------------------------------------------------------------------
@@ -523,7 +549,9 @@ impl Coordinate {
     # }
     ```
      */
-    pub fn new(x: i16, y: i16) -> Self { Coordinate { x, y } }
+    pub fn new(x: i16, y: i16) -> Self {
+        Coordinate { x, y }
+    }
 
     /**
     Returns true if either x or y is less than the input.
@@ -537,7 +565,9 @@ impl Coordinate {
     assert!(c.lt(11));
     ```
      */
-    pub fn lt(self, lt: i16) -> bool { self.x < lt || self.y < lt }
+    pub fn lt(self, lt: i16) -> bool {
+        self.x < lt || self.y < lt
+    }
 
     /**
     Returns the absolute coordinate equivilent.
@@ -551,7 +581,9 @@ impl Coordinate {
     assert_eq!(c.abs(), Coordinate::new(10, 10));
     ```
      */
-    pub fn abs(self) -> Coordinate { Coordinate::new(self.x.abs(), self.y.abs()) }
+    pub fn abs(self) -> Coordinate {
+        Coordinate::new(self.x.abs(), self.y.abs())
+    }
 
     /**
     Creates a list of coordinates from a list of tuples with x and y positions.
@@ -580,7 +612,9 @@ impl Node {
     /**
     Retrive coordinate from a csv format.
      */
-    pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> { node::from_file(path) }
+    pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> {
+        node::from_file(path)
+    }
 
     /**
     Gets the center position of the node accounting for size.
@@ -624,8 +658,8 @@ impl Node {
     /**
     Looks through all connected Nodes and returns if they are connected.
      */
-    pub fn is_directly_connected(&self, other: &Node) -> bool {
-        tools::find(other.hash, self.links()).is_some()
+    pub fn is_directly_connected<P: Hash + Location>(&self, other: &P) -> bool {
+        tools::find(other.hash(), self.links()).is_some()
     }
 
     /**
@@ -842,7 +876,9 @@ impl Node {
     ```
 
      */
-    pub fn disconnect(&mut self) { self.links = [HL::new(0, 0); consts::MAX_LINKS]; }
+    pub fn disconnect(&mut self) {
+        self.links = [HL::new(0, 0); consts::MAX_LINKS];
+    }
 
     /**
     Links Node self to another point that has Hash and Location implemented.
@@ -919,7 +955,9 @@ impl HL {
     ```
 
      */
-    pub fn style(&mut self, style: EdgeStyle) { self.style = style; }
+    pub fn style(&mut self, style: EdgeStyle) {
+        self.style = style;
+    }
 
     /**
     Checks if the HL has two endpoint hashes.
@@ -938,7 +976,9 @@ impl HL {
     # }
     ```
      */
-    pub fn is_connected(&self) -> bool { self.f != 0 && self.t != 0 }
+    pub fn is_connected(&self) -> bool {
+        self.f != 0 && self.t != 0
+    }
 
     /**
     Draws the HL on an Image Wrapper.
@@ -964,13 +1004,13 @@ impl HL {
                 let plot = match self.style {
                     EdgeStyle::Direct => {
                         tools::plot_type(from + add, to + add, &tools::plot_bresenham)
-                    },
+                    }
                     EdgeStyle::Straight => {
                         tools::plot_type(from + add, to + add, &tools::plot_rectangle)
-                    },
+                    }
                     EdgeStyle::Ellipse => {
                         tools::plot_type(from + add, to + add, &tools::plot_ellipse)
-                    },
+                    }
                 };
                 let _ = plot
                     .iter()
@@ -1010,7 +1050,9 @@ impl Group {
     # }
     ```
      */
-    pub fn new_node(&mut self) { group::add_node(self, None, None, None); }
+    pub fn new_node(&mut self) {
+        group::add_node(self, None, None, None);
+    }
 
     /**
     Set the radius for the group's meta-data.
@@ -1027,7 +1069,9 @@ impl Group {
     # }
     ```
      */
-    pub fn radius(&mut self, radius: u32) { self.settings.radius = Some(radius); }
+    pub fn radius(&mut self, radius: u32) {
+        self.settings.radius = Some(radius);
+    }
 
     /**
     Retrieves the nodes drawing in the group. Positions are relative to the group.
@@ -1045,7 +1089,9 @@ impl Group {
     # }
     ```
      */
-    pub fn nodes(&self) -> &Vec<Node> { &self.nodes }
+    pub fn nodes(&self) -> &Vec<Node> {
+        &self.nodes
+    }
 
     /**
     Retrieves the group meta data, used for setting properties such as hash and color.
@@ -1063,7 +1109,9 @@ impl Group {
     # }
     ```
      */
-    pub fn set(&mut self) -> &mut Node { &mut self.settings }
+    pub fn set(&mut self) -> &mut Node {
+        &mut self.settings
+    }
 
     /**
     Adds a set of nodes randomly located inside the group's radius.
@@ -1127,7 +1175,9 @@ impl Group {
     /**
     Sets the color of the Group.
      */
-    pub fn color(&mut self, rgba: image::Rgba<u8>) { self.settings.color = rgba; }
+    pub fn color(&mut self, rgba: image::Rgba<u8>) {
+        self.settings.color = rgba;
+    }
 
     /**
     Plots node according to the fn provided.
@@ -1295,7 +1345,9 @@ impl Group {
     a.link(&b);
     ```
      */
-    pub fn link(&mut self, other: &Group) { self.settings.link(&other.settings); }
+    pub fn link(&mut self, other: &Group) {
+        self.settings.link(&other.settings);
+    }
 }
 
 impl<T: Draw + Hash + std::marker::Copy> Network<T> {
@@ -1348,7 +1400,9 @@ impl Map {
     /**
     Consumes the Map and returns the ImageWrapper.
      */
-    pub fn consume(self) -> IW { self.image.unwrap() }
+    pub fn consume(self) -> IW {
+        self.image.unwrap()
+    }
 
     /**
     Maps any struct that has implemented Draw, on to an ImageBuffer.
@@ -1471,5 +1525,7 @@ impl Network<Node> {
     assert!(network.get("F").is_none());
     ```
      */
-    pub fn get(&self, element: &str) -> Option<Node> { map::network::get(self, element) }
+    pub fn get(&self, element: &str) -> Option<Node> {
+        map::network::get(self, element)
+    }
 }

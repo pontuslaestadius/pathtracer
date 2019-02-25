@@ -6,7 +6,7 @@ mod from_list;
 mod integration {
 
     mod rotate {
-        use crate::{coordinate::diff, Group, Location, Node};
+        use crate::*;
 
         #[test]
         fn group() {
@@ -20,7 +20,7 @@ mod integration {
         }
 
         fn setup_group() -> Group {
-            let mut g = Group::new_simple(0, 0);
+            let mut g = cluster!();
             g.radius(100);
             g.add(100);
             g
@@ -31,7 +31,7 @@ mod integration {
                 .iter()
                 .zip(b.iter())
                 .filter(|&(a, b)| {
-                    let d = diff(a.position(), b.position());
+                    let d = coordinate::diff(a.position(), b.position());
                     // Close enough.
                     d.0 < 10 && d.1 < 10
                 })
@@ -179,7 +179,7 @@ mod integration {
     }
 
     mod path {
-        use crate::{Coordinate, Node};
+        use crate::*;
 
         #[test]
         fn nodes() {
@@ -187,6 +187,22 @@ mod integration {
             let b = Node::new("B", Coordinate::new(100, 100));
             a.link(&b);
             assert!(a.is_directly_connected(&b));
+        }
+
+        #[test]
+        fn node_to_group() {
+            let mut a = Node::new("A", Coordinate::new(0, 0));
+            let b = Group::new("B", Coordinate::new(100, 100));
+            a.link(&b);
+            assert!(a.is_directly_connected(&b));
+        }
+
+        #[test]
+        fn group_to_node() {
+            let a = Node::new("A", Coordinate::new(0, 0));
+            let mut b = Group::new("B", Coordinate::new(100, 100));
+            b.settings.link(&a);
+            assert!(b.settings.is_directly_connected(&a));
         }
 
     }

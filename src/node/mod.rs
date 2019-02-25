@@ -10,7 +10,9 @@ use std::{
 };
 
 impl<'a> PartialEq for Node {
-    fn eq(&self, other: &Node) -> bool { self.hash == other.hash }
+    fn eq(&self, other: &Node) -> bool {
+        self.hash == other.hash
+    }
 }
 
 /**
@@ -83,12 +85,16 @@ pub fn from_file(path: &str) -> Result<Vec<Node>, io::Error> {
 /**
 Prints the distance between all the nodes paths and returns a summary of the total distance.
 */
-pub fn path_print(path: &[Node]) -> u32 { verbose_path(path, true) }
+pub fn path_print(path: &[Node]) -> u32 {
+    verbose_path(path, true)
+}
 
 /**
  Returns the sum distance that all the nodes' are from each other.
 */
-pub fn path_distances(path: &[Node]) -> u32 { verbose_path(path, false) }
+pub fn path_distances(path: &[Node]) -> u32 {
+    verbose_path(path, false)
+}
 
 /**
 Implementation of path_distance and path_print, Use those for interfacing.

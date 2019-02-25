@@ -106,7 +106,9 @@ impl<'a> Gif<'a> {
     /**
     Removes all cycles from the gif.
     */
-    pub fn remove_cycles(&mut self) { self.cycles = Vec::new(); }
+    pub fn remove_cycles(&mut self) {
+        self.cycles = Vec::new();
+    }
 
     /**
     Advances the cycles and returns the patterns it matched.
@@ -124,7 +126,9 @@ impl<'a> Gif<'a> {
     /**
     Returns the number of frames that has been written.
     */
-    pub fn frames(&self) -> u16 { self.frames }
+    pub fn frames(&self) -> u16 {
+        self.frames
+    }
 
     /**
     Pushes a frame using a map struct.
@@ -182,7 +186,9 @@ mod tests {
     }
 
     #[test]
-    fn test_gif_new() { define(&|_| Ok(())); }
+    fn test_gif_new() {
+        define(&|_| Ok(()));
+    }
 
     #[test]
     fn blank_frames() {
