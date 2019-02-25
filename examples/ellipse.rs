@@ -9,11 +9,9 @@ fn main() -> Result<(), std::io::Error> {
     group.add(50);
     group.radius(400);
     group.nodes = Node::linked_list(group.nodes);
-    group.each(&|node: &mut Node| {
-        match node.hl_mut(0) {
-            Ok(e) => e.style(EdgeStyle::Ellipse),
-            Err(_) => (),
-        }
+    group.each(&|node: &mut Node| match node.hl_mut(0) {
+        Ok(e) => e.style(EdgeStyle::Ellipse),
+        Err(_) => (),
     });
     Map::new().map(&[group]).save(&Path::new("out.png"))
 }

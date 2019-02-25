@@ -115,7 +115,9 @@ pub fn random_item(list: &[String]) -> &String {
  assert_eq!(tools::border(a, -b), 0);
  ```
  */
-pub fn border(a: u8, b: i32) -> u8 { max(min(i32::from(a) + b, 255 as i32), 0) as u8 }
+pub fn border(a: u8, b: i32) -> u8 {
+    max(min(i32::from(a) + b, 255 as i32), 0) as u8
+}
 
 /**
 Returns a random Rgb color. the opacity is always 255.
@@ -177,7 +179,9 @@ let path = tools::plot(coordinate!(), coordinate!(100, 100));
 # }
 ```
 */
-pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> { plot_type(a, b, &plot_bresenham) }
+pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
+    plot_type(a, b, &plot_bresenham)
+}
 
 pub fn plot_type(
     mut a: Coordinate,

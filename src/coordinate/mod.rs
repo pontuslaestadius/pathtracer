@@ -184,15 +184,21 @@ pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: 
 }
 
 impl Ord for Coordinate {
-    fn cmp(&self, other: &Coordinate) -> Ordering { (self.x + self.y).cmp(&(other.x + other.y)) }
+    fn cmp(&self, other: &Coordinate) -> Ordering {
+        (self.x + self.y).cmp(&(other.x + other.y))
+    }
 }
 
 impl PartialOrd for Coordinate {
-    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> { Some(self.cmp(other)) }
+    fn partial_cmp(&self, other: &Coordinate) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl PartialEq for Coordinate {
-    fn eq(&self, other: &Coordinate) -> bool { (self.x == other.x) && (self.y == other.y) }
+    fn eq(&self, other: &Coordinate) -> bool {
+        (self.x == other.x) && (self.y == other.y)
+    }
 }
 
 impl std::ops::Add for Coordinate {

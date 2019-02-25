@@ -25,22 +25,30 @@ pub trait Location {
     /**
     Returns if the positions are equal or not.
      */
-    fn eq<L: Location>(&self, other: &L) -> bool { self.position() == other.position() }
+    fn eq<L: Location>(&self, other: &L) -> bool {
+        self.position() == other.position()
+    }
 
     /**
     Retrieves the X coordinate.
      */
-    fn x(&self) -> i16 { self.position().x }
+    fn x(&self) -> i16 {
+        self.position().x
+    }
 
     /**
     Retrieves the Y coordinate.
      */
-    fn y(&self) -> i16 { self.position().y }
+    fn y(&self) -> i16 {
+        self.position().y
+    }
 
     /**
     Returns the sum of the x and y value.
      */
-    fn sum(&self) -> i16 { self.x() + self.y() }
+    fn sum(&self) -> i16 {
+        self.x() + self.y()
+    }
 }
 
 /**
