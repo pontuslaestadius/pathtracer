@@ -7,7 +7,7 @@ before_script:
   - rustup component add clippy
 script:
   - cargo fmt --all -- --check
-  - cargo clippy --all-targets --all-features -- -D warnings
+  - cargo clippy
   - cargo test --all
 
 branches:
