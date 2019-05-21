@@ -405,6 +405,12 @@ impl Location for Coordinate {
 // ------------------------------------------------------------------
 
 impl Draw for Node {
+    /**
+    Draws the node on an IW.
+
+    It is recommended to not use this directory.
+    But instead use the Map struct, which uses this trait implementation.
+    */
     fn draw(&self, mut image: IW, offset: Coordinate, shape: &Shape) -> IW {
         let s = consts::DEFAULT_LINK_SIZE / 2;
         let pos = self.geo + offset - coordinate!(s, s);
@@ -611,6 +617,26 @@ impl Node {
 
     /**
     Retrive coordinate from a csv format.
+
+    ## Examples
+
+    Example file format:
+
+    100,20
+
+    40,60
+
+    30,30
+
+
+    Would be equivalent to the following.
+
+    ```
+    # use pathfinder::Node;
+    let list = [(100, 20), (40, 60), (30, 30)];
+    let nodes = Node::from_list(&list);
+    assert_eq!(nodes.len(), 3);
+    ```
      */
     pub fn from_file(path: &str) -> Result<Vec<Self>, std::io::Error> {
         node::from_file(path)
@@ -666,7 +692,8 @@ impl Node {
     Links a list of nodes together in the order they are indexed.
 
 
-    A list of A, B, C. Will result in them being linked as: A -> B -> C.
+    A list of A, B, C.
+    Will result in them being linked as: A -> B -> C.
 
 
     ## Examples
@@ -717,6 +744,8 @@ impl Node {
 
 
     If the index is larger than the available HL.
+
+    The available HL can be retrieved through get_link_avail_index.
 
     You can only retrieve HL which are connected to other nodes.
 
@@ -783,15 +812,33 @@ impl Node {
     /**
     Links a list of nodes together in the order they are indexed.
 
+
     A list of A, B, C. Will result in them being linked as: A -> B -> C.
 
 
     ## Examples
 
+    The two following are the same.
+
     ```
     # use pathfinder::Node;
     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     let linked_list = Node::linked_list(nodes);
+    ```
+
+    ```
+    # use pathfinder::Node;
+    let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+    let linked_list = Node::linked_list_predicate(nodes, &|_, _| true);
+    ```
+
+    Will link the items with the same x value.
+
+    ```
+    # use pathfinder::Node;
+    # let nodes = Node::from_list(&[(0, 0), (20, 20)]);
+    let predicate = &|c1, c2| c1 > c2;
+    let linked_list = Node::linked_list_predicate(nodes, predicate);
     ```
      */
     pub fn linked_list_predicate(
@@ -823,6 +870,8 @@ impl Node {
 
     ## Examples
 
+    Connects two nodes.
+
     ```
     # #[macro_use] extern crate pathfinder;
     # use pathfinder::{Coordinate, Node};
@@ -832,6 +881,20 @@ impl Node {
     assert_eq!(b.get_link_avail_index(), 0);
     b.link(&a);
     assert_eq!(b.get_link_avail_index(), 1);
+    # }
+    ```
+
+    Disconnecting decreases the number back to 0.
+
+    ```
+    # #[macro_use] extern crate pathfinder;
+    # use pathfinder::{Coordinate, Node};
+    # fn main() {
+    # let a = node!("A", 0, 0);
+    # let mut b = node!("B", 50, 50);
+    # b.link(&a);
+    b.disconnect();
+    assert_eq!(b.get_link_avail_index(), 0);
     # }
     ```
      */

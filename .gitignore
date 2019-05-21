@@ -6,6 +6,7 @@ resources/*
 out.build
 *.swp
 *~
+.#*
 *.log
 *.lock
 *.txt

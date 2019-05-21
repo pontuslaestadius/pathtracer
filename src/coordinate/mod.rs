@@ -148,6 +148,8 @@ pub fn gen_radius(coord: Coordinate, min: u32, max: u32) -> Coordinate {
 /**
 Rotates the provide Vec around the axis in place.
 
+If deg == 0.0, no rotation occurs.
+
 
 ## Examples
 
@@ -257,6 +259,16 @@ mod tests {
     }
 
     #[test]
+    fn test_eq_macros() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co2: Coordinate = coordinate!(1);
+        let co3: Coordinate = coordinate!(2);
+        assert_eq!(co1, co2);
+        assert_ne!(co1, co3);
+        assert!(co1 < co3);
+    }
+
+    #[test]
     fn test_gen_within_radius() {
         // Default
         let co1: Coordinate = Coordinate::new(1, 1);
@@ -360,9 +372,28 @@ mod tests {
     }
 
     #[test]
+    fn test_diff_args_placement() {
+        let co1: Coordinate = Coordinate::new(1, 1);
+        let co2: Coordinate = Coordinate::new(102, 102);
+        let co3: Coordinate = Coordinate::new(-102, -102);
+
+        assert!(diff(co1, co2) == diff(co2, co1));
+        assert!(diff(co1, co3) == diff(co3, co1));
+        assert!(diff(co2, co3) == diff(co3, co2));
+    }
+
+    #[test]
     fn test_clone() {
         let co1: Coordinate = Coordinate::new(1, 1);
         let co2: Coordinate = Coordinate::new(9999, 9999);
+        assert!(co1 == co1.clone());
+        assert!(co2 == co2.clone());
+    }
+
+    #[test]
+    fn test_clone_macros() {
+        let co1: Coordinate = coordinate!();
+        let co2: Coordinate = coordinate!(400);
         assert!(co1 == co1.clone());
         assert!(co2 == co2.clone());
     }
