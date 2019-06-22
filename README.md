@@ -44,7 +44,7 @@ Map::new()
     .save(&Path::new("out.png"));
 ```
 
-Path through a listed of connected nodes.
+Path through a list of connected nodes.
 
 ```rust
 let pos = [(0, 0), (100, 100), (150, 50), (2000, 4000), (400, 600)];
