@@ -32,7 +32,10 @@ pub fn path<'a>(
     let opt_goal = network.get(b);
     let opt_start = network.get(a);
     if opt_goal.is_none() || opt_start.is_none() {
-        Err(Error::new(ErrorKind::Other,  "Start or Goal path does not exist in Network"))
+        Err(Error::new(
+            ErrorKind::Other,
+            "Start or Goal path does not exist in Network",
+        ))
     } else {
         algorithm(&network, opt_start.unwrap(), opt_goal.unwrap())
     }
@@ -48,7 +51,7 @@ pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
             return network.hash_map[i];
         }
     }
-    
+
     None
 }
 
@@ -197,7 +200,7 @@ mod tests {
     fn invalid_network_2() {
         assert!(network().path("Testing", "One, two, Three.").is_err());
     }
-    
+
     #[test]
     fn invalid_network_3() {
         assert!(network().path("", "<").is_err());

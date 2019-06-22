@@ -208,11 +208,11 @@ mod tests {
                 x.geo.x += 5;
                 x
             });
-            
+
             for i in 0..3 {
                 assert_eq!(gif.advance_cycle()[0].x(), 30 + i * 5);
             }
-            
+
             Ok(())
         });
     }

@@ -180,7 +180,6 @@ impl Shape {
         let q_plot = |x1, y1, x2, y2| tools::plot(coordinate!(x1, y1), coordinate!(x2, y2));
 
         while pos.x >= pos.y {
-
             for i in [1, -1].iter() {
                 vec.append(&mut q_plot(pos.x, i * pos.y, -pos.x, i * pos.y));
                 vec.append(&mut q_plot(i * pos.y, -pos.x, i * pos.y, pos.x));
