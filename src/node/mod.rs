@@ -105,13 +105,13 @@ fn verbose_path<L: Location>(path: &[L], stdout: bool) -> u32 {
         let dis = coordinate::distance(prev, x.position());
         prev = x.position();
         if stdout {
-            println!("{} - distance: {}", x.position(), dis);
+            debug!("{} - distance: {}", x.position(), dis);
         }
         sum + dis
     });
 
     if stdout {
-        println!("Total distance: {}", distance);
+        debug!("Total distance: {}", distance);
     }
     distance
 }

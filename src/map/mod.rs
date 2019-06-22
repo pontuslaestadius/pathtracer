@@ -66,10 +66,25 @@ mod tests {
     }
 
     #[test]
+    fn test_gen_canvas_2() {
+        let image = gen_canvas(0, 0);
+        assert_eq!(image.width(), 0);
+        assert_eq!(image.height(), 0);
+    }
+
+    #[test]
     fn test_min_max() {
         let nodes = Node::from_list(&[(-50, 50), (50, -50), (0, 25), (25, 0)]);
         let (min, max) = min_max(&nodes);
         assert_eq!(min, Coordinate::new(-55, -55));
         assert_eq!(max, Coordinate::new(55, 55));
+    }
+
+    #[test]
+    fn test_min_max_2() {
+        let nodes = Node::from_list(&[(-9999, 50), (50, -50), (0, 25), (9999, 0)]);
+        let (min, max) = min_max(&nodes);
+        assert_eq!(min, Coordinate::new(-10004, -55));
+        assert_eq!(max, Coordinate::new(10004, 55));
     }
 }
