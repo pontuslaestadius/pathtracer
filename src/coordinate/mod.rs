@@ -300,7 +300,6 @@ mod tests {
         let mut v = vec![Node::new("", Coordinate::new(0, 100))];
         for _ in 0..4 {
             rotate_around_axis(c1, &mut v, 90.0);
-            println!("{:?}", v.get(0).unwrap().geo);
         }
         assert_eq!(v.remove(0).geo, Coordinate::new(0, 100));
     }

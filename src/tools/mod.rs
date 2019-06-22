@@ -1,5 +1,5 @@
 /*!
-Useful functions not bound to any specific functionality.
+Utility functions
  */
 
 extern crate image;
@@ -319,7 +319,7 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
     let c = min;
     let r: f64 = f64::from(diff.x / 2).abs(); // distance from center to node aka radius.
 
-    println!(
+    debug!(
         "r: {} |t: {} |s: {} |from: {} |to: {} |diff: {} |c: {}",
         r, t, step, from, to, diff, c
     );
@@ -332,14 +332,14 @@ pub fn plot_ellipse(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
 
     while t > theta {
         let point = from + coordinate!(r * theta.cos(), f64::from(s.y) * r * theta.sin() / 2.0);
-        println!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
+        debug!("Theta: {} | Coordinate: {} <- {}", theta, point, from);
         let mut line = plot_type(from, point, &plot_bresenham);
         result.append(&mut line);
         from = point;
         theta += step;
     }
     result.append(&mut plot_type(from, to, &plot_bresenham));
-    println!("{:#?}", result);
+    debug!("{:#?}", result);
     result
 }
 

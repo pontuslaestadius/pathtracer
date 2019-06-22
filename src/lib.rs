@@ -6,6 +6,9 @@ extern crate pythagoras;
 extern crate rand;
 
 #[macro_use]
+extern crate log;
+
+#[macro_use]
 pub mod macros;
 
 pub mod consts;
