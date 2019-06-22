@@ -142,9 +142,10 @@ pub fn gen_rgba() -> Rgba<u8> {
 Returns a Rgb color based on a seed value. the opacity is always 255.
 */
 pub fn seed_rgba(seed: u64) -> Rgba<u8> {
-    let r = seed % 254;
-    let g = (seed + 75) % 254;
-    let b = (seed + 150) % 254;
+    let max = 254;
+    let r = seed % max;
+    let g = (seed + 75) % max;
+    let b = (seed + 150) % max;
 
     Rgba([r as u8, g as u8, b as u8, 255])
 }

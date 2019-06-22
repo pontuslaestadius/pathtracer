@@ -208,9 +208,11 @@ mod tests {
                 x.geo.x += 5;
                 x
             });
-            assert_eq!(gif.advance_cycle()[0].x(), 30);
-            assert_eq!(gif.advance_cycle()[0].x(), 35);
-            assert_eq!(gif.advance_cycle()[0].x(), 40);
+            
+            for i in 0..3 {
+                assert_eq!(gif.advance_cycle()[0].x(), 30 + i * 5);
+            }
+            
             Ok(())
         });
     }
@@ -219,9 +221,9 @@ mod tests {
     fn cycles_every_frame() {
         define(&|mut gif| {
             gif.cycle(1, vec![node!(25, 25)]);
-            assert_eq!(gif.advance_cycle().len(), 1);
-            assert_eq!(gif.advance_cycle().len(), 1);
-            assert_eq!(gif.advance_cycle().len(), 1);
+            for _ in 0..3 {
+                assert_eq!(gif.advance_cycle().len(), 1);
+            }
             Ok(())
         });
     }

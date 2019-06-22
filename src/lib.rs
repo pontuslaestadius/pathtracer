@@ -180,10 +180,11 @@ impl Shape {
         let q_plot = |x1, y1, x2, y2| tools::plot(coordinate!(x1, y1), coordinate!(x2, y2));
 
         while pos.x >= pos.y {
-            vec.append(&mut q_plot(pos.x, pos.y, -pos.x, pos.y));
-            vec.append(&mut q_plot(pos.x, -pos.y, -pos.x, -pos.y));
-            vec.append(&mut q_plot(-pos.y, -pos.x, -pos.y, pos.x));
-            vec.append(&mut q_plot(pos.y, -pos.x, pos.y, pos.x));
+
+            for i in [1, -1].iter() {
+                vec.append(&mut q_plot(pos.x, i * pos.y, -pos.x, i * pos.y));
+                vec.append(&mut q_plot(i * pos.y, -pos.x, i * pos.y, pos.x));
+            }
 
             if err <= 0 {
                 pos.y += 1;
@@ -288,17 +289,6 @@ impl IW {
     Set debug_assertions flag to panic for out of bounds positions with improved debugging messages.
      */
     pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
-        if cfg!(debug_assertions)
-            && (l.x() as u32 > self.img.width() || l.y() as u32 >= self.img.height())
-        {
-            panic!(
-                "({}) out of bound of image ({}, {})",
-                l.position(),
-                self.img.width(),
-                self.img.height()
-            );
-        }
-
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 

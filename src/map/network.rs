@@ -1,27 +1,27 @@
 /*!
-  Connects and paths between different connected Nodes.
-*/
+Connects and paths between different connected Nodes.
+ */
 
 use super::*;
 use std::io::{self, Error, ErrorKind};
 
 /**
 Weighted Node
-*/
+ */
 struct WNodes {
     nodes: Vec<Node>,
     weight: u32,
 }
 
 /**
- Paths between two different points that are connected.
+Paths between two different points that are connected.
 
 
 ## Errors
 
- The provided A and B don't exist in the network.
+The provided A and B don't exist in the network.
 
- The path could not be found.
+The path could not be found.
  */
 pub fn path<'a>(
     network: &'a Network<Node>,
@@ -40,31 +40,32 @@ pub fn path<'a>(
 
 /**
 Retrieves a node from a network.
-*/
+ */
 pub fn get(network: &Network<Node>, element: &str) -> Option<Node> {
-    let tmp = node!(element, 0, 0);
+    let hash = node!(element, 0, 0).hash;
     for (i, elem) in network.hash_map.iter().enumerate() {
-        if elem.is_some() && i == tmp.hash as usize % consts::NETWORK_REM {
+        if elem.is_some() && i == hash as usize % consts::NETWORK_REM {
             return network.hash_map[i];
         }
     }
+    
     None
 }
 
 /**
- Creates a path using the 'shortest leg' in the journey at each stop.
+Creates a path using the 'shortest leg' in the journey at each stop.
 
- The shorest leg means that for every occurence of a path, the alternatives are sorted and the shortest is always selected.
+The shorest leg means that for every occurence of a path, the alternatives are sorted and the shortest is always selected.
 
 
 ## Errors
 
- The path could not be found.
+The path could not be found.
 
 
- ## Panics
+## Panics
 
- The provided A and B don't exist in the network.
+The provided A and B don't exist in the network.
  */
 pub fn path_shortest_leg<'a>(
     network: &'a Network<Node>,
@@ -189,26 +190,22 @@ mod tests {
 
     #[test]
     fn invalid_network_1() {
-        let result = network().path("B", "E");
-        assert!(result.is_err())
+        assert!(network().path("B", "E").is_err());
     }
 
     #[test]
     fn invalid_network_2() {
-        let result = network().path("Testing", "One, two, Three.");
-        assert!(result.is_err())
+        assert!(network().path("Testing", "One, two, Three.").is_err());
     }
     
     #[test]
     fn invalid_network_3() {
-        let result = network().path("", ">");
-        assert!(result.is_err())
+        assert!(network().path("", "<").is_err());
     }
 
     #[test]
     fn invalid_network_4() {
-        let result = network().path("<html>", "{json:test}");
-        assert!(result.is_err())
+        assert!(network().path("<html>", "{json:test}").is_err());
     }
 
 }
