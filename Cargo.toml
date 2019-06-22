@@ -1,6 +1,6 @@
 [package]
 name = "pathfinder"
-version = "0.6.3"
+version = "0.6.4"
 authors = ["PontusLaestadius <pontus.laestadius@gmail.com>"]
 edition = "2018"
 include = ["src/**/*", "Cargo.toml"]
@@ -12,8 +12,8 @@ categories = ["visualization", "text-processing"]
 license = "MIT"
 
 [dependencies]
-rand = "0.6.1"
-gif = "0.10.1"
-image = "0.21.0"
+rand = "0.6.5"
+gif = "0.10.2"
+image = "0.21.2"
 pythagoras = "0.1.1"
 log = "0.4.6"
