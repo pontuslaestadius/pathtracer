@@ -29,9 +29,13 @@ pub fn path<'a>(
     b: &str,
     algorithm: &Fn(&Network<Node>, Node, Node) -> io::Result<Vec<Node>>,
 ) -> io::Result<Vec<Node>> {
-    let goal = network.get(b).expect("goal does not exist in network");
-    let start = network.get(a).expect("start does not exist in network");
-    algorithm(&network, start, goal)
+    let opt_goal = network.get(b);
+    let opt_start = network.get(a);
+    if opt_goal.is_none() || opt_start.is_none() {
+        Err(Error::new(ErrorKind::Other,  "Start or Goal path does not exist in Network"))
+    } else {
+        algorithm(&network, opt_start.unwrap(), opt_goal.unwrap())
+    }
 }
 
 /**
@@ -117,29 +121,45 @@ mod tests {
 
     use super::*;
 
+    // Helper
+    fn nodes() -> Vec<Node> {
+        let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
+        Node::linked_list(nodes)
+    }
+
+    // Helper
+    fn network() -> Network<Node> {
+        Network::new(nodes())
+    }
+
     #[test]
     fn simple_network_shortest_leg() {
-        let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
-        let nodes = Node::linked_list(nodes);
-        let net = Network::new(nodes);
-        let path = path(&net, "D", "A", &path_shortest_leg).unwrap();
+        let network = network();
+        let path = path(&network, "D", "A", &path_shortest_leg).unwrap();
         assert_eq!(path.len(), 4);
     }
 
     #[test]
     fn simple_network() {
-        let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
-        let nodes = Node::linked_list(nodes);
-        let path = Network::new(nodes).path("A", "D").unwrap();
+        let path = network().path("A", "D").unwrap();
         assert_eq!(path.len(), 4);
     }
 
     #[test]
-    fn simple_networks_have_same_path() {
-        let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
-        let nodes = Node::linked_list(nodes);
+    fn simple_network_start_in_the_middle() {
+        let path = network().path("C", "D").unwrap();
+        assert_eq!(path.len(), 2);
+    }
 
-        let net = Network::new(nodes);
+    #[test]
+    fn simple_network_end_in_the_middle() {
+        let path = network().path("C", "D").unwrap();
+        assert_eq!(path.len(), 2);
+    }
+
+    #[test]
+    fn simple_networks_have_same_path() {
+        let net = network();
         let mut path_sl = path(&net, "D", "A", &path_shortest_leg).unwrap();
         let path = net.path("A", "D").unwrap();
         path_sl.reverse();
@@ -149,6 +169,46 @@ mod tests {
         let v2 = path_sl.iter().map(f).collect::<Vec<_>>();
 
         assert_eq!(v1, v2);
+    }
+
+    #[test]
+    fn valid_gets() {
+        let network = network();
+        for l in ["A", "B", "C", "D"].iter() {
+            assert!(get(&network, l).is_some());
+        }
+    }
+
+    #[test]
+    fn invalid_gets() {
+        let network = network();
+        for l in ["", "<>", "Test", "E", "AA", "EE", "f", "a"].iter() {
+            assert!(get(&network, l).is_none());
+        }
+    }
+
+    #[test]
+    fn invalid_network_1() {
+        let result = network().path("B", "E");
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn invalid_network_2() {
+        let result = network().path("Testing", "One, two, Three.");
+        assert!(result.is_err())
+    }
+    
+    #[test]
+    fn invalid_network_3() {
+        let result = network().path("", ">");
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn invalid_network_4() {
+        let result = network().path("<html>", "{json:test}");
+        assert!(result.is_err())
     }
 
 }
