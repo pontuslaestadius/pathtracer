@@ -65,10 +65,6 @@ The shorest leg means that for every occurence of a path, the alternatives are s
 
 The path could not be found.
 
-
-## Panics
-
-The provided A and B don't exist in the network.
  */
 pub fn path_shortest_leg<'a>(
     network: &'a Network<Node>,

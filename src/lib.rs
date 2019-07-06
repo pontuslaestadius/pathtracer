@@ -1228,8 +1228,56 @@ impl Group {
     }
 
     /**
-    Sets the color of the Group.
+    Returns true if every node in the group pass the predicate.
+
+    ## Examples
+
+    ```
+    # #[macro_use] use pathfinder::*;
+    # fn main() {
+    let mut group = cluster!();
+    group.add(50);
+    let result = group.all(&|node: &Node| node.x() <= 100);
+    assert!(result);
+    # }
+    ```
      */
+    pub fn all(&self, func: &Fn(&Node) -> bool) -> bool {
+        for node in self.nodes.iter() {
+            if !func(node) {
+                return false;
+            }
+        }
+        true
+    }
+
+    /**
+    Returns true if any node in the group pass the predicate.
+
+    ## Examples
+
+    ```
+    # #[macro_use] use pathfinder::*;
+    # fn main() {
+    let mut group = cluster!();
+    group.add(50);
+    let result = group.any(&|node: &Node| node.x() < 20);
+    assert!(result);
+    # }
+    ```
+     */
+    pub fn any(&self, func: &Fn(&Node) -> bool) -> bool {
+        for node in self.nodes.iter() {
+            if func(node) {
+                return true;
+            }
+        }
+        false
+    }
+
+    /**
+       Sets the color of the Group.
+    */
     pub fn color(&mut self, rgba: image::Rgba<u8>) {
         self.settings.color = rgba;
     }
