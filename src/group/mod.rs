@@ -16,7 +16,7 @@ Counts the amount of child Nodes in a list of Groups.
 ## Examples
 
 ```
-# use pathfinder::*;
+# use pathtracer::*;
 let mut groups = Group::from_list(&[(0, 0), (100, 100)]);
 for group in groups.iter_mut() {
     group.add(50);
@@ -43,7 +43,7 @@ This is the underlying function used in Group::push(..).
 ## Examples
 
 ```
-# use pathfinder::*;
+# use pathtracer::*;
 # let mut group = Group::new("", Coordinate::new(0, 0));
 group::add_node(&mut group, Some("Name"), Some(5), Some(9));
 assert_eq!(group.nodes.len(), 1);
