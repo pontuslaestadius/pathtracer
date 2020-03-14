@@ -89,5 +89,4 @@ mod tests {
         add_node(&mut group, Some("name"), Some(50), Some(20));
         assert_eq!(group.nodes.len(), 2);
     }
-
 }

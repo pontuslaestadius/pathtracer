@@ -214,5 +214,4 @@ mod tests {
         let _ = coordinate!(0u8, 0i32);
         let _ = coordinate!(0f64, 100);
     }
-
 }

@@ -67,7 +67,6 @@ mod integration {
             }
             no_move(&nodes, g.nodes());
         }
-
     }
 
     mod links {
@@ -175,7 +174,6 @@ mod integration {
             assert!(a.hl(0).is_err());
             assert_eq!(a.get_link_avail_index(), 0);
         }
-
     }
 
     mod path {
@@ -204,6 +202,5 @@ mod integration {
             b.settings.link(&a);
             assert!(b.settings.is_directly_connected(&a));
         }
-
     }
 }

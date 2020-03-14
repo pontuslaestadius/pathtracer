@@ -125,5 +125,4 @@ mod tests {
         let res = get_node_names("invalid path");
         assert!(res.is_err());
     }
-
 }
