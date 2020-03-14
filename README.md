@@ -1,8 +1,9 @@
-![crates.io](https://img.shields.io/crates/d/pathfinder.svg)
-[![Build Status](https://travis-ci.org/pontuslaestadius/pathfinder.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathfinder)
-[![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathfinder/latest/pathfinder/)
-[![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathfinder.svg)](https://github.com/pontuslaestadius/pathfinder/blob/master/LICENSE)
+![crates.io](https://img.shields.io/crates/d/pathtracer.svg)
+[![Build Status](https://travis-ci.org/pontuslaestadius/pathtracer.svg?branch=master)](https://travis-ci.org/pontuslaestadius/pathtracer)
+[![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathtracer/latest/pathtracer/)
+[![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathtracer.svg)](https://github.com/pontuslaestadius/pathtracer/blob/master/LICENSE)
 
+Previously named pathfinder, but that name was requested and handed over to the servo/pathfinder project.
 
 ![Logo of the project](examples/out/hello_world.png)
 
@@ -17,13 +18,13 @@ Placing positioned objects on to an Image can cause many issue. This library is 
 
 ### Features
 
-* [Connecting Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world.rs)
-* [Traversing paths](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/mvp.rs)
-* [Data visualisation](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/git_log.rs)
-* [Large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/random.rs)
-* [Plot large number of Nodes](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/node_plot.rs)
-* [Gifs](https://github.com/pontuslaestadius/pathfinder/blob/master/examples/hello_world_gif.rs)
-* [Invocation macros for structures](https://docs.rs/pathfinder/latest/pathfinder/#macros)
+* [Connecting Nodes](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/hello_world.rs)
+* [Traversing paths](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/mvp.rs)
+* [Data visualisation](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/git_log.rs)
+* [Large number of Nodes](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/random.rs)
+* [Plot large number of Nodes](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/node_plot.rs)
+* [Gifs](https://github.com/pontuslaestadius/pathtracer/blob/master/examples/hello_world_gif.rs)
+* [Invocation macros for structures](https://docs.rs/pathtracer/latest/pathtracer/#macros)
 
 
 ## Example
@@ -31,7 +32,7 @@ Placing positioned objects on to an Image can cause many issue. This library is 
 Place greater number of Nodes using Groups. A Group is structure which encapsulates many Nodes.
 
 ```rust
-use pathfinder::{Group, map};
+use pathtracer::{Group, map};
 use std::path::Path;
 
 let mut groups = Group::from_list(&[(0, 0), (100, 100)]);

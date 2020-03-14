@@ -41,7 +41,7 @@ Calculate a coordinate based on another coordinate and a function.
 ## Examples
 
 ```
-# use pathfinder::{coordinate::*, Coordinate};
+# use pathtracer::{coordinate::*, Coordinate};
 let c1 = Coordinate::new(0, 0);
 let f = |i: usize| -> Coordinate { Coordinate::new(i as i16, i as i16) };
 let c2 = calc(c1, 5, &f);
@@ -64,8 +64,8 @@ get difference in distance.
 ## Examples
 
 ```
-# #[macro_use] use pathfinder::*;
-# use pathfinder::coordinate::*;
+# #[macro_use] use pathtracer::*;
+# use pathtracer::coordinate::*;
 # fn main() {
 let difference = diff(coordinate!(), coordinate!(100));
 assert_eq!(difference, (100, 100));
@@ -84,8 +84,8 @@ pub fn diff(c1: Coordinate, c2: Coordinate) -> (i16, i16) {
 ## Examples
 
 ```
-# #[macro_use] use pathfinder::*;
-# use pathfinder::coordinate::*;
+# #[macro_use] use pathtracer::*;
+# use pathtracer::coordinate::*;
 # fn main() {
 let distance = distance(coordinate!(), coordinate!(3, 4));
 assert_eq!(distance, 5);
@@ -104,8 +104,8 @@ pub fn distance(a: Coordinate, b: Coordinate) -> u32 {
 ## Examples
 
 ```
-# #[macro_use] use pathfinder::*;
-# use pathfinder::coordinate::*;
+# #[macro_use] use pathtracer::*;
+# use pathtracer::coordinate::*;
 # fn main() {
 let c2 = gen_within_radius(coordinate!(), 100);
 # }
@@ -123,7 +123,7 @@ a min and max radius.
 ## Examples
 
 ```
-# use pathfinder::{coordinate, Coordinate};
+# use pathtracer::{coordinate, Coordinate};
 let c1 = Coordinate::new(0, 0);
 let c2 = coordinate::gen_radius(c1, 50, 100);
 ```
@@ -154,8 +154,8 @@ If deg == 0.0, no rotation occurs.
 ## Examples
 
 ```
-# #[macro_use] extern crate pathfinder;
-# use pathfinder::{coordinate::*, Coordinate, Node};
+# #[macro_use] extern crate pathtracer;
+# use pathtracer::{coordinate::*, Coordinate, Node};
 # fn main() {
 let mut v = vec![node!(0, 100)];
 rotate_around_axis(coordinate!(), &mut v, 90.0);

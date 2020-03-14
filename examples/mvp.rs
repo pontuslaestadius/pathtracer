@@ -1,5 +1,5 @@
-extern crate pathfinder;
-use pathfinder::{node, *};
+extern crate pathtracer;
+use pathtracer::{node, *};
 
 /*
     Creates a small list of nodes which are sequentially connected.

@@ -343,7 +343,7 @@ impl MinMax for Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = Group::new_simple(0, 0);
     group.push(node!(100, 100));
@@ -521,7 +521,7 @@ impl Coordinate {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     Coordinate::new(10, 10);
     # }
@@ -530,7 +530,7 @@ impl Coordinate {
     Invocation can be done used the macro coordinate!
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     coordinate!(10);
     # }
@@ -539,7 +539,7 @@ impl Coordinate {
     These are equal.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let a = coordinate!(10);
     let b = Coordinate::new(10, 10);
@@ -558,7 +558,7 @@ impl Coordinate {
     ## Examples
 
     ```
-    # use pathfinder::Coordinate;
+    # use pathtracer::Coordinate;
     let c = Coordinate::new(10, 10);
     assert!(c.lt(11));
     ```
@@ -574,7 +574,7 @@ impl Coordinate {
     ## Examples
 
     ```
-    # use pathfinder::Coordinate;
+    # use pathtracer::Coordinate;
     let c = Coordinate::new(-10, 10);
     assert_eq!(c.abs(), Coordinate::new(10, 10));
     ```
@@ -624,7 +624,7 @@ impl Node {
     Would be equivalent to the following.
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let list = [(100, 20), (40, 60), (30, 30)];
     let nodes = Node::from_list(&list);
     assert_eq!(nodes.len(), 3);
@@ -653,7 +653,7 @@ impl Node {
     Create three nodes from a list.
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let list = [(0, 0), (10, 10), (15, 15)];
     let nodes = Node::from_list(&list);
     assert_eq!(nodes.len(), 3);
@@ -662,7 +662,7 @@ impl Node {
     Returns an empty array if given an empty list.
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let nodes = Node::from_list(&[]);
     assert_eq!(nodes.len(), 0);
     ```
@@ -691,7 +691,7 @@ impl Node {
     ## Examples
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     let linked_list = Node::linked_list(nodes);
     ```
@@ -709,8 +709,8 @@ impl Node {
     If the Node has not been linked.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     let node = node!();
     let hl = node.hl(0);
@@ -721,8 +721,8 @@ impl Node {
     Linking Nodes makes us able to interface with Edges.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     let a = node!("A", 0, 0);
     let mut b = node!("B", 50, 50);
@@ -762,8 +762,8 @@ impl Node {
     A mutable variant is required when setting Edge styles.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{EdgeStyle, Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{EdgeStyle, Coordinate, Node};
     # fn main() -> std::io::Result<()> {
     let mut a = node!("A", 0, 0);
     let mut b = node!("B", 50, 50);
@@ -813,13 +813,13 @@ impl Node {
     The two following are the same.
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     let linked_list = Node::linked_list(nodes);
     ```
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     let linked_list = Node::linked_list_predicate(nodes, &|_, _| true);
     ```
@@ -827,7 +827,7 @@ impl Node {
     Will link the items with the same x value.
 
     ```
-    # use pathfinder::Node;
+    # use pathtracer::Node;
     # let nodes = Node::from_list(&[(0, 0), (20, 20)]);
     let predicate = &|c1, c2| c1 > c2;
     let linked_list = Node::linked_list_predicate(nodes, predicate);
@@ -865,8 +865,8 @@ impl Node {
     Connects two nodes.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     let a = node!("A", 0, 0);
     let mut b = node!("B", 50, 50);
@@ -879,8 +879,8 @@ impl Node {
     Disconnecting decreases the number back to 0.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     # let a = node!("A", 0, 0);
     # let mut b = node!("B", 50, 50);
@@ -907,8 +907,8 @@ impl Node {
     Connects two nodes and then disconnects it.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     let a = node!(0, 0);
     let mut b = node!(50, 50);
@@ -922,8 +922,8 @@ impl Node {
     A node does not need to be connected, before attempted to disconnect it.
 
     ```
-    # #[macro_use] extern crate pathfinder;
-    # use pathfinder::{Coordinate, Node};
+    # #[macro_use] extern crate pathtracer;
+    # use pathtracer::{Coordinate, Node};
     # fn main() {
     let mut a = node!(0, 0);
     a.disconnect();
@@ -944,7 +944,7 @@ impl Node {
     Connects two nodes, and verifies that they are connected.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let b = node!();
     let mut a = node!();
@@ -956,7 +956,7 @@ impl Node {
     Connects a node with a group.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let b = cluster!();
     let mut a = node!();
@@ -999,7 +999,7 @@ impl HL {
     Sets the style to be 'straight' meaning sharp like an L shape.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() -> std::io::Result<()> {
     let b = cluster!();
     let mut a = node!();
@@ -1021,7 +1021,7 @@ impl HL {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() -> std::io::Result<()> {
     let b = cluster!();
     let mut a = node!();
@@ -1097,7 +1097,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let a = cluster!();
     let mut group = cluster!();
@@ -1116,7 +1116,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let a = cluster!();
     let mut group = cluster!();
@@ -1135,7 +1135,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let group = cluster!();
     let mut group = cluster!();
@@ -1155,7 +1155,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let group = cluster!();
     let mut group = cluster!();
@@ -1175,7 +1175,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let group = cluster!();
     let mut group = cluster!();
@@ -1202,7 +1202,7 @@ impl Group {
     Prints all the nodes positions.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     group.add(10);
@@ -1213,7 +1213,7 @@ impl Group {
     Since it returns a mutable reference, It is more adapted for modifying the nodes.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     # let mut group = cluster!();
     # group.add(10);
@@ -1233,7 +1233,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     group.add(50);
@@ -1257,7 +1257,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     group.add(50);
@@ -1291,7 +1291,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     group.node_plot(&|u| coordinate!(u));
@@ -1313,7 +1313,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     group.new_node_min_max(50, 60);
@@ -1334,7 +1334,7 @@ impl Group {
     The cluster macro allows for this exact invocation.
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!(10, 10);
     let group2 = Group::new_simple(10, 10);
@@ -1353,7 +1353,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut group = cluster!();
     let node = node!();
@@ -1396,7 +1396,7 @@ impl Group {
     ## Examples
 
     ```
-    # #[macro_use] use pathfinder::*;
+    # #[macro_use] use pathtracer::*;
     # fn main() {
     let mut cluster = cluster!();
     cluster.radius(10);
@@ -1423,7 +1423,7 @@ impl Group {
     ## Examples
 
     ```
-    # use pathfinder::Group;
+    # use pathtracer::Group;
     let list = [(0, 0), (10, 10), (15, 15)];
     let groups = Group::from_list(&list);
     assert_eq!(groups.len(), 3);
@@ -1442,7 +1442,7 @@ impl Group {
     ## Examples
 
     ```
-    # use pathfinder::*;
+    # use pathtracer::*;
     let b: Group = Group::new("B", Coordinate::new(100, 100));
     let mut a: Group = Group::new("A", Coordinate::new(0, 0));
     a.link(&b);
@@ -1485,7 +1485,7 @@ impl Map {
     ## Examples
 
     ```
-    # use pathfinder::*;
+    # use pathtracer::*;
     # use std::path::Path;
     # fn main() -> std::io::Result<()> {
     let nodes = Node::from_list(&[(0, 0), (10, 10)]);
@@ -1514,7 +1514,7 @@ impl Map {
     ## Examples
 
     ```
-    # use pathfinder::*;
+    # use pathtracer::*;
     let nodes: Vec<Node> = Node::from_list(&[(0, 0), (100, 100)]);
 
     // Add content to vectors.
@@ -1594,7 +1594,7 @@ impl Network<Node> {
     ## Examples
 
     ```
-    # use pathfinder::*;
+    # use pathtracer::*;
     let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30)]);
     let mut nodes = Node::linked_list(nodes);
     let path = Network::new(nodes).path("A", "D").unwrap();
@@ -1621,7 +1621,7 @@ impl Network<Node> {
     ## Examples
 
     ```
-    # use pathfinder::*;
+    # use pathtracer::*;
     let nodes = Node::from_list(&[(0, 0), (10, 10), (20, 20), (30, 30), (40, 40)]);
     let network = Network::new(nodes.clone());
     assert!(network.get("A").is_some());

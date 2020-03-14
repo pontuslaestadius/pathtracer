@@ -1,11 +1,11 @@
 [package]
-name = "pathfinder"
+name = "pathtracer"
 version = "0.6.5"
 authors = ["PontusLaestadius <pontus.laestadius@gmail.com>"]
 edition = "2018"
 include = ["src/**/*", "Cargo.toml"]
 description = "Create nodes, clusters of nodes and connection in between."
-repository = "https://github.com/pontuslae/pathfinder"
+repository = "https://github.com/pontuslae/pathtracer"
 readme = "README.md"
 keywords = ["graph", "nodes", "image", "pathing"]
 categories = ["visualization", "text-processing"]
