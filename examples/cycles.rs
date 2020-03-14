@@ -1,9 +1,9 @@
 extern crate gif;
 extern crate image;
-extern crate pathfinder;
+extern crate pathtracer;
 extern crate rand;
 
-use pathfinder::{map::gif::*, *};
+use pathtracer::{map::gif::*, *};
 use std::env;
 
 fn main() -> std::io::Result<()> {

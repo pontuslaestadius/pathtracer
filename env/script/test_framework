@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test framework for running tests in pathfinder/tests/.
+# Test framework for running tests in pathtracer/tests/.
 # tests are evaluated line by line and can not require several line context.
 # Input: Optional name filter. To run a specific test e.g. tests/travis , run './test_Framework travis'
 # Output is formatted in a matrix where each row is a test file and each column is a command ran.

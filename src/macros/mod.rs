@@ -13,7 +13,7 @@ These provide a less-strict typed struct versions which lightens the syntax.
   These are all equal.
 
   ```
-  # #![macro_use] use pathfinder::*;
+  # #![macro_use] use pathtracer::*;
   # fn main() {
   coordinate!();
   coordinate!(0);
@@ -26,7 +26,7 @@ These provide a less-strict typed struct versions which lightens the syntax.
   If you are not sure if the value you pass can be converted to a i16, do not use this macro as values could overflow.
 
   ```
-  # #![macro_use] use pathfinder::*;
+  # #![macro_use] use pathtracer::*;
   # fn main() {
   coordinate!(0.0);
   coordinate!(0u8, 0i128);
@@ -59,7 +59,7 @@ macro_rules! coordinate {
   These are all equal.
 
   ```
-  # #![macro_use] use pathfinder::*;
+  # #![macro_use] use pathtracer::*;
   # fn main() {
 
   node!();
@@ -100,7 +100,7 @@ macro_rules! node {
   These are all equal.
 
   ```
-  # #![macro_use] use pathfinder::*;
+  # #![macro_use] use pathtracer::*;
   # fn main() {
 
   cluster!();

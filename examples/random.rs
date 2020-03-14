@@ -1,8 +1,8 @@
 extern crate image;
-extern crate pathfinder;
+extern crate pathtracer;
 extern crate rand;
 
-use pathfinder::*;
+use pathtracer::*;
 
 use std::path::Path;
 

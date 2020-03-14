@@ -40,7 +40,7 @@ impl<'a, T: Draw + Location + Hash + MinMax + Copy> Cycle<'a, T> {
 /**
 Wrapper around the Gif struct found in the gif crate.
 
-With additions for pathfinder support, and cycling features.
+With additions for pathtracer support, and cycling features.
 */
 pub struct Gif<'a> {
     encoder: gif::Encoder<File>,

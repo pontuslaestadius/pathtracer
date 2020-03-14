@@ -1,6 +1,6 @@
-extern crate pathfinder;
+extern crate pathtracer;
 
-use pathfinder::*;
+use pathtracer::*;
 use std::path::Path;
 
 fn main() -> Result<(), std::io::Error> {

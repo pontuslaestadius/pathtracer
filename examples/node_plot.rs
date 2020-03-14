@@ -1,7 +1,7 @@
 extern crate gif;
 extern crate image;
-extern crate pathfinder;
-use pathfinder::{map::gif::*, *};
+extern crate pathtracer;
+use pathtracer::{map::gif::*, *};
 
 fn main() -> std::io::Result<()> {
     let frames = 4;
