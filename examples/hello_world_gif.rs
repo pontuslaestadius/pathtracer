@@ -1,10 +1,10 @@
 extern crate gif;
 extern crate image;
-extern crate pathfinder;
+extern crate pathtracer;
 extern crate rand;
 
 use image::Rgba;
-use pathfinder::{map::gif::*, *};
+use pathtracer::{map::gif::*, *};
 
 fn main() -> std::io::Result<()> {
     let mut gif = Gif::new("out.gif", 200, 100);

@@ -2,9 +2,9 @@
     Visualizes a provided log with the marked tags.
 */
 
-extern crate pathfinder;
+extern crate pathtracer;
 extern crate rand;
-use pathfinder::{data, group, *};
+use pathtracer::{data, group, *};
 use std::{env, path::Path};
 
 fn main() -> std::io::Result<()> {

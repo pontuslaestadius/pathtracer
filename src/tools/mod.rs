@@ -32,7 +32,7 @@ First declare the colors and the range at which it becomes darker.
 
 ```
 extern crate image;
-use pathfinder::{tools, Coordinate};
+use pathtracer::{tools, Coordinate};
 let falloff = 100;
 let color = image::Rgba {
      data: [100, 100, 100, 255],
@@ -43,7 +43,7 @@ Evaluate that based on the modified distance, in the small sense it is modified 
 
 ```
 # extern crate image;
-# use pathfinder::{tools, Coordinate};
+# use pathtracer::{tools, Coordinate};
 # let falloff = 100;
 # let color = image::Rgba([100, 100, 100, 255]);
 let base = Coordinate::new(0, 0);
@@ -83,7 +83,7 @@ pub fn range_color(
 ## Examples
 
 ```
-# use pathfinder::tools;
+# use pathtracer::tools;
 let nr = tools::roll(50u32, 60);
 assert!(nr >= 50 && nr <= 60);
 ```
@@ -108,7 +108,7 @@ pub fn random_item(list: &[String]) -> &String {
 ## Examples
 
  ```
- use pathfinder::tools;
+ use pathtracer::tools;
  let a = 50;
  let b = 250;
  assert_eq!(tools::border(a, b), 255);
@@ -126,7 +126,7 @@ Returns a random Rgb color. the opacity is always 255.
 ## Examples
 
 ```
-# use pathfinder::tools;
+# use pathtracer::tools;
 let rgba = tools::gen_rgba();
 println!("{:?}", rgba.data);
 ```
@@ -165,7 +165,7 @@ https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 First we create a simple path between two coordinates.
 
 ```
-use pathfinder::{tools, Coordinate};
+use pathtracer::{tools, Coordinate};
 let a = Coordinate::new(0, 0);
 let b = Coordinate::new(1, 1);
 let path = tools::plot(a, b);
@@ -174,7 +174,7 @@ let path = tools::plot(a, b);
 Paths can also be used from macro invocations.
 
 ```
-# #[macro_use] use pathfinder::*;
+# #[macro_use] use pathtracer::*;
 # fn main() {
 let path = tools::plot(coordinate!(), coordinate!(100, 100));
 # }
@@ -286,7 +286,7 @@ Gives the midpoint between two points.
 Declare the colors and the range at which it becomes darker.
 
 ```
-# use pathfinder::{tools, Coordinate};
+# use pathtracer::{tools, Coordinate};
 let a = Coordinate::new(0, 0);
 let b = Coordinate::new(100, 100);
 let mid = tools::midpoint(a, b);
