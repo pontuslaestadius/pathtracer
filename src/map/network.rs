@@ -206,5 +206,4 @@ mod tests {
     fn invalid_network_4() {
         assert!(network().path("<html>", "{json:test}").is_err());
     }
-
 }
