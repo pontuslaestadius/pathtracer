@@ -12,11 +12,11 @@ struct Cycle<'a, T: Draw + Location + Hash + MinMax + Copy> {
     interval: u8,
     count: u8,
     map: Vec<T>,
-    predicate: &'a Fn(&T) -> T,
+    predicate: &'a dyn Fn(&T) -> T,
 }
 
 impl<'a, T: Draw + Location + Hash + MinMax + Copy> Cycle<'a, T> {
-    pub fn new(interval: u8, map: Vec<T>, predicate: &'a Fn(&T) -> T) -> Self {
+    pub fn new(interval: u8, map: Vec<T>, predicate: &'a dyn Fn(&T) -> T) -> Self {
         Cycle {
             interval,
             map,
@@ -98,7 +98,7 @@ impl<'a> Gif<'a> {
         &mut self,
         interval: u8,
         map: Vec<Node>,
-        predicate: &'a Fn(&Node) -> Node,
+        predicate: &'a dyn Fn(&Node) -> Node,
     ) {
         self.cycles.push(Cycle::new(interval, map, predicate));
     }
@@ -178,7 +178,7 @@ impl<'a> Gif<'a> {
 mod tests {
     use super::*;
 
-    fn define(case: &Fn(Gif) -> std::io::Result<()>) {
+    fn define(case: &dyn Fn(Gif) -> std::io::Result<()>) {
         let gif = Gif::new("/tmp/test_gif_new.gif", 50, 50);
         case(gif).unwrap();
         // This can break Travis CI. Because the file doesn't get created?

@@ -16,7 +16,7 @@ Returns the underlaying image used for the Map struct.
 */
 pub fn gen_map<T: Location + Draw + MinMax>(
     list: &[T],
-) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, (Coordinate)) {
+) -> (image::ImageBuffer<Rgba<u8>, Vec<u8>>, Coordinate) {
     let (min, max) = min_max(&list);
     let diff = max - min;
     let add = Coordinate::new(-min.x, -min.y);

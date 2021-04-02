@@ -835,7 +835,7 @@ impl Node {
      */
     pub fn linked_list_predicate(
         mut list: Vec<Node>,
-        f: &Fn(Coordinate, Coordinate) -> bool,
+        f: &dyn Fn(Coordinate, Coordinate) -> bool,
     ) -> Vec<Self> {
         let mut prev = coordinate!();
         let mut prev_h = 0;
@@ -1221,7 +1221,7 @@ impl Group {
     # }
     ```
      */
-    pub fn each(&mut self, func: &Fn(&mut Node)) {
+    pub fn each(&mut self, func: &dyn Fn(&mut Node)) {
         for node in self.nodes.iter_mut() {
             func(node);
         }
@@ -1242,7 +1242,7 @@ impl Group {
     # }
     ```
      */
-    pub fn all(&self, func: &Fn(&Node) -> bool) -> bool {
+    pub fn all(&self, func: &dyn Fn(&Node) -> bool) -> bool {
         for node in self.nodes.iter() {
             if !func(node) {
                 return false;
@@ -1266,7 +1266,7 @@ impl Group {
     # }
     ```
      */
-    pub fn any(&self, func: &Fn(&Node) -> bool) -> bool {
+    pub fn any(&self, func: &dyn Fn(&Node) -> bool) -> bool {
         for node in self.nodes.iter() {
             if func(node) {
                 return true;
@@ -1298,7 +1298,7 @@ impl Group {
     # }
     ```
      */
-    pub fn node_plot(&mut self, calc: &Fn(usize) -> Coordinate) {
+    pub fn node_plot(&mut self, calc: &dyn Fn(usize) -> Coordinate) {
         let c = coordinate::calc(self.position(), self.nodes.len(), calc);
         let color = self.gen_color(c);
         let mut node = node!(c);
@@ -1533,7 +1533,7 @@ impl Map {
     pub fn map_filter<T: Draw + Location + Hash + MinMax>(
         self,
         element: &[T],
-        filter: &Fn(&T) -> bool,
+        filter: &dyn Fn(&T) -> bool,
     ) -> Self {
         self.map_params(&element, &filter, &Shape::Square)
     }
@@ -1566,7 +1566,7 @@ impl Map {
     pub fn map_params<T: Draw + Location + Hash + MinMax>(
         mut self,
         element: &[T],
-        filter: &Fn(&T) -> bool,
+        filter: &dyn Fn(&T) -> bool,
         shape: &Shape,
     ) -> Self {
         if self.image.is_none() {

@@ -16,7 +16,7 @@ Constructs a vector of generic structs from a given list convered to Coordinates
 examples/city.rs
 
 */
-pub fn from_list<T>(list: &[(i16, i16)], get: &Fn(Coordinate, usize) -> T) -> Vec<T> {
+pub fn from_list<T>(list: &[(i16, i16)], get: &dyn Fn(Coordinate, usize) -> T) -> Vec<T> {
     let mut result: Vec<T> = Vec::new();
     for (i, &(x, y)) in list.iter().enumerate() {
         result.push(get(Coordinate::new(x, y), i));
@@ -53,7 +53,7 @@ assert_eq!(c2, Coordinate { x: 5, y: 5 });
 examples/node_plot.rs
 
 */
-pub fn calc(start: Coordinate, variable: usize, call: &Fn(usize) -> Coordinate) -> Coordinate {
+pub fn calc(start: Coordinate, variable: usize, call: &dyn Fn(usize) -> Coordinate) -> Coordinate {
     start + call(variable)
 }
 

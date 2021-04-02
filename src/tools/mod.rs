@@ -187,7 +187,7 @@ pub fn plot(a: Coordinate, b: Coordinate) -> Vec<Coordinate> {
 pub fn plot_type(
     mut a: Coordinate,
     mut b: Coordinate,
-    plot_kind: &Fn(Coordinate, Coordinate) -> Vec<Coordinate>,
+    plot_kind: &dyn Fn(Coordinate, Coordinate) -> Vec<Coordinate>,
 ) -> Vec<Coordinate> {
     // If any of the coordinates are negative, interally add to make them positive.
     if a.lt(0) || b.lt(0) {
