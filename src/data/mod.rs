@@ -17,14 +17,14 @@ pub struct CustomConverter<'a> {
     pub split: char,
     pub node_range: u32,
     pub radius: u32,
-    pub lambda_tag: &'a Fn(&str) -> bool,
+    pub lambda_tag: &'a dyn Fn(&str) -> bool,
     pub link_groups: bool,
 }
 
 /**
 Reads from the provided file, and converts to a path network using default settings.
 */
-pub fn convert_file(path: &str, lambda: &Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
+pub fn convert_file(path: &str, lambda: &dyn Fn(&str) -> bool) -> Result<Vec<Group>, io::Error> {
     let content = content(path)?;
     Ok(convert(&content, &lambda))
 }
@@ -43,7 +43,7 @@ fn content(path: &str) -> Result<String, io::Error> {
 /**
 Initializes a CustomConverter a converts the content to a vector of groups and links.
 */
-pub fn convert(content: &str, lambda: &Fn(&str) -> bool) -> Vec<Group> {
+pub fn convert(content: &str, lambda: &dyn Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 30, 120, &lambda);
     convert_inner(&content, &cct).unwrap()
 }
@@ -56,7 +56,7 @@ impl<'a> CustomConverter<'a> {
         split: char,
         node_range: u32,
         radius: u32,
-        lambda_tag: &'a Fn(&str) -> bool,
+        lambda_tag: &'a dyn Fn(&str) -> bool,
     ) -> CustomConverter {
         CustomConverter {
             split,

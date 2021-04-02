@@ -27,7 +27,7 @@ pub fn path<'a>(
     network: &'a Network<Node>,
     a: &str,
     b: &str,
-    algorithm: &Fn(&Network<Node>, Node, Node) -> io::Result<Vec<Node>>,
+    algorithm: &dyn Fn(&Network<Node>, Node, Node) -> io::Result<Vec<Node>>,
 ) -> io::Result<Vec<Node>> {
     let opt_goal = network.get(b);
     let opt_start = network.get(a);
