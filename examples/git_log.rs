@@ -19,5 +19,6 @@ fn main() -> std::io::Result<()> {
     let groups: Vec<Group> = data::convert_file(&args[1], &lambda)?;
     let n = group::count(&groups);
     println!("{:?} groups with {} nodes", groups.len(), n);
-    Map::new().map(&groups).save(Path::new(&args[2]))
+    Map::new().map(&groups).save(Path::new(&args[2])).unwrap();
+    Ok(())
 }

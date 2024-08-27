@@ -169,7 +169,7 @@ assert_eq!(v.remove(0).geo, Coordinate::new(100, 0));
 examples/node_plot.rs
 
 */
-pub fn rotate_around_axis(axis: Coordinate, points: &mut Vec<super::Node>, deg: f64) {
+pub fn rotate_around_axis(axis: Coordinate, points: &mut [super::Node], deg: f64) {
     if deg == 0.0 {
         return;
     }
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn test_eq() {
         let co1: Coordinate = Coordinate::new(1, 1);
-        let co2: Coordinate = co1.clone();
+        let co2: Coordinate = co1;
         let co3: Coordinate = Coordinate::new(2, 2);
         assert_eq!(co1, co2);
         assert_ne!(co1, co3);
@@ -385,15 +385,15 @@ mod tests {
     fn test_clone() {
         let co1: Coordinate = Coordinate::new(1, 1);
         let co2: Coordinate = Coordinate::new(9999, 9999);
-        assert!(co1 == co1.clone());
-        assert!(co2 == co2.clone());
+        assert!(co1 == co1);
+        assert!(co2 == co2);
     }
 
     #[test]
     fn test_clone_macros() {
         let co1: Coordinate = coordinate!();
         let co2: Coordinate = coordinate!(400);
-        assert!(co1 == co1.clone());
-        assert!(co2 == co2.clone());
+        assert!(co1 == co1);
+        assert!(co2 == co2);
     }
 }

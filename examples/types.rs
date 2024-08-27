@@ -8,5 +8,6 @@ fn main() -> Result<(), std::io::Error> {
     nodes[0].hl_mut(0).unwrap().style(EdgeStyle::Direct);
     nodes[1].hl_mut(0).unwrap().style(EdgeStyle::Straight);
     nodes[2].hl_mut(0).unwrap().style(EdgeStyle::Ellipse);
-    Map::new().map(&nodes).save(&Path::new("out.png"))
+    Map::new().map(&nodes).save(Path::new("out.png")).unwrap();
+    Ok(())
 }

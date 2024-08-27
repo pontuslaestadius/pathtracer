@@ -8,8 +8,8 @@ fn city() {
 
     for y in 0..city_size / 2 {
         for x in 0..city_size * 2 {
-            let mut node = node!(spread * x as i16, spread * y as i16);
-            node.color = tools::seed_rgba((city_size * x + spread * y) as u64);
+            let mut node = node!(spread * x, spread * y);
+            node.color = tools::seed_rgb((city_size * x + spread * y) as u64);
             pos.push(node);
         }
     }
@@ -54,7 +54,7 @@ fn random() {
     for (i, c) in coordinates.iter().enumerate() {
         let mut group = Group::new_simple(c.x * spread, c.y * spread);
         group.radius(radius);
-        group.color(tools::seed_rgba((i * 70) as u64));
+        group.color(tools::seed_rgb((i * 70) as u64));
         group.add(children);
         groups.push(group);
     }
@@ -68,9 +68,10 @@ fn ellipse() {
     group.add(50);
     group.radius(800);
     group.nodes = Node::linked_list(group.nodes);
-    group.each(&|node: &mut Node| match node.hl_mut(0) {
-        Ok(e) => e.style(EdgeStyle::Ellipse),
-        Err(_) => (),
+    group.each(&|node: &mut Node| {
+        if let Ok(e) = node.hl_mut(0) {
+            e.style(EdgeStyle::Ellipse)
+        }
     });
     Map::new().map(&[group]);
 }
@@ -83,7 +84,7 @@ fn cycles() -> std::io::Result<()> {
     gif.cycle(2, balls);
 
     for _ in 0..4 {
-        gif.blank()?;
+        gif.blank().unwrap();
     }
 
     Ok(())
@@ -95,7 +96,7 @@ fn graph() {
     let wrapper = Node::linked_list(Node::from_list(&pos));
 
     let mut pos = Vec::new();
-    let y = vec![5, 30, 45, 35, 40, 80, 75, 70, 25, 30];
+    let y = [5, 30, 45, 35, 40, 80, 75, 70, 25, 30];
     let spread = 300 / (y.len() - 1) as i16;
     for (i, y) in y.iter().enumerate() {
         pos.push((i as i16 * spread, -*y));

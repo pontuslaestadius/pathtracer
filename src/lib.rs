@@ -1,4 +1,4 @@
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::derive_hash_xor_eq))]
+#![allow(clippy::derived_hash_with_manual_eq)]
 
 extern crate gif;
 extern crate image;
@@ -70,7 +70,7 @@ A Location object that can be drawn on an image, along with set size and color.
 pub struct Node {
     pub hash: u64,
     pub geo: Coordinate,
-    pub color: image::Rgba<u8>,
+    pub color: image::Rgb<u8>,
     pub radius: Option<u32>,
     links: [HL; consts::MAX_LINKS],
 }
@@ -130,8 +130,9 @@ Curves the connection
 Uses Brasehem's line algorithm to directly correct the nodes.
 
  */
-#[derive(Copy, PartialEq, Eq, Clone, Debug)]
+#[derive(Copy, PartialEq, Eq, Clone, Debug, Default)]
 pub enum EdgeStyle {
+    #[default]
     Direct,
     Ellipse,
     Straight,
@@ -221,12 +222,6 @@ impl Shape {
 
 // ------------------------------------------------------------------
 
-impl std::default::Default for EdgeStyle {
-    fn default() -> Self {
-        EdgeStyle::Direct
-    }
-}
-
 // ------------------------------------------------------------------
 
 /**
@@ -271,14 +266,14 @@ Image wrapper around the Image crate to enable better debugging panics.
  */
 #[derive(Clone, Debug)]
 pub struct IW {
-    img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>,
+    img: image::ImageBuffer<image::Rgb<u8>, Vec<u8>>,
 }
 
 impl IW {
     /**
     Retrieves the private image field.
      */
-    pub fn image(&self) -> &image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+    pub fn image(&self) -> &image::ImageBuffer<image::Rgb<u8>, Vec<u8>> {
         &self.img
     }
 
@@ -287,7 +282,7 @@ impl IW {
 
     Set debug_assertions flag to panic for out of bounds positions with improved debugging messages.
      */
-    pub fn put<L: Location>(&mut self, l: &L, color: image::Rgba<u8>) {
+    pub fn put<L: Location>(&mut self, l: &L, color: image::Rgb<u8>) {
         self.img.put_pixel(l.x() as u32, l.y() as u32, color);
     }
 
@@ -311,7 +306,7 @@ impl Find for Group {
      */
     fn find<H: Hash>(&self, hash: H) -> Option<Coordinate> {
         let f = tools::find(hash.hash(), &self.nodes);
-        f.and_then(|x| Some(x.position()))
+        f.map(|x| x.position())
     }
 }
 
@@ -415,11 +410,11 @@ impl Draw for Node {
             let color = if o.x == 0 || o.y == 0 {
                 let c = self
                     .color
-                    .data
+                    .0
                     .iter()
                     .map(|x| x.saturating_add(consts::DEFAULT_SHADE as u8))
                     .collect::<Vec<_>>();
-                image::Rgba([c[0], c[1], c[2], c[3]])
+                image::Rgb([c[0], c[1], c[2]])
             } else {
                 self.color
             };
@@ -463,7 +458,7 @@ impl Draw for Group {
     }
 
     fn links(&self) -> &[HL] {
-        &self.settings.links()
+        self.settings.links()
     }
 }
 
@@ -587,7 +582,7 @@ impl Coordinate {
     Creates a list of coordinates from a list of tuples with x and y positions.
      */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Coordinate> {
-        coordinate::from_list(&list, &|c, _i| c)
+        coordinate::from_list(list, &|c, _i| c)
     }
 }
 
@@ -668,7 +663,7 @@ impl Node {
     ```
      */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
-        coordinate::from_list(&list, &|c, i| {
+        coordinate::from_list(list, &|c, i| {
             Node::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
     }
@@ -894,8 +889,7 @@ impl Node {
         self.links()
             .iter()
             .position(|x| !x.is_connected())
-            .or(Some(consts::MAX_LINKS - 1))
-            .unwrap()
+            .unwrap_or(consts::MAX_LINKS - 1)
     }
 
     /**
@@ -1069,7 +1063,7 @@ impl HL {
                 };
                 let _ = plot
                     .iter()
-                    .map(|c| image.put(c, image::Rgba([col, col, col, u8::max_value()])))
+                    .map(|c| image.put(c, image::Rgb([col, col, col])))
                     .collect::<Vec<_>>();
             }
         }
@@ -1278,8 +1272,8 @@ impl Group {
     /**
        Sets the color of the Group.
     */
-    pub fn color(&mut self, rgba: image::Rgba<u8>) {
-        self.settings.color = rgba;
+    pub fn color(&mut self, rgb: image::Rgb<u8>) {
+        self.settings.color = rgb;
     }
 
     /**
@@ -1388,7 +1382,7 @@ impl Group {
     }
 
     /**
-    Generate a image::Rgba based on the color of the Group and the distance from center.
+    Generate a image::Rgb based on the color of the Group and the distance from center.
 
     This is useful to make nodes places in groups, but outside it's radius or close to it's radius appear as darker.
 
@@ -1400,13 +1394,13 @@ impl Group {
     # fn main() {
     let mut cluster = cluster!();
     cluster.radius(10);
-    cluster.color(image::Rgba {data: [100, 100, 100, 255]});
-    let rgba = cluster.gen_color(coordinate!(10, 10));
-    assert!(rgba.data[0] < 50);
+    cluster.color(image::Rgb {0: [100, 100, 100]});
+    let rgb = cluster.gen_color(coordinate!(10, 10));
+    assert!(rgb.0[0] < 50);
     # }
     ```
      */
-    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgba<u8> {
+    pub fn gen_color(&self, coordinates: Coordinate) -> image::Rgb<u8> {
         tools::range_color(
             self.dynamic_radius() as i16,
             self.settings.color,
@@ -1430,7 +1424,7 @@ impl Group {
     ```
      */
     pub fn from_list(list: &[(i16, i16)]) -> Vec<Self> {
-        coordinate::from_list(&list, &|c, i| {
+        coordinate::from_list(list, &|c, i| {
             Group::new(&std::char::from_u32(65 + i as u32).unwrap().to_string(), c)
         })
     }
@@ -1458,7 +1452,7 @@ impl<T: Draw + Hash + std::marker::Copy> Network<T> {
         let mut hash_map: [Option<T>; consts::NETWORK_REM] = [None; consts::NETWORK_REM];
         while !elements.is_empty() {
             let e = elements.remove(0);
-            hash_map[(e.hash() as usize % consts::NETWORK_REM)] = Some(e);
+            hash_map[e.hash() as usize % consts::NETWORK_REM] = Some(e);
         }
 
         Network { hash_map }
@@ -1491,12 +1485,12 @@ impl Map {
     let nodes = Node::from_list(&[(0, 0), (10, 10)]);
     Map::new()
     .map(&nodes)
-    .save(Path::new("/tmp/example.png"))?;
+    .save(Path::new("/tmp/example.png")).unwrap();
     # Ok(())
     # }
     ```
      */
-    pub fn save(self, path: &std::path::Path) -> Result<(), std::io::Error> {
+    pub fn save(self, path: &std::path::Path) -> Result<(), image::ImageError> {
         self.image.unwrap().image().save(path)
     }
 
@@ -1524,7 +1518,7 @@ impl Map {
     ```
      */
     pub fn map<T: Draw + Location + Hash + MinMax>(self, element: &[T]) -> Self {
-        self.map_filter(&element, &|_| true)
+        self.map_filter(element, &|_| true)
     }
 
     /**
@@ -1535,7 +1529,7 @@ impl Map {
         element: &[T],
         filter: &dyn Fn(&T) -> bool,
     ) -> Self {
-        self.map_params(&element, &filter, &Shape::Square)
+        self.map_params(element, &filter, &Shape::Square)
     }
 
     /**
@@ -1546,7 +1540,7 @@ impl Map {
         element: &[T],
         shape: &Shape,
     ) -> Self {
-        self.map_params(&element, &|_| true, shape)
+        self.map_params(element, &|_| true, shape)
     }
 
     /**
@@ -1554,7 +1548,7 @@ impl Map {
      */
     pub fn map_absolute<T: Draw + Location + Hash + MinMax>(mut self, element: &[T]) -> Self {
         if self.image.is_none() {
-            let (image, _) = map::gen_map(&element);
+            let (image, _) = map::gen_map(element);
             self.image = Some(IW { img: image });
         }
         self.map(element)
@@ -1570,7 +1564,7 @@ impl Map {
         shape: &Shape,
     ) -> Self {
         if self.image.is_none() {
-            let (image, add) = map::gen_map(&element);
+            let (image, add) = map::gen_map(element);
             self.image = Some(IW { img: image });
             self.add = add;
         }
@@ -1601,7 +1595,7 @@ impl Network<Node> {
     assert_eq!(path.len(), 4);
     ```
      */
-    pub fn path<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
+    pub fn path(&self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         let mut path = map::network::path(self, b, a, &map::network::path_shortest_leg)?;
         path.reverse();
         Ok(path)
@@ -1610,7 +1604,7 @@ impl Network<Node> {
     /**
     Mimics path behaviour but works in reverse, Meaning stepping back in the links.
      */
-    pub fn path_rev<'a>(&'a self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
+    pub fn path_rev(&self, a: &str, b: &str) -> std::io::Result<Vec<Node>> {
         map::network::path(self, a, b, &map::network::path_shortest_leg)
     }
 

@@ -6,7 +6,7 @@
 
 use super::super::*;
 use gif::{self, *};
-use std::{fs::File, io};
+use std::fs::File;
 
 struct Cycle<'a, T: Draw + Location + Hash + MinMax + Copy> {
     interval: u8,
@@ -69,7 +69,7 @@ impl<'a> Gif<'a> {
     pub fn new(filename: &str, width: u16, height: u16) -> Self {
         let file = File::create(filename).unwrap();
         let mut encoder = Encoder::new(file, width, height, &[]).unwrap();
-        encoder.set(Repeat::Infinite).unwrap();
+        encoder.set_repeat(Repeat::Infinite).unwrap();
         Gif {
             encoder,
             cycles: Vec::new(),
@@ -133,7 +133,7 @@ impl<'a> Gif<'a> {
     /**
     Pushes a frame using a map struct.
     */
-    pub fn push(&mut self, mut map: Map) -> Result<(), io::Error> {
+    pub fn push(&mut self, mut map: Map) -> Result<(), gif::EncodingError> {
         map = map.map(&self.advance_cycle());
         self.push_frame(&map.consume())
     }
@@ -145,16 +145,19 @@ impl<'a> Gif<'a> {
 
     If the encoder fails to write the frame to disk.
     */
-    pub fn push_frame(&mut self, image: &IW) -> Result<(), io::Error> {
+    pub fn push_frame(&mut self, image: &IW) -> Result<(), gif::EncodingError> {
         let mut pixels: Vec<u8> = Vec::new();
         for pix in image.image().pixels() {
-            for i in 0..4 {
-                pixels.push(pix.data[i]);
+            // FIXME: this should be based on the number of channels
+            // so for RGB it would be 3, and for RGBA it would be 4.
+            // Hardcoding this value can cause some tricky to identify errors.
+            for i in 0..3 {
+                pixels.push(pix.0[i]);
             }
         }
 
         let dim = image.dimensions();
-        let mut frame = Frame::from_rgba(dim.x as u16, dim.y as u16, &mut pixels);
+        let mut frame = Frame::from_rgb(dim.x as u16, dim.y as u16, &pixels);
         frame.dispose = DisposalMethod::Background;
         frame.delay = 20;
         self.encoder.write_frame(&frame)?;
@@ -167,7 +170,7 @@ impl<'a> Gif<'a> {
 
     This will also advance Gif cycles.
     */
-    pub fn blank(&mut self) -> Result<(), io::Error> {
+    pub fn blank(&mut self) -> Result<(), gif::EncodingError> {
         let mut node = node!(self.width as i16 - 1, self.height as i16 - 1);
         node.radius = Some(0);
         self.push(Map::new().map(&[node]))
@@ -194,7 +197,7 @@ mod tests {
     fn blank_frames() {
         define(&|mut gif| {
             assert_eq!(gif.frames(), 0);
-            gif.blank()?;
+            gif.blank().unwrap();
             assert_eq!(gif.frames(), 1);
             Ok(())
         });
@@ -204,7 +207,7 @@ mod tests {
     fn cycles_predicate() {
         define(&|mut gif| {
             gif.cycle_predicate(1, vec![node!(25, 25)], &|x| {
-                let mut x = x.clone();
+                let mut x = *x;
                 x.geo.x += 5;
                 x
             });

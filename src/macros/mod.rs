@@ -37,15 +37,15 @@ These provide a less-strict typed struct versions which lightens the syntax.
 #[macro_export]
 macro_rules! coordinate {
     () => {
-        coordinate!(0, 0);
+        coordinate!(0, 0)
     };
 
     ($c:expr) => {
-        coordinate!($c, $c);
+        coordinate!($c, $c)
     };
 
     ($x:expr, $y:expr) => {
-        Coordinate::new($x as i16, $y as i16);
+        Coordinate::new($x as i16, $y as i16)
     };
 }
 
@@ -73,19 +73,19 @@ macro_rules! coordinate {
 #[macro_export]
 macro_rules! node {
     () => {
-        node!(0, 0);
+        node!(0, 0)
     };
 
     ($c:expr) => {
-        node!($c.x, $c.y);
+        node!($c.x, $c.y)
     };
 
     ($x:expr, $y:expr) => {
-        node!(&format!("{},{}", $x, $y), $x, $y);
+        node!(&format!("{},{}", $x, $y), $x, $y)
     };
 
     ($name:expr, $x:expr, $y:expr) => {
-        Node::new($name, coordinate!($x, $y));
+        Node::new($name, coordinate!($x, $y))
     };
 }
 
@@ -114,19 +114,19 @@ macro_rules! node {
 #[macro_export]
 macro_rules! cluster {
     () => {
-        cluster!(0, 0);
+        cluster!(0, 0)
     };
 
     ($c:expr) => {
-        cluster!($c.x, $c.y);
+        cluster!($c.x, $c.y)
     };
 
     ($x:expr, $y:expr) => {
-        cluster!(&format!("{},{}", $x, $y), $x, $y);
+        cluster!(&format!("{},{}", $x, $y), $x, $y)
     };
 
     ($name:expr, $x:expr, $y:expr) => {
-        Group::new($name, coordinate!($x, $y));
+        Group::new($name, coordinate!($x, $y))
     };
 }
 
@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn node_any_type() {
-        let _ = node!(0u64, 0.5 as f64);
+        let _ = node!(0u64, 0.5_f64);
         let _ = node!(0u32, 4000);
         let _ = node!(0u16, 9u8);
         let _ = node!(0u8, 0i32);
@@ -185,7 +185,7 @@ mod tests {
 
     #[test]
     fn cluster_any_type() {
-        let _ = cluster!(0u64, 0.5 as f64);
+        let _ = cluster!(0u64, 0.5_f64);
         let _ = cluster!(0u32, 4000);
         let _ = cluster!(0u16, 9u8);
         let _ = cluster!(0u8, 0i32);
@@ -208,7 +208,7 @@ mod tests {
 
     #[test]
     fn coordinate_any_type() {
-        let _ = coordinate!(0u64, 0.5 as f64);
+        let _ = coordinate!(0u64, 0.5_f64);
         let _ = coordinate!(0u32, 4000);
         let _ = coordinate!(0u16, 9u8);
         let _ = coordinate!(0u8, 0i32);

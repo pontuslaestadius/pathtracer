@@ -6,7 +6,7 @@ extern crate image;
 extern crate rand;
 
 use super::{Coordinate, Hash};
-use image::Rgba;
+use image::Rgb;
 use rand::{distributions::Uniform, Rng};
 
 use std::{
@@ -23,7 +23,7 @@ pub fn find<T: Hash>(element: u64, list: &[T]) -> Option<&T> {
 }
 
 /**
-Returns a Rgba with a modified value depending on how close it is to it's falloff point.
+Returns a Rgb with a modified value depending on how close it is to it's falloff point.
 
 
 ## Examples
@@ -34,8 +34,8 @@ First declare the colors and the range at which it becomes darker.
 extern crate image;
 use pathtracer::{tools, Coordinate};
 let falloff = 100;
-let color = image::Rgba {
-     data: [100, 100, 100, 255],
+let color = image::Rgb {
+     0: [100, 100, 100],
 };
 ```
 
@@ -45,22 +45,22 @@ Evaluate that based on the modified distance, in the small sense it is modified 
 # extern crate image;
 # use pathtracer::{tools, Coordinate};
 # let falloff = 100;
-# let color = image::Rgba([100, 100, 100, 255]);
+# let color = image::Rgb([100, 100, 100]);
 let base = Coordinate::new(0, 0);
 let to = Coordinate::new(10, 10);
 
 assert_eq!(
     tools::range_color(falloff, color, base, to),
-    image::Rgba([77, 77, 77, 255])
+    image::Rgb([77, 77, 77])
 );
 ```
 */
 pub fn range_color(
     falloff: i16,
-    base: image::Rgba<u8>,
+    base: image::Rgb<u8>,
     base_geo: Coordinate,
     to_geo: Coordinate,
-) -> image::Rgba<u8> {
+) -> image::Rgb<u8> {
     let diff = (base_geo - to_geo).abs();
     let x_scale: f64 = f64::from(diff.x) / f64::from(falloff);
     let y_scale: f64 = f64::from(diff.y) / f64::from(falloff);
@@ -68,11 +68,10 @@ pub fn range_color(
         f64::from(i32::from(base[0]) + i32::from(base[1]) + i32::from(base[2]) / 3);
     let modify = (-max_multi * (x_scale + y_scale) / 2.0) as i32;
 
-    image::Rgba([
+    image::Rgb([
         border(base[0], modify),
         border(base[1], modify),
         border(base[2], modify),
-        border(base[3], 0),
     ])
 }
 
@@ -116,7 +115,7 @@ pub fn random_item(list: &[String]) -> &String {
  ```
  */
 pub fn border(a: u8, b: i32) -> u8 {
-    max(min(i32::from(a) + b, 255 as i32), 0) as u8
+    (i32::from(a) + b).clamp(0, 255_i32) as u8
 }
 
 /**
@@ -127,13 +126,14 @@ Returns a random Rgb color. the opacity is always 255.
 
 ```
 # use pathtracer::tools;
-let rgba = tools::gen_rgba();
-println!("{:?}", rgba.data);
+let rgb = tools::gen_rgb();
+println!("{:?}", rgb.0);
 ```
 */
-pub fn gen_rgba() -> Rgba<u8> {
-    (0..4).fold(super::consts::DEFAULT_RGBA, |mut acc, x| {
-        acc.data[x] = acc.data[x].saturating_add(roll(0u8, u8::max_value()) as u8);
+pub fn gen_rgb() -> Rgb<u8> {
+    // FIXME: this shouldn't hardcode number of channels
+    (0..3).fold(super::consts::DEFAULT_RGBA, |mut acc, x| {
+        acc.0[x] = acc.0[x].saturating_add(roll(0u8, u8::MAX).try_into().unwrap());
         acc
     })
 }
@@ -141,22 +141,19 @@ pub fn gen_rgba() -> Rgba<u8> {
 /**
 Returns a Rgb color based on a seed value. the opacity is always 255.
 */
-pub fn seed_rgba(seed: u64) -> Rgba<u8> {
+pub fn seed_rgb(seed: u64) -> Rgb<u8> {
     let max = 254;
     let r = seed % max;
     let g = (seed + 75) % max;
     let b = (seed + 150) % max;
 
-    Rgba([r as u8, g as u8, b as u8, 255])
+    Rgb([r as u8, g as u8, b as u8])
 }
 
 /**
 Generates a list of Coordinates between two points. Required for drawing direct edges.
-
 Implemented according to bresenham's 4 way line algorithm.
-
-More information can be found here.
-
+More information can be found here:
 https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 
 
@@ -237,7 +234,7 @@ pub fn plot_bresenham(mut from: Coordinate, to: Coordinate) -> Vec<Coordinate> {
 
     for x in min(from.x, to.x)..=max(from.x, to.x) {
         for y in min(last_y, from.y)..=max(last_y, from.y) {
-            plot.push(Coordinate::new(x as i16, y));
+            plot.push(Coordinate::new(x, y));
         }
         last_y = from.y;
         error += delta_err;
@@ -374,26 +371,26 @@ mod tests {
     }
 
     #[test]
-    fn test_gen_rgba() {
+    fn test_gen_rgb() {
         for _ in 0..5 {
-            let _ = gen_rgba();
+            let _ = gen_rgb();
         }
     }
 
     #[test]
-    fn test_seed_rgba() {
+    fn test_seed_rgb() {
         let seed = 9611;
         for i in 0..30 {
-            let _ = seed_rgba(seed * i);
+            let _ = seed_rgb(seed * i);
         }
     }
 
     #[test]
-    fn test_seed_rgba_consistancy() {
+    fn test_seed_rgb_consistancy() {
         let seed = 9611;
-        let res = seed_rgba(seed);
+        let res = seed_rgb(seed);
         for _ in 0..30 {
-            assert_eq!(seed_rgba(seed), res);
+            assert_eq!(seed_rgb(seed), res);
         }
     }
 

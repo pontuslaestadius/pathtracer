@@ -72,7 +72,18 @@ pub fn from_file(path: &str) -> Result<Vec<Node>, io::Error> {
     let mut file = File::open(path)?;
     file.read_to_string(&mut contents)?;
     Ok(contents.split('\n').fold(vec![], |mut acc, x| {
+        // Ignore empty lines, mostly occurs as file's tend to end with an empty line.
+        // Not that the protocal supports --- value, <blank line>, value --- explicity.
+        if x.is_empty() {
+            return acc;
+        }
         let vals = x.split(',').collect::<Vec<_>>();
+        if vals.len() != 2 {
+            panic!(
+                "Failed to decode values from file: '{}', invalid line: '{}'",
+                path, x
+            );
+        }
         let c = Coordinate::new(
             vals[0].parse::<i16>().unwrap(),
             vals[1].parse::<i16>().unwrap(),
