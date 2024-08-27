@@ -3,7 +3,10 @@
 [![Documentation](https://img.shields.io/badge/docs.rs-latest-blue.svg)](https://docs.rs/pathtracer/latest/pathtracer/)
 [![GitHub license](https://img.shields.io/github/license/pontuslaestadius/pathtracer.svg)](https://github.com/pontuslaestadius/pathtracer/blob/master/LICENSE)
 
-Previously named pathfinder, but that name was requested and handed over to the servo/pathfinder project.
+Previously named pathfinder.
+
+(that name was requested and handed over to the servo/pathfinder project. But they never claimed it, or published under it.)
+
 
 ![Logo of the project](examples/out/hello_world.png)
 
@@ -28,6 +31,10 @@ Placing positioned objects on to an Image can cause many issue. This library is 
 
 
 ## Example
+
+To run any example, use cargo. Some of the examples use CSV files to generate the output.
+
+ cargo run --example cycles -- examples/conf/pathfinder
 
 Place greater number of Nodes using Groups. A Group is structure which encapsulates many Nodes.
 

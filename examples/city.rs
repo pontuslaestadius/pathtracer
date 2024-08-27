@@ -1,9 +1,10 @@
+extern crate image;
 extern crate pathtracer;
 
 use pathtracer::*;
 use std::path::Path;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> Result<(), image::ImageError> {
     let mut pos = Vec::new();
     let city_size = 30;
     let spread = 15;
@@ -12,7 +13,7 @@ fn main() -> Result<(), std::io::Error> {
         for x in 0..city_size * 2 {
             let mut node = node!(spread * x, spread * y);
 
-            node.color = tools::seed_rgba((city_size * x + spread * y) as u64);
+            node.color = tools::seed_rgb((city_size * x + spread * y) as u64);
             pos.push(node);
         }
     }
@@ -25,5 +26,5 @@ fn main() -> Result<(), std::io::Error> {
 
     Map::new()
         .map_filter(&pos, &|node: &Node| node.hl(0).is_ok())
-        .save(&Path::new("out.png"))
+        .save(Path::new("out.png"))
 }

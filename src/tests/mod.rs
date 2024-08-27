@@ -125,7 +125,9 @@ mod integration {
                 if i < 5 {
                     assert!(
                         a.hl(i).is_ok(),
-                        format!("expected {}, got {}", i, a.get_link_avail_index())
+                        "expected {}, got {}",
+                        i,
+                        a.get_link_avail_index()
                     );
                 } else {
                     assert!(a.hl(i).is_err(), "Exceeding max_link should return Err");

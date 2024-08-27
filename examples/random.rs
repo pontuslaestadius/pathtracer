@@ -24,9 +24,10 @@ fn main() -> std::io::Result<()> {
     for (i, c) in coordinates.iter().enumerate() {
         let mut group = cluster!(c.x * spread, c.y * spread);
         group.radius(radius);
-        group.color(tools::seed_rgba((i * 23) as u64));
+        group.color(tools::seed_rgb((i * 23) as u64));
         group.add(children);
         groups.push(group);
     }
-    Map::new().map(&groups).save(&Path::new("out.jpg"))
+    Map::new().map(&groups).save(Path::new("out.jpg")).unwrap();
+    Ok(())
 }

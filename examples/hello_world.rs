@@ -12,7 +12,8 @@ fn main() -> std::io::Result<()> {
     let mut nodes = Node::linked_list(nodes);
 
     for (i, node) in nodes.iter_mut().enumerate() {
-        node.color = tools::seed_rgba(32 * i as u64);
+        node.color = tools::seed_rgb(32 * i as u64);
     }
-    Map::new().map(&nodes).save(&Path::new("out.png"))
+    Map::new().map(&nodes).save(Path::new("out.png")).unwrap();
+    Ok(())
 }

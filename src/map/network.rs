@@ -29,16 +29,17 @@ pub fn path<'a>(
     b: &str,
     algorithm: &dyn Fn(&Network<Node>, Node, Node) -> io::Result<Vec<Node>>,
 ) -> io::Result<Vec<Node>> {
-    let opt_goal = network.get(b);
     let opt_start = network.get(a);
-    if opt_goal.is_none() || opt_start.is_none() {
-        Err(Error::new(
-            ErrorKind::Other,
-            "Start or Goal path does not exist in Network",
-        ))
-    } else {
-        algorithm(&network, opt_start.unwrap(), opt_goal.unwrap())
+    if let Some(start) = opt_start {
+        let opt_goal = network.get(b);
+        if let Some(goal) = opt_goal {
+            return algorithm(network, start, goal);
+        }
     }
+    Err(Error::new(
+        ErrorKind::Other,
+        "Start or Goal path does not exist in Network",
+    ))
 }
 
 /**
@@ -66,8 +67,8 @@ The shorest leg means that for every occurence of a path, the alternatives are s
 The path could not be found.
 
  */
-pub fn path_shortest_leg<'a>(
-    network: &'a Network<Node>,
+pub fn path_shortest_leg(
+    network: &Network<Node>,
     start: Node,
     goal: Node,
 ) -> io::Result<Vec<Node>> {

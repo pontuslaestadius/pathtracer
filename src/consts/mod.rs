@@ -20,6 +20,6 @@ pub const DEFAULT_SHADE: u16 = 20;
 pub const DEFAULT_LINK_SIZE: u16 = 2;
 
 // Default color for everything.
-pub const DEFAULT_RGBA: image::Rgba<u8> = image::Rgba {
-    data: [0, 0, 0, 255],
-};
+// FIXME: rename to RGB now that we don't have to use an RGBA base.
+// Previously that was the only way to unlock certain features for png/jpg.
+pub const DEFAULT_RGBA: image::Rgb<u8> = image::Rgb([0, 0, 0]);

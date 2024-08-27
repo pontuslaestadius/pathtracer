@@ -45,7 +45,7 @@ Initializes a CustomConverter a converts the content to a vector of groups and l
 */
 pub fn convert(content: &str, lambda: &dyn Fn(&str) -> bool) -> Vec<Group> {
     let cct = CustomConverter::new('\n', 30, 120, &lambda);
-    convert_inner(&content, &cct).unwrap()
+    convert_inner(content, &cct).unwrap()
 }
 
 impl<'a> CustomConverter<'a> {
@@ -95,7 +95,7 @@ pub fn convert_inner(content: &str, cct: &CustomConverter) -> io::Result<Vec<Gro
 fn push_group(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
     let mut group = Group::new("", coordinate::gen_radius(Coordinate::new(1, 0), 0, 100));
     group.settings.hash = hash;
-    group.settings.color = tools::seed_rgba(hash);
+    group.settings.color = tools::seed_rgb(hash);
     group.new_node_min_max(groups.len() as u32, 40);
     if !groups.is_empty() {
         group.nodes[0].link(groups.last().unwrap().nodes.last().unwrap());
@@ -107,7 +107,7 @@ fn push_group(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
 fn push_node(mut groups: Vec<Group>, hash: u64) -> Vec<Group> {
     let index = groups
         .iter()
-        .position(|ref g| g.settings.hash == hash)
+        .position(|g| g.settings.hash == hash)
         .expect("Group located, but no hash matching.");
     groups[index].new_node_min_max(index as u32, 40);
     groups
@@ -162,13 +162,13 @@ mod tests {
     #[test]
     fn test_convert_file() {
         let path = Path::new("test.txt");
-        let mut file = File::create(&path).unwrap();
+        let mut file = File::create(path).unwrap();
 
         let content = "a\nb\nc\na\nb\nc\nb\nb\nb\nc";
-        let _ = file.write_all(content.as_bytes()).unwrap();
+        file.write_all(content.as_bytes()).unwrap();
         let res = convert_file("test.txt", &|_x| true).unwrap();
         eval_result(res);
-        let _ = fs::remove_file("test.txt").unwrap();
+        fs::remove_file("test.txt").unwrap();
     }
 
     #[test]
