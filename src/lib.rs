@@ -739,10 +739,7 @@ impl Node {
      */
     pub fn hl(&self, index: usize) -> std::io::Result<&HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "index too large",
-            ))
+            Err(std::io::Error::other("index too large"))
         } else {
             Ok(&self.links[index])
         }
@@ -781,16 +778,13 @@ impl Node {
      */
     pub fn hl_mut(&mut self, index: usize) -> std::io::Result<&mut HL> {
         if index > self.get_link_avail_index() || !self.links[index].is_connected() {
-            Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!(
-                    "index {} too large or not connected. Index: {} expected. Connection status: \
+            Err(std::io::Error::other(format!(
+                "index {} too large or not connected. Index: {} expected. Connection status: \
                      {}",
-                    index,
-                    self.get_link_avail_index(),
-                    self.links[index].is_connected()
-                ),
-            ))
+                index,
+                self.get_link_avail_index(),
+                self.links[index].is_connected()
+            )))
         } else {
             Ok(&mut self.links[index])
         }

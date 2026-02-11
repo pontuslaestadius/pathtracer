@@ -57,7 +57,7 @@ impl<'a> CustomConverter<'a> {
         node_range: u32,
         radius: u32,
         lambda_tag: &'a dyn Fn(&str) -> bool,
-    ) -> CustomConverter {
+    ) -> CustomConverter<'a> {
         CustomConverter {
             split,
             node_range,

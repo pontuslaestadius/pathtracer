@@ -3,7 +3,7 @@ Connects and paths between different connected Nodes.
  */
 
 use super::*;
-use std::io::{self, Error, ErrorKind};
+use std::io::{self, Error};
 
 /**
 Weighted Node
@@ -36,10 +36,7 @@ pub fn path<'a>(
             return algorithm(network, start, goal);
         }
     }
-    Err(Error::new(
-        ErrorKind::Other,
-        "Start or Goal path does not exist in Network",
-    ))
+    Err(Error::other("Start or Goal path does not exist in Network"))
 }
 
 /**
@@ -114,7 +111,7 @@ pub fn path_shortest_leg(
 
     // If we run out of items in the Queue, and we have not reacted
     // the goal, the path is invalid. And does not exist.
-    Err(Error::new(ErrorKind::Other, "not a valid path"))
+    Err(Error::other("not a valid path"))
 }
 
 #[cfg(test)]
