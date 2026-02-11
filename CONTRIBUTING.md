@@ -34,3 +34,28 @@ All discovered issues are to be labeled with 'FIXME' in the source code. Issues 
 
 This is merly a side project and without a pre-defined goal. Do not expect specific features to be implemented.
 
+# Updating Images
+
+This repository uses heavy example images, to keep the .git packs small, it may be needed to prune the history. This should obviously only be done with care.
+
+🧹 Removing Large Files from Git History
+
+Install git-filter-repo (Ubuntu / WSL):
+
+sudo apt update
+
+sudo apt install git-filter-repo
+
+git filter-repo --path-glob '*.png' --invert-paths
+
+git reflog expire --expire=now --all
+
+git gc --prune=now --aggressive
+
+du -sh .git
+
+git remote add origin <repository-url>
+
+git push origin --force --all
+
+git push origin --force --tags
