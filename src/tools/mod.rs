@@ -7,7 +7,7 @@ extern crate rand;
 
 use super::{Coordinate, Hash};
 use image::Rgb;
-use rand::{distributions::Uniform, Rng};
+use rand::RngExt;
 
 use std::{
     cmp::{max, min},
@@ -88,8 +88,8 @@ assert!(nr >= 50 && nr <= 60);
 ```
  */
 pub fn roll<T: Into<u32>>(min: T, max: T) -> u32 {
-    let mut rng = rand::thread_rng();
-    rng.sample(Uniform::new(min.into(), max.into()))
+    let mut rng = rand::rng();
+    rng.random_range(min.into()..max.into())
 }
 
 /**
